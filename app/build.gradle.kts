@@ -51,6 +51,8 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.objectbox.kotlin)
     implementation(libs.objectbox.android)
+    implementation(platform(libs.koin.bom))
+    implementation(libs.koin.android)
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
