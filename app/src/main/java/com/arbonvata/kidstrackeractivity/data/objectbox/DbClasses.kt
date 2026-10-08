@@ -7,22 +7,21 @@ import io.objectbox.annotation.Id
 data class Kid(
     @Id var id: Long = 0,
     var name: String = "",
-    var defaultEndTime: String = "" // Format: "HH:mm" (e.g., "15:00")
+    var defaultEndTime: String = "", // Format: "HH:mm" (e.g., "15:00")
 )
 
 @Entity
 data class Activity(
     @Id var id: Long = 0,
-    var kidId: Long = 0,             // Links this activity to a specific Kid
-    var name: String = "",           // e.g., "Football", "Piano"
-    var startTime: String = "",      // Format: "HH:mm" (e.g., "17:00")
-    var endTime: String = "",        // Format: "HH:mm" (e.g., "18:30")
-    var isEnabled: Boolean = true,   // Used to mute/disable the alarm without deleting it
-
+    var kidId: Long = 0, // Links this activity to a specific Kid
+    var name: String = "", // e.g., "Football", "Piano"
+    var startTime: String = "", // Format: "HH:mm" (e.g., "17:00")
+    var endTime: String = "", // Format: "HH:mm" (e.g., "18:30")
+    var isEnabled: Boolean = true, // Used to mute/disable the alarm without deleting it
     // ObjectBox natively supports primitive arrays!
     // No need for TypeConverters or Gson.
     // Values represent java.time.DayOfWeek (1 = Monday, 7 = Sunday)
-    var daysOfWeek: IntArray = intArrayOf()
+    var daysOfWeek: IntArray = intArrayOf(),
 ) {
     // Overriding equals and hashCode is highly recommended when using IntArray
     // in data classes, because arrays in Kotlin compare by reference by default.

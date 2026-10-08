@@ -2,17 +2,15 @@ package com.arbonvata.kidstrackeractivity.data
 
 import com.arbonvata.kidstrackeractivity.data.objectbox.Activity
 import com.arbonvata.kidstrackeractivity.data.objectbox.Kid
-import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalTime
-import java.time.temporal.TemporalAdjusters
 
 // Represents a single, concrete instance of an activity
-data class ActivityOccurrence(
+data class ActivityOccurence(
     val activity: Activity,
     val kidName: String,
     val date: LocalDate,
-    val startTime: LocalTime
+    val startTime: LocalTime,
 )
 
 // Expands recurring activities into concrete dates between startDate and endDate
@@ -20,11 +18,10 @@ fun expandActivitiesForDateRange(
     kids: List<Kid>,
     activities: List<Activity>,
     startDate: LocalDate,
-    endDate: LocalDate
-): List<ActivityOccurrence> {
-
+    endDate: LocalDate,
+): List<ActivityOccurence> {
     val kidMap = kids.associateBy { it.id }
-    val occurrences = mutableListOf<ActivityOccurrence>()
+    val occurrences = mutableListOf<ActivityOccurence>()
 
     var currentDate = startDate
     while (!currentDate.isAfter(endDate)) {
@@ -36,12 +33,12 @@ fun expandActivitiesForDateRange(
                 val kid = kidMap[activity.kidId]
                 if (kid != null) {
                     occurrences.add(
-                        ActivityOccurrence(
+                        ActivityOccurence(
                             activity = activity,
                             kidName = kid.name,
                             date = currentDate,
-                            startTime = LocalTime.parse(activity.startTime)
-                        )
+                            startTime = LocalTime.parse(activity.startTime),
+                        ),
                     )
                 }
             }

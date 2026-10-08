@@ -1,10 +1,36 @@
 package com.arbonvata.kidstrackeractivity.presentation
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Alarm
+import androidx.compose.material.icons.filled.BatteryFull
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Upload
+import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Slider
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -17,7 +43,7 @@ data class SettingsState(
     val activityAlarmMinutes: Int = 15,
     val exactAlarmGranted: Boolean = true,
     val notificationsGranted: Boolean = true,
-    val batteryOptimizationDisabled: Boolean = false
+    val batteryOptimizationDisabled: Boolean = false,
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -31,7 +57,7 @@ fun SettingsScreen(
     onDisableBatteryOpt: () -> Unit,
     onBackupClick: () -> Unit,
     onRestoreClick: () -> Unit,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -39,18 +65,19 @@ fun SettingsScreen(
                 title = { Text("Settings") },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
-                }
+                },
             )
-        }
+        },
     ) { padding ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp),
         ) {
             // Permissions Section
             SettingsSection(title = "Permissions") {
@@ -59,21 +86,21 @@ fun SettingsScreen(
                     title = "Exact Alarms",
                     subtitle = "Required for precise timing",
                     isGranted = state.exactAlarmGranted,
-                    onClick = onRequestExactAlarm
+                    onClick = onRequestExactAlarm,
                 )
                 PermissionRow(
                     icon = Icons.Default.Notifications,
                     title = "Notifications",
                     subtitle = "Show reminders",
                     isGranted = state.notificationsGranted,
-                    onClick = onRequestNotifications
+                    onClick = onRequestNotifications,
                 )
                 PermissionRow(
                     icon = Icons.Default.BatteryFull,
                     title = "Battery Optimization",
                     subtitle = "Disable to prevent delays",
                     isGranted = state.batteryOptimizationDisabled,
-                    onClick = onDisableBatteryOpt
+                    onClick = onDisableBatteryOpt,
                 )
             }
 
@@ -84,7 +111,7 @@ fun SettingsScreen(
                     value = state.schoolAlarmMinutes,
                     valueRange = 5..30,
                     suffix = "min after",
-                    onValueChange = onSchoolAlarmChange
+                    onValueChange = onSchoolAlarmChange,
                 )
                 HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
                 SettingsSlider(
@@ -92,7 +119,7 @@ fun SettingsScreen(
                     value = state.activityAlarmMinutes,
                     valueRange = 5..60,
                     suffix = "min before",
-                    onValueChange = onActivityAlarmChange
+                    onValueChange = onActivityAlarmChange,
                 )
             }
 
@@ -102,14 +129,14 @@ fun SettingsScreen(
                     icon = Icons.Default.Upload,
                     title = "Backup Data",
                     subtitle = "Export to file",
-                    onClick = onBackupClick
+                    onClick = onBackupClick,
                 )
                 HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
                 SettingsRow(
                     icon = Icons.Default.Download,
                     title = "Restore Data",
                     subtitle = "Import from backup",
-                    onClick = onRestoreClick
+                    onClick = onRestoreClick,
                 )
             }
         }
@@ -117,14 +144,17 @@ fun SettingsScreen(
 }
 
 @Composable
-fun SettingsSection(title: String, content: @Composable ColumnScope.() -> Unit) {
+fun SettingsSection(
+    title: String,
+    content: @Composable ColumnScope.() -> Unit,
+) {
     Column {
         Text(
             text = title,
             style = MaterialTheme.typography.titleSmall,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(bottom = 8.dp)
+            modifier = Modifier.padding(bottom = 8.dp),
         )
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.padding(16.dp), content = content)
@@ -138,11 +168,11 @@ fun PermissionRow(
     title: String,
     subtitle: String,
     isGranted: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     Row(
         modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
         Spacer(Modifier.width(16.dp))
@@ -159,11 +189,16 @@ fun PermissionRow(
 }
 
 @Composable
-fun SettingsRow(icon: ImageVector, title: String, subtitle: String, onClick: () -> Unit) {
+fun SettingsRow(
+    icon: ImageVector,
+    title: String,
+    subtitle: String,
+    onClick: () -> Unit,
+) {
     Surface(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier.padding(vertical = 8.dp).fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
             Spacer(Modifier.width(16.dp))
@@ -182,12 +217,12 @@ fun SettingsSlider(
     value: Int,
     valueRange: IntRange,
     suffix: String,
-    onValueChange: (Int) -> Unit
+    onValueChange: (Int) -> Unit,
 ) {
     Column {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             Text(title, style = MaterialTheme.typography.bodyLarge)
             Text("$value $suffix", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary)
@@ -196,7 +231,7 @@ fun SettingsSlider(
             value = value.toFloat(),
             onValueChange = { onValueChange(it.toInt()) },
             valueRange = valueRange.first.toFloat()..valueRange.last.toFloat(),
-            steps = (valueRange.last - valueRange.first) / 5 - 1
+            steps = (valueRange.last - valueRange.first) / 5 - 1,
         )
     }
 }
@@ -206,13 +241,14 @@ fun SettingsSlider(
 fun SettingsScreenPreview() {
     MaterialTheme {
         SettingsScreen(
-            state = SettingsState(
-                schoolAlarmMinutes = 10,
-                activityAlarmMinutes = 15,
-                exactAlarmGranted = true,
-                notificationsGranted = true,
-                batteryOptimizationDisabled = false
-            ),
+            state =
+                SettingsState(
+                    schoolAlarmMinutes = 10,
+                    activityAlarmMinutes = 15,
+                    exactAlarmGranted = true,
+                    notificationsGranted = true,
+                    batteryOptimizationDisabled = false,
+                ),
             onSchoolAlarmChange = {},
             onActivityAlarmChange = {},
             onRequestExactAlarm = {},
@@ -220,7 +256,7 @@ fun SettingsScreenPreview() {
             onDisableBatteryOpt = {},
             onBackupClick = {},
             onRestoreClick = {},
-            onBackClick = {}
+            onBackClick = {},
         )
     }
 }

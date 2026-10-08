@@ -22,17 +22,18 @@ fun KidDetailScreen(
     kidId: Int,
     kidName: String,
     viewModel: ScheduleViewModel,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
 ) {
     Scaffold(
-        topBar = { TopAppBar(title = { Text("$kidName's Schedule") }) }
+        topBar = { TopAppBar(title = { Text("$kidName's Schedule") }) },
     ) { padding ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             // ... Your existing list of activities for this kid ...
 
@@ -44,7 +45,7 @@ fun KidDetailScreen(
                 onDeleteClick = {
                     viewModel.deleteAllActivitiesForKid(kidId)
                     // Optional: Navigate back or show a Snackbar
-                }
+                },
             )
         }
     }
@@ -58,7 +59,7 @@ fun KidDetailScreenPreview() {
             kidId = 1,
             kidName = "Alex",
             viewModel = ScheduleViewModel(),
-            onNavigateBack = {}
+            onNavigateBack = {},
         )
     }
 }

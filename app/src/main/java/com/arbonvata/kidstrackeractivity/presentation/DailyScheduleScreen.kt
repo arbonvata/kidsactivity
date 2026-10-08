@@ -16,7 +16,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Person
@@ -37,14 +36,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.arbonvata.kidstrackeractivity.data.ActivityOccurrence
+import com.arbonvata.kidstrackeractivity.data.ActivityOccurence
 import com.arbonvata.kidstrackeractivity.data.expandActivitiesForDateRange
 import com.arbonvata.kidstrackeractivity.data.objectbox.Activity
 import com.arbonvata.kidstrackeractivity.data.objectbox.Kid
-import java.time.LocalDate
-import androidx.compose.ui.tooling.preview.Preview
 import com.arbonvata.kidstrackeractivity.ui.theme.KidsTrackerActivityTheme
+import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -52,9 +51,9 @@ import java.time.format.DateTimeFormatter
 fun DailyScheduleScreen(
     kids: List<Kid>,
     activities: List<Activity>,
-    selectedKidIds: Set<Long>,  // <--- NEW PARAMETER
+    selectedKidIds: Set<Long>, // <--- NEW PARAMETER
     onEditActivityClick: (Activity) -> Unit,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
 ) {
     var selectedDate by remember { mutableStateOf(LocalDate.now()) }
 
@@ -63,12 +62,13 @@ fun DailyScheduleScreen(
     val filteredActivities = activities.filter { it.kidId in selectedKidIds && it.isEnabled }
 
     // Get occurrences for the selected date (only for selected kids)
-    val occurrences = expandActivitiesForDateRange(
-        filteredKids,
-        filteredActivities,
-        selectedDate,
-        selectedDate
-    )
+    val occurrences =
+        expandActivitiesForDateRange(
+            filteredKids,
+            filteredActivities,
+            selectedDate,
+            selectedDate,
+        )
 
     val dateFormatter = DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy")
 
@@ -78,58 +78,58 @@ fun DailyScheduleScreen(
                 title = {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
                     ) {
                         IconButton(onClick = onBackClick) {
-                            Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                         }
                         IconButton(onClick = { selectedDate = selectedDate.minusDays(1) }) {
                             Icon(Icons.Default.ChevronLeft, contentDescription = "Previous day")
                         }
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.weight(1f),
                         ) {
                             Text(
                                 text = selectedDate.format(dateFormatter),
                                 style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold
+                                fontWeight = FontWeight.Bold,
                             )
                             Text(
                                 text = "${filteredKids.joinToString(", ") { it.name }}",
                                 style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }
                         IconButton(onClick = { selectedDate = selectedDate.plusDays(1) }) {
                             Icon(Icons.Default.ChevronRight, contentDescription = "Next day")
                         }
                     }
-                }
+                },
             )
-        }
+        },
     ) { padding ->
         if (occurrences.isEmpty()) {
             Box(
                 modifier = Modifier.fillMaxSize().padding(padding),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
             ) {
                 Text(
                     text = "No activities scheduled for this day",
                     style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                 )
             }
         } else {
             LazyColumn(
                 modifier = Modifier.fillMaxSize().padding(padding),
                 contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 items(occurrences, key = { "${it.activity.id}_${it.date}" }) { occurrence ->
                     DailyActivityCard(
                         occurrence = occurrence,
-                        onClick = { onEditActivityClick(occurrence.activity) }
+                        onClick = { onEditActivityClick(occurrence.activity) },
                     )
                 }
             }
@@ -137,40 +137,41 @@ fun DailyScheduleScreen(
     }
 }
 
-
 @Composable
 fun DailyActivityCard(
-    occurrence: ActivityOccurrence,
-    onClick: () -> Unit
+    occurrence: ActivityOccurence,
+    onClick: () -> Unit,
 ) {
     Card(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        )
+        colors =
+            CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            ),
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             // Time column
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.width(70.dp)
+                modifier = Modifier.width(70.dp),
             ) {
                 Text(
                     text = occurrence.startTime.format(DateTimeFormatter.ofPattern("HH:mm")),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.primary,
                 )
                 Text(
                     text = occurrence.activity.endTime.format(DateTimeFormatter.ofPattern("HH:mm")),
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
 
@@ -182,7 +183,7 @@ fun DailyActivityCard(
                     text = occurrence.activity.name,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -190,13 +191,13 @@ fun DailyActivityCard(
                         imageVector = Icons.Default.Person,
                         contentDescription = null,
                         modifier = Modifier.size(16.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = occurrence.kidName,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }
@@ -208,36 +209,38 @@ fun DailyActivityCard(
 @Composable
 fun DailyScheduleScreenPreview() {
     KidsTrackerActivityTheme {
-        val kids = listOf(
-            Kid(id = 1, name = "Alice", defaultEndTime = "18:00"),
-            Kid(id = 2, name = "Bob", defaultEndTime = "18:00")
-        )
-        val activities = listOf(
-            Activity(
-                id = 1,
-                kidId = 1,
-                name = "Soccer Practice",
-                startTime = "15:00",
-                endTime = "16:30",
-                isEnabled = true,
-                daysOfWeek = intArrayOf(1, 3, 5)
-            ),
-            Activity(
-                id = 2,
-                kidId = 2,
-                name = "Piano Lesson",
-                startTime = "17:00",
-                endTime = "18:00",
-                isEnabled = true,
-                daysOfWeek = intArrayOf(2, 4)
+        val kids =
+            listOf(
+                Kid(id = 1, name = "Alice", defaultEndTime = "18:00"),
+                Kid(id = 2, name = "Bob", defaultEndTime = "18:00"),
             )
-        )
+        val activities =
+            listOf(
+                Activity(
+                    id = 1,
+                    kidId = 1,
+                    name = "Soccer Practice",
+                    startTime = "15:00",
+                    endTime = "16:30",
+                    isEnabled = true,
+                    daysOfWeek = intArrayOf(1, 3, 5),
+                ),
+                Activity(
+                    id = 2,
+                    kidId = 2,
+                    name = "Piano Lesson",
+                    startTime = "17:00",
+                    endTime = "18:00",
+                    isEnabled = true,
+                    daysOfWeek = intArrayOf(2, 4),
+                ),
+            )
         DailyScheduleScreen(
             kids = kids,
             activities = activities,
             selectedKidIds = setOf(1L, 2L),
             onEditActivityClick = {},
-            onBackClick = {}
+            onBackClick = {},
         )
     }
 }
