@@ -10,6 +10,7 @@ import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Today
@@ -21,6 +22,8 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -34,15 +37,19 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.arbonvata.kidstrackeractivity.data.expandActivitiesForDateRange
 import com.arbonvata.kidstrackeractivity.presentation.AddActivityScreen
+import com.arbonvata.kidstrackeractivity.presentation.AddKidScreen
 import com.arbonvata.kidstrackeractivity.presentation.DailyScheduleScreen
 import com.arbonvata.kidstrackeractivity.presentation.DashboardScreen
 import com.arbonvata.kidstrackeractivity.presentation.KidSelectionScreen
+import com.arbonvata.kidstrackeractivity.presentation.KidsManagementScreen
 import com.arbonvata.kidstrackeractivity.presentation.MonthlyAgendaScreen
 import com.arbonvata.kidstrackeractivity.presentation.MoreScreen
 import com.arbonvata.kidstrackeractivity.presentation.SettingsScreen
 import com.arbonvata.kidstrackeractivity.presentation.SettingsState
 import com.arbonvata.kidstrackeractivity.presentation.WeeklyScheduleScreen
+import com.arbonvata.kidstrackeractivity.presentation.viewmodels.KidsViewModel
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.ScheduleViewModel
+import org.koin.androidx.compose.koinViewModel
 
 // 1. Define all navigation destinations
 sealed class Screen(
@@ -67,6 +74,8 @@ sealed class Screen(
     object EditActivity : Screen("edit_activity/{activityId}", "Edit Activity", Icons.Default.Edit)
 
     object KidSelection : Screen("kid_selection", "Select Kids", Icons.Default.People)
+
+    object AddKid : Screen("add_kid", "Add Kid", Icons.Default.PersonAdd)
 
     object DailySchedule : Screen("daily_schedule/{kidIds}", "Daily Schedule", Icons.Default.ViewDay)
 
@@ -223,14 +232,24 @@ fun KidsScheduleApp(viewModel: ScheduleViewModel) {
             }
 
             composable(Screen.KidSelection.route) {
-                // val kids by viewModel.kidsFlow.collectAsState(initial = emptyList())
+                val kidsViewModel: KidsViewModel = koinViewModel()
+                // Re-run on every entry so the list reflects kids added on
+                // the Add Kid screen.
+                LaunchedEffect(Unit) { kidsViewModel.refresh() }
+                val kids by kidsViewModel.kids.collectAsState()
+
                 KidSelectionScreen(
-                    kids = emptyList(),
+                    kids = kids,
+                    onAddKidClick = { navController.navigate(Screen.AddKid.route) },
                     onContinueClick = { selectedIds ->
                         val idsString = selectedIds.joinToString(",")
                         navController.navigate("daily_schedule/$idsString")
                     },
                 )
+            }
+
+            composable(Screen.AddKid.route) {
+                AddKidScreen(onNavigateBack = { navController.popBackStack() })
             }
 
             composable(
@@ -271,7 +290,10 @@ fun KidsScheduleApp(viewModel: ScheduleViewModel) {
             }
 
             composable(Screen.KidsManagement.route) {
-                // KidsManagementScreen(...)
+                KidsManagementScreen(
+                    onAddKidClick = { navController.navigate(Screen.AddKid.route) },
+                    onBackClick = { navController.popBackStack() },
+                )
             }
         }
     }

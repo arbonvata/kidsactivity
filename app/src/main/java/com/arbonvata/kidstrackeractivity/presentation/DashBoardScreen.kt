@@ -228,8 +228,8 @@ fun DashboardScreenPreview() {
     MaterialTheme {
         val mockKids =
             listOf(
-                Kid(id = 1, name = "Leo", defaultEndTime = "15:00"),
-                Kid(id = 2, name = "Mia", defaultEndTime = "15:30"),
+                Kid(id = 1, name = "Leo"),
+                Kid(id = 2, name = "Mia"),
             )
         val mockActivities =
             listOf(

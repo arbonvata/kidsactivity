@@ -165,8 +165,8 @@ fun WeeklyScheduleScreenPreview() {
     KidsTrackerActivityTheme {
         val kids =
             listOf(
-                Kid(id = 1, name = "Alice", defaultEndTime = "18:00"),
-                Kid(id = 2, name = "Bob", defaultEndTime = "18:00"),
+                Kid(id = 1, name = "Alice"),
+                Kid(id = 2, name = "Bob"),
             )
         val activities =
             listOf(

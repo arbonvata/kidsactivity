@@ -7,7 +7,7 @@ import io.objectbox.annotation.Id
 data class Kid(
     @Id var id: Long = 0,
     var name: String = "",
-    var defaultEndTime: String = "", // Format: "HH:mm" (e.g., "15:00")
+    var schoolName: String = "", // Name of the kid's school
 )
 
 @Entity

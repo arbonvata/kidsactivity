@@ -6,8 +6,8 @@ import com.arbonvata.kidstrackeractivity.data.objectbox.Kid
 object DebugTestData {
     val mockKids =
         listOf(
-            Kid(id = 1, name = "Leo", defaultEndTime = "16:00"),
-            Kid(id = 2, name = "Mia", defaultEndTime = "15:30"),
+            Kid(id = 1, name = "Leo", schoolName = "Greenfield Primary"),
+            Kid(id = 2, name = "Mia", schoolName = "St. Mary's"),
         )
 
     val mockActivities =

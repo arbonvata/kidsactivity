@@ -12,11 +12,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -40,6 +44,7 @@ import com.arbonvata.kidstrackeractivity.ui.theme.KidsTrackerActivityTheme
 @Composable
 fun KidSelectionScreen(
     kids: List<Kid>,
+    onAddKidClick: () -> Unit,
     onContinueClick: (Set<Long>) -> Unit,
 ) {
     var selectedKidIds by remember { mutableStateOf(setOf<Long>()) }
@@ -49,6 +54,9 @@ fun KidSelectionScreen(
             TopAppBar(
                 title = { Text("Select Kids") },
                 actions = {
+                    IconButton(onClick = onAddKidClick) {
+                        Icon(Icons.Default.Add, contentDescription = "Add Kid")
+                    }
                     // Select All / Deselect All toggle
                     val allSelected = kids.isNotEmpty() && selectedKidIds.size == kids.size
                     TextButton(onClick = {
@@ -85,7 +93,15 @@ fun KidSelectionScreen(
                 modifier = Modifier.fillMaxSize().padding(padding),
                 contentAlignment = Alignment.Center,
             ) {
-                Text("No kids added yet. Add a kid to get started!")
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("No kids added yet.")
+                    Button(
+                        onClick = onAddKidClick,
+                        modifier = Modifier.padding(top = 16.dp),
+                    ) {
+                        Text("Add Kid")
+                    }
+                }
             }
         } else {
             LazyColumn(
@@ -153,7 +169,7 @@ fun KidSelectionRow(
                     fontWeight = FontWeight.SemiBold,
                 )
                 Text(
-                    text = "Default end time: ${kid.defaultEndTime}",
+                    text = "School: ${kid.schoolName}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -168,11 +184,12 @@ fun KidSelectionScreenPreview() {
     KidsTrackerActivityTheme {
         val kids =
             listOf(
-                Kid(id = 1, name = "Alice", defaultEndTime = "18:00"),
-                Kid(id = 2, name = "Bob", defaultEndTime = "18:00"),
+                Kid(id = 1, name = "Alice", schoolName = "Greenfield Primary"),
+                Kid(id = 2, name = "Bob", schoolName = "Greenfield Primary"),
             )
         KidSelectionScreen(
             kids = kids,
+            onAddKidClick = {},
             onContinueClick = {},
         )
     }

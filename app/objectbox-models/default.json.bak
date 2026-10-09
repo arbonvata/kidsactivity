@@ -49,7 +49,7 @@
     },
     {
       "id": "2:3108900059956387089",
-      "lastPropertyId": "3:4499378332650017260",
+      "lastPropertyId": "4:6609365806878301094",
       "name": "Kid",
       "properties": [
         {
@@ -67,12 +67,51 @@
           "id": "3:4499378332650017260",
           "name": "defaultEndTime",
           "type": 9
+        },
+        {
+          "id": "4:6609365806878301094",
+          "name": "schoolName",
+          "type": 9
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "3:3458186194110879642",
+      "lastPropertyId": "5:6971061371143496178",
+      "name": "DailySchedule",
+      "properties": [
+        {
+          "id": "1:7095798602069569930",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:1164913182986931011",
+          "name": "kidId",
+          "type": 6
+        },
+        {
+          "id": "3:5425606332968421650",
+          "name": "date",
+          "type": 9
+        },
+        {
+          "id": "4:2882107057717900001",
+          "name": "endTime",
+          "type": 9
+        },
+        {
+          "id": "5:6971061371143496178",
+          "name": "isNoSchool",
+          "type": 1
         }
       ],
       "relations": []
     }
   ],
-  "lastEntityId": "2:3108900059956387089",
+  "lastEntityId": "3:3458186194110879642",
   "lastIndexId": "0:0",
   "lastRelationId": "0:0",
   "lastSequenceId": "0:0",

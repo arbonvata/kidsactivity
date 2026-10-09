@@ -11,8 +11,12 @@ import com.arbonvata.kidstrackeractivity.data.repository.OccurrenceRepository
 import com.arbonvata.kidstrackeractivity.data.repository.OccurrenceRepositoryImpl
 import com.arbonvata.kidstrackeractivity.data.repository.ScheduleOverrideRepository
 import com.arbonvata.kidstrackeractivity.data.repository.ScheduleOverrideRepositoryImpl
+import com.arbonvata.kidstrackeractivity.presentation.viewmodels.AddKidViewModel
+import com.arbonvata.kidstrackeractivity.presentation.viewmodels.KidsViewModel
+import com.arbonvata.kidstrackeractivity.presentation.viewmodels.ScheduleViewModel
 import io.objectbox.BoxStore
 import org.koin.android.ext.koin.androidContext
+import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
 val appModule =
@@ -29,4 +33,7 @@ val appModule =
         single<ScheduleOverrideRepository> { ScheduleOverrideRepositoryImpl(get()) }
         single<OccurrenceRepository> { OccurrenceRepositoryImpl(get(), get()) }
         single<BackupRepository> { BackupRepositoryImpl(get(), get(), get(), get()) }
+        viewModel { ScheduleViewModel(get(), get(), get(), get()) }
+        viewModel { KidsViewModel(get()) }
+        viewModel { AddKidViewModel(get()) }
     }

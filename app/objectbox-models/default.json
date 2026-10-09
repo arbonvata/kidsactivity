@@ -49,7 +49,7 @@
     },
     {
       "id": "2:3108900059956387089",
-      "lastPropertyId": "3:4499378332650017260",
+      "lastPropertyId": "4:6609365806878301094",
       "name": "Kid",
       "properties": [
         {
@@ -64,8 +64,8 @@
           "type": 9
         },
         {
-          "id": "3:4499378332650017260",
-          "name": "defaultEndTime",
+          "id": "4:6609365806878301094",
+          "name": "schoolName",
           "type": 9
         }
       ],
@@ -114,7 +114,9 @@
   "modelVersionParserMinimum": 5,
   "retiredEntityUids": [],
   "retiredIndexUids": [],
-  "retiredPropertyUids": [],
+  "retiredPropertyUids": [
+    4499378332650017260
+  ],
   "retiredRelationUids": [],
   "version": 1
 }

@@ -67,7 +67,7 @@ class BackupRepositoryImpl(
                     kidRepository
                         .addKid(
                             name = kidJson.optString("name"),
-                            defaultEndTime = kidJson.optString("defaultEndTime"),
+                            schoolName = kidJson.optString("schoolName"),
                         ).id
                 if (oldId != 0L) kidIdMap[oldId] = newId
             }
@@ -105,7 +105,7 @@ class BackupRepositoryImpl(
         JSONObject()
             .put("id", kid.id)
             .put("name", kid.name)
-            .put("defaultEndTime", kid.defaultEndTime)
+            .put("schoolName", kid.schoolName)
 
     private fun activityToJson(activity: Activity): JSONObject =
         JSONObject()

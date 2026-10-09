@@ -11,7 +11,7 @@ import io.objectbox.BoxStore
 interface KidRepository {
     fun addKid(
         name: String,
-        defaultEndTime: String,
+        schoolName: String,
     ): Kid
 
     fun updateKid(kid: Kid)
@@ -38,9 +38,9 @@ class KidRepositoryImpl(
 
     override fun addKid(
         name: String,
-        defaultEndTime: String,
+        schoolName: String,
     ): Kid {
-        val kid = Kid(name = name, defaultEndTime = defaultEndTime)
+        val kid = Kid(name = name, schoolName = schoolName)
         kid.id = kidBox.put(kid)
         return kid
     }

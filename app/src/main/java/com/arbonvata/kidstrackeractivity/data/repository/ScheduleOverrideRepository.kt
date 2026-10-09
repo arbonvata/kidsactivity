@@ -2,7 +2,6 @@ package com.arbonvata.kidstrackeractivity.data.repository
 
 import com.arbonvata.kidstrackeractivity.data.objectbox.DailySchedule
 import com.arbonvata.kidstrackeractivity.data.objectbox.DailySchedule_
-import com.arbonvata.kidstrackeractivity.data.objectbox.Kid
 import io.objectbox.BoxStore
 import io.objectbox.query.QueryBuilder
 import java.time.LocalDate
@@ -40,16 +39,6 @@ interface ScheduleOverrideRepository {
     fun deleteOverridesForKid(kidId: Long)
 
     fun getAll(): List<DailySchedule>
-
-    /**
-     * The school end time that applies on the given date (spec 8.3): the
-     * override if present, otherwise the kid's default. Null means no school
-     * that day, so no alarm should be scheduled at all.
-     */
-    fun getEffectiveEndTime(
-        kid: Kid,
-        date: LocalDate,
-    ): String?
 
     fun clearAll()
 }
@@ -117,15 +106,6 @@ class ScheduleOverrideRepositoryImpl(
             .query()
             .build()
             .find()
-
-    override fun getEffectiveEndTime(
-        kid: Kid,
-        date: LocalDate,
-    ): String? {
-        val override = getOverride(kid.id, date) ?: return kid.defaultEndTime
-        if (override.isNoSchool) return null
-        return override.endTime.ifEmpty { kid.defaultEndTime }
-    }
 
     override fun clearAll() {
         scheduleBox.removeAll()
