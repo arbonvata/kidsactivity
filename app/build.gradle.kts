@@ -1,6 +1,9 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    // legacy-kapt restores kapt under AGP 9 built-in Kotlin; the ObjectBox
+    // code generator still requires it until it migrates to KSP.
+    alias(libs.plugins.legacy.kapt)
     id("io.objectbox")
     alias(libs.plugins.ktlint)
 }

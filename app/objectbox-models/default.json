@@ -1,0 +1,120 @@
+{
+  "_note1": "KEEP THIS FILE! Check it into a version control system (VCS) like git.",
+  "_note2": "ObjectBox manages crucial IDs for your object model. See docs for details.",
+  "_note3": "If you have VCS merge conflicts, you must resolve them according to ObjectBox docs.",
+  "entities": [
+    {
+      "id": "1:6241753072432626048",
+      "lastPropertyId": "7:1127275106773455116",
+      "name": "Activity",
+      "properties": [
+        {
+          "id": "1:2337983651442938373",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:1643725054559007760",
+          "name": "kidId",
+          "type": 6
+        },
+        {
+          "id": "3:1654955060456682078",
+          "name": "name",
+          "type": 9
+        },
+        {
+          "id": "4:3460383902187262836",
+          "name": "startTime",
+          "type": 9
+        },
+        {
+          "id": "5:1233238775976739542",
+          "name": "endTime",
+          "type": 9
+        },
+        {
+          "id": "6:1496306149967687729",
+          "name": "isEnabled",
+          "type": 1
+        },
+        {
+          "id": "7:1127275106773455116",
+          "name": "daysOfWeek",
+          "type": 26
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "2:3108900059956387089",
+      "lastPropertyId": "3:4499378332650017260",
+      "name": "Kid",
+      "properties": [
+        {
+          "id": "1:8323675748044792270",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:2019642558295134142",
+          "name": "name",
+          "type": 9
+        },
+        {
+          "id": "3:4499378332650017260",
+          "name": "defaultEndTime",
+          "type": 9
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "3:3458186194110879642",
+      "lastPropertyId": "5:6971061371143496178",
+      "name": "DailySchedule",
+      "properties": [
+        {
+          "id": "1:7095798602069569930",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:1164913182986931011",
+          "name": "kidId",
+          "type": 6
+        },
+        {
+          "id": "3:5425606332968421650",
+          "name": "date",
+          "type": 9
+        },
+        {
+          "id": "4:2882107057717900001",
+          "name": "endTime",
+          "type": 9
+        },
+        {
+          "id": "5:6971061371143496178",
+          "name": "isNoSchool",
+          "type": 1
+        }
+      ],
+      "relations": []
+    }
+  ],
+  "lastEntityId": "3:3458186194110879642",
+  "lastIndexId": "0:0",
+  "lastRelationId": "0:0",
+  "lastSequenceId": "0:0",
+  "modelVersion": 5,
+  "modelVersionParserMinimum": 5,
+  "retiredEntityUids": [],
+  "retiredIndexUids": [],
+  "retiredPropertyUids": [],
+  "retiredRelationUids": [],
+  "version": 1
+}

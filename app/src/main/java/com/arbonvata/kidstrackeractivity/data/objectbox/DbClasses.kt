@@ -53,3 +53,15 @@ data class Activity(
         return result
     }
 }
+
+@Entity
+data class DailySchedule(
+    @Id var id: Long = 0,
+    var kidId: Long = 0,
+    // ISO-8601 date, e.g. "2026-10-18". Stored as a string so that
+    // lexicographic order matches chronological order.
+    var date: String = "",
+    // "HH:mm" override for the school end time; empty means no override.
+    var endTime: String = "",
+    var isNoSchool: Boolean = false,
+)
