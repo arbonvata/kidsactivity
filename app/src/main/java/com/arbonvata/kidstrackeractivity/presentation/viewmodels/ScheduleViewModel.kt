@@ -1,5 +1,7 @@
 package com.arbonvata.kidstrackeractivity.presentation.viewmodels
 
-class ScheduleViewModel {
+import androidx.lifecycle.ViewModel
+
+class ScheduleViewModel : ViewModel() {
     fun deleteAllActivitiesForKid(kidId: Int) {}
 }
