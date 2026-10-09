@@ -15,13 +15,31 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.ScheduleViewModel
 import com.arbonvata.kidstrackeractivity.ui.theme.KidsTrackerActivityTheme
+import org.koin.androidx.compose.koinViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
+/**
+ * Stateful entry point: owns the [ScheduleViewModel] and forwards the bulk
+ * delete of the kid's activities to it.
+ */
 @Composable
 fun KidDetailScreen(
     kidId: Int,
     kidName: String,
-    viewModel: ScheduleViewModel,
+    viewModel: ScheduleViewModel = koinViewModel(),
+    onNavigateBack: () -> Unit,
+) {
+    KidDetailContent(
+        kidName = kidName,
+        onDeleteAllClick = { viewModel.deleteAllActivitiesForKid(kidId) },
+        onNavigateBack = onNavigateBack,
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun KidDetailContent(
+    kidName: String,
+    onDeleteAllClick: () -> Unit,
     onNavigateBack: () -> Unit,
 ) {
     Scaffold(
@@ -35,17 +53,13 @@ fun KidDetailScreen(
                     .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            // ... Your existing list of activities for this kid ...
+            // ... list of activities for this kid ...
 
             Spacer(modifier = Modifier.weight(1f))
 
-            // Add the Delete Button at the bottom
             DeleteAllActivitiesButton(
                 kidName = kidName,
-                onDeleteClick = {
-                    viewModel.deleteAllActivitiesForKid(kidId)
-                    // Optional: Navigate back or show a Snackbar
-                },
+                onDeleteClick = onDeleteAllClick,
             )
         }
     }
@@ -53,12 +67,11 @@ fun KidDetailScreen(
 
 @Preview(showBackground = true)
 @Composable
-fun KidDetailScreenPreview() {
+fun KidDetailContentPreview() {
     KidsTrackerActivityTheme {
-        KidDetailScreen(
-            kidId = 1,
+        KidDetailContent(
             kidName = "Alex",
-            viewModel = ScheduleViewModel(),
+            onDeleteAllClick = {},
             onNavigateBack = {},
         )
     }

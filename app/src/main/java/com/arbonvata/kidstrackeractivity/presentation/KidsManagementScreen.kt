@@ -26,7 +26,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -41,8 +40,8 @@ import org.koin.androidx.compose.koinViewModel
 
 /**
  * Stateful entry point of the Kids Management screen: owns the
- * [KidsViewModel] and refreshes the list on every entry so kids added on
- * the Add Kid screen appear when coming back.
+ * [KidsViewModel], whose reactive list updates itself whenever the kid
+ * table changes (including kids added on the Add Kid screen).
  */
 @Composable
 fun KidsManagementScreen(
@@ -50,7 +49,6 @@ fun KidsManagementScreen(
     onAddKidClick: () -> Unit,
     onBackClick: () -> Unit,
 ) {
-    LaunchedEffect(Unit) { viewModel.refresh() }
     val kids by viewModel.kids.collectAsState()
 
     KidsManagementContent(

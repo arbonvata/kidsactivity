@@ -3,94 +3,118 @@ package com.arbonvata.kidstrackeractivity.data.repository
 import com.arbonvata.kidstrackeractivity.data.objectbox.Activity
 import com.arbonvata.kidstrackeractivity.data.objectbox.Activity_
 import io.objectbox.BoxStore
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.withContext
 
 interface ActivityRepository {
-    fun addActivity(activity: Activity): Activity
+    suspend fun addActivity(activity: Activity): Activity
 
-    fun updateActivity(activity: Activity)
+    suspend fun updateActivity(activity: Activity)
 
-    fun deleteActivity(activityId: Long)
+    suspend fun deleteActivity(activityId: Long)
 
     /** Enables or disables an activity without deleting it (spec 2.2). */
-    fun setActivityEnabled(
+    suspend fun setActivityEnabled(
         activityId: Long,
         enabled: Boolean,
     )
 
-    fun deleteAllActivitiesForKid(kidId: Long)
+    suspend fun deleteAllActivitiesForKid(kidId: Long)
 
     /**
      * ObjectBox cannot query "int array contains day", so day filtering happens
      * in memory; see getActivitiesForKidOnDay.
      */
-    fun getActivitiesForKid(kidId: Long): List<Activity>
+    suspend fun getActivitiesForKid(kidId: Long): List<Activity>
 
     /** dayOfWeek follows java.time.DayOfWeek: 1 = Monday, 7 = Sunday. */
-    fun getActivitiesForKidOnDay(
+    suspend fun getActivitiesForKidOnDay(
         kidId: Long,
         dayOfWeek: Int,
     ): List<Activity>
 
-    fun getAllActivities(): List<Activity>
+    suspend fun getAllActivities(): List<Activity>
 
-    fun clearAll()
+    /** Reactive: all activities, now and on every activity-table change. */
+    fun getAllActivitiesFlow(): Flow<List<Activity>>
+
+    suspend fun clearAll()
 }
 
 class ActivityRepositoryImpl(
     store: BoxStore,
+    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : ActivityRepository {
     private val activityBox = store.boxFor(Activity::class.java)
 
-    override fun addActivity(activity: Activity): Activity {
-        activity.id = activityBox.put(activity)
-        return activity
+    override suspend fun addActivity(activity: Activity): Activity =
+        withContext(ioDispatcher) {
+            activity.id = activityBox.put(activity)
+            activity
+        }
+
+    override suspend fun updateActivity(activity: Activity) {
+        withContext(ioDispatcher) { activityBox.put(activity) }
     }
 
-    override fun updateActivity(activity: Activity) {
-        activityBox.put(activity)
+    override suspend fun deleteActivity(activityId: Long) {
+        withContext(ioDispatcher) { activityBox.remove(activityId) }
     }
 
-    override fun deleteActivity(activityId: Long) {
-        activityBox.remove(activityId)
-    }
-
-    override fun setActivityEnabled(
+    override suspend fun setActivityEnabled(
         activityId: Long,
         enabled: Boolean,
     ) {
-        val activity = activityBox.get(activityId) ?: return
-        activity.isEnabled = enabled
-        activityBox.put(activity)
+        withContext(ioDispatcher) {
+            val activity = activityBox.get(activityId) ?: return@withContext
+            activity.isEnabled = enabled
+            activityBox.put(activity)
+        }
     }
 
-    override fun deleteAllActivitiesForKid(kidId: Long) {
-        activityBox
-            .query()
-            .equal(Activity_.kidId, kidId)
-            .build()
-            .remove()
+    override suspend fun deleteAllActivitiesForKid(kidId: Long) {
+        withContext(ioDispatcher) {
+            activityBox
+                .query()
+                .equal(Activity_.kidId, kidId)
+                .build()
+                .remove()
+        }
     }
 
-    override fun getActivitiesForKid(kidId: Long): List<Activity> =
-        activityBox
-            .query()
-            .equal(Activity_.kidId, kidId)
-            .order(Activity_.startTime)
-            .build()
-            .find()
+    override suspend fun getActivitiesForKid(kidId: Long): List<Activity> =
+        withContext(ioDispatcher) {
+            activityBox
+                .query()
+                .equal(Activity_.kidId, kidId)
+                .order(Activity_.startTime)
+                .build()
+                .find()
+        }
 
-    override fun getActivitiesForKidOnDay(
+    override suspend fun getActivitiesForKidOnDay(
         kidId: Long,
         dayOfWeek: Int,
     ): List<Activity> = getActivitiesForKid(kidId).filter { it.daysOfWeek.contains(dayOfWeek) }
 
-    override fun getAllActivities(): List<Activity> =
-        activityBox
-            .query()
-            .build()
-            .find()
+    override suspend fun getAllActivities(): List<Activity> =
+        withContext(ioDispatcher) {
+            activityBox
+                .query()
+                .build()
+                .find()
+        }
 
-    override fun clearAll() {
-        activityBox.removeAll()
+    override fun getAllActivitiesFlow(): Flow<List<Activity>> =
+        queryFlow {
+            activityBox
+                .query()
+                .build()
+        }
+
+    override suspend fun clearAll() {
+        withContext(ioDispatcher) { activityBox.removeAll() }
     }
 }

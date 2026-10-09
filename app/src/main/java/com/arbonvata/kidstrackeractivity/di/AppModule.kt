@@ -32,7 +32,7 @@ val appModule =
         single<ActivityRepository> { ActivityRepositoryImpl(get()) }
         single<ScheduleOverrideRepository> { ScheduleOverrideRepositoryImpl(get()) }
         single<OccurrenceRepository> { OccurrenceRepositoryImpl(get(), get()) }
-        single<BackupRepository> { BackupRepositoryImpl(get(), get(), get(), get()) }
+        single<BackupRepository> { BackupRepositoryImpl(get()) }
         viewModel { ScheduleViewModel(get(), get(), get(), get()) }
         viewModel { KidsViewModel(get()) }
         viewModel { AddKidViewModel(get()) }

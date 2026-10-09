@@ -9,81 +9,53 @@ import com.arbonvata.kidstrackeractivity.data.repository.BackupRepository
 import com.arbonvata.kidstrackeractivity.data.repository.Conflict
 import com.arbonvata.kidstrackeractivity.data.repository.OccurrenceRepository
 import com.arbonvata.kidstrackeractivity.data.repository.ScheduleOverrideRepository
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.YearMonth
 
 /**
  * Activities, occurrences, overrides and backup. Kid CRUD lives in
  * [KidsViewModel] and [AddKidViewModel] instead of being bundled here.
+ * `activities` is a reactive ObjectBox query, so writes (from this or any
+ * other ViewModel) push fresh data automatically. Mutations are
+ * fire-and-forget and run in viewModelScope; reads that return a value are
+ * suspend and must be called from a coroutine.
  */
-class ScheduleViewModel : ViewModel {
-    private val activityRepository: ActivityRepository?
-    private val occurrenceRepository: OccurrenceRepository?
-    private val scheduleOverrideRepository: ScheduleOverrideRepository?
-    private val backupRepository: BackupRepository?
-
-    constructor(
-        activityRepository: ActivityRepository,
-        occurrenceRepository: OccurrenceRepository,
-        scheduleOverrideRepository: ScheduleOverrideRepository,
-        backupRepository: BackupRepository,
-    ) : super() {
-        this.activityRepository = activityRepository
-        this.occurrenceRepository = occurrenceRepository
-        this.scheduleOverrideRepository = scheduleOverrideRepository
-        this.backupRepository = backupRepository
-    }
-
-    constructor() : super() {
-        this.activityRepository = null
-        this.occurrenceRepository = null
-        this.scheduleOverrideRepository = null
-        this.backupRepository = null
-    }
-
-    private val refreshTrigger = MutableStateFlow(0)
-
+class ScheduleViewModel(
+    private val activityRepository: ActivityRepository,
+    private val occurrenceRepository: OccurrenceRepository,
+    private val scheduleOverrideRepository: ScheduleOverrideRepository,
+    private val backupRepository: BackupRepository,
+) : ViewModel() {
     val activities: StateFlow<List<Activity>> =
-        refreshTrigger
-            .map { activityRepository?.getAllActivities() ?: emptyList() }
+        activityRepository
+            .getAllActivitiesFlow()
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    fun refresh() {
-        refreshTrigger.value++
-    }
-
-    fun addActivity(activity: Activity): Activity? {
-        val result = activityRepository?.addActivity(activity)
-        refresh()
-        return result
+    fun addActivity(activity: Activity) {
+        viewModelScope.launch { activityRepository.addActivity(activity) }
     }
 
     fun updateActivity(activity: Activity) {
-        activityRepository?.updateActivity(activity)
-        refresh()
+        viewModelScope.launch { activityRepository.updateActivity(activity) }
     }
 
     fun deleteActivity(activityId: Long) {
-        activityRepository?.deleteActivity(activityId)
-        refresh()
+        viewModelScope.launch { activityRepository.deleteActivity(activityId) }
     }
 
     fun setActivityEnabled(
         activityId: Long,
         enabled: Boolean,
     ) {
-        activityRepository?.setActivityEnabled(activityId, enabled)
-        refresh()
+        viewModelScope.launch { activityRepository.setActivityEnabled(activityId, enabled) }
     }
 
     fun deleteAllActivitiesForKid(kidId: Long) {
-        activityRepository?.deleteAllActivitiesForKid(kidId)
-        refresh()
+        viewModelScope.launch { activityRepository.deleteAllActivitiesForKid(kidId) }
     }
 
     fun deleteAllActivitiesForKid(kidId: Int) {
@@ -96,30 +68,28 @@ class ScheduleViewModel : ViewModel {
         endTime: String?,
         isNoSchool: Boolean,
     ) {
-        scheduleOverrideRepository?.setOverride(kidId, date, endTime, isNoSchool)
-        refresh()
+        viewModelScope.launch {
+            scheduleOverrideRepository.setOverride(kidId, date, endTime, isNoSchool)
+        }
     }
 
-    fun getOccurrencesForDate(date: LocalDate): List<ActivityOccurence> = occurrenceRepository?.getOccurrencesForDate(date) ?: emptyList()
+    suspend fun getOccurrencesForDate(date: LocalDate): List<ActivityOccurence> = occurrenceRepository.getOccurrencesForDate(date)
 
-    fun getOccurrencesForWeek(weekStart: LocalDate): List<ActivityOccurence> =
-        occurrenceRepository?.getOccurrencesForWeek(weekStart) ?: emptyList()
+    suspend fun getOccurrencesForWeek(weekStart: LocalDate): List<ActivityOccurence> = occurrenceRepository.getOccurrencesForWeek(weekStart)
 
-    fun getOccurrencesForMonth(month: YearMonth): List<ActivityOccurence> =
-        occurrenceRepository?.getOccurrencesForMonth(month) ?: emptyList()
+    suspend fun getOccurrencesForMonth(month: YearMonth): List<ActivityOccurence> = occurrenceRepository.getOccurrencesForMonth(month)
 
-    fun findConflicts(
+    suspend fun findConflicts(
         daysAhead: Int = 30,
         from: LocalDate = LocalDate.now(),
-    ): List<Conflict> = occurrenceRepository?.findConflicts(daysAhead, from) ?: emptyList()
+    ): List<Conflict> = occurrenceRepository.findConflicts(daysAhead, from)
 
-    fun exportBackup(): String = backupRepository?.exportAll() ?: "{}"
+    suspend fun exportBackup(): String = backupRepository.exportAll()
 
     fun importBackup(
         json: String,
         replaceExisting: Boolean,
     ) {
-        backupRepository?.importAll(json, replaceExisting)
-        refresh()
+        viewModelScope.launch { backupRepository.importAll(json, replaceExisting) }
     }
 }

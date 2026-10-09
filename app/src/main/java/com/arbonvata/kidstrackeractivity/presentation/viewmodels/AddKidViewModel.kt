@@ -1,17 +1,20 @@
 package com.arbonvata.kidstrackeractivity.presentation.viewmodels
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.arbonvata.kidstrackeractivity.data.repository.KidRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 data class AddKidUiState(
     val name: String = "",
     val schoolName: String = "",
     val nameError: KidNameError? = null,
     val schoolNameError: Boolean = false,
+    val isSaving: Boolean = false,
     val isSaved: Boolean = false,
 )
 
@@ -26,7 +29,9 @@ sealed interface KidNameError {
 
 /**
  * Form state and validation for the "Add Kid" screen. Owns nothing else:
- * the kid list itself lives in [KidsViewModel].
+ * the kid list itself lives in [KidsViewModel]. The duplicate check and the
+ * insert hit the database off the main thread, so [saveKid] sets
+ * [AddKidUiState.isSaving] while it runs.
  */
 class AddKidViewModel(
     private val kidRepository: KidRepository,
@@ -47,29 +52,37 @@ class AddKidViewModel(
         val trimmedName = state.name.trim()
         val trimmedSchool = state.schoolName.trim()
 
-        val nameError: KidNameError? =
-            if (trimmedName.isEmpty()) {
-                KidNameError.Blank
-            } else {
-                kidRepository
-                    .getAllKids()
-                    .firstOrNull { kid -> kid.name.equals(trimmedName, ignoreCase = true) }
-                    ?.let { kid -> KidNameError.Duplicate(kid.name) }
-            }
-        val schoolNameError = trimmedSchool.isEmpty()
-
-        if (nameError == null && !schoolNameError) {
-            kidRepository.addKid(
-                name = trimmedName,
-                schoolName = trimmedSchool,
-            )
-            _uiState.update { it.copy(isSaved = true) }
-        } else {
+        val blankName = trimmedName.isEmpty()
+        val blankSchool = trimmedSchool.isEmpty()
+        if (blankName || blankSchool) {
             _uiState.update {
                 it.copy(
-                    nameError = nameError,
-                    schoolNameError = schoolNameError,
+                    nameError = KidNameError.Blank.takeIf { blankName },
+                    schoolNameError = blankSchool,
                 )
+            }
+            return
+        }
+
+        _uiState.update { it.copy(isSaving = true, nameError = null, schoolNameError = false) }
+        viewModelScope.launch {
+            val duplicate =
+                kidRepository.getAllKids().firstOrNull { kid ->
+                    kid.name.equals(trimmedName, ignoreCase = true)
+                }
+            if (duplicate != null) {
+                _uiState.update {
+                    it.copy(
+                        nameError = KidNameError.Duplicate(duplicate.name),
+                        isSaving = false,
+                    )
+                }
+            } else {
+                kidRepository.addKid(
+                    name = trimmedName,
+                    schoolName = trimmedSchool,
+                )
+                _uiState.update { it.copy(isSaved = true, isSaving = false) }
             }
         }
     }

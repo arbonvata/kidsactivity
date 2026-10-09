@@ -19,19 +19,24 @@ data class Conflict(
     val overlapMinutes: Long,
 )
 
+/**
+ * Pure composition over [KidRepository] and [ActivityRepository]; the data
+ * access underneath is dispatched to IO by those repositories, so this class
+ * adds no dispatcher of its own.
+ */
 interface OccurrenceRepository {
-    fun getOccurrencesForDate(date: LocalDate): List<ActivityOccurence>
+    suspend fun getOccurrencesForDate(date: LocalDate): List<ActivityOccurence>
 
-    fun getOccurrencesForWeek(weekStart: LocalDate): List<ActivityOccurence>
+    suspend fun getOccurrencesForWeek(weekStart: LocalDate): List<ActivityOccurence>
 
-    fun getOccurrencesForMonth(month: YearMonth): List<ActivityOccurence>
+    suspend fun getOccurrencesForMonth(month: YearMonth): List<ActivityOccurence>
 
     /**
      * The next occurrence that starts strictly after [after]. Activities repeat
      * weekly, so scanning eight consecutive days is guaranteed to encounter
      * every enabled activity at least once.
      */
-    fun getNextUpcomingOccurrence(after: LocalDateTime): ActivityOccurence?
+    suspend fun getNextUpcomingOccurrence(after: LocalDateTime): ActivityOccurence?
 
     /**
      * Detects overlapping activity pairs per kid within the next [daysAhead]
@@ -40,7 +45,7 @@ interface OccurrenceRepository {
      * Activities ending at or before their start time (overnight ranges are
      * not representable in the schema) are ignored.
      */
-    fun findConflicts(
+    suspend fun findConflicts(
         daysAhead: Int = 30,
         from: LocalDate = LocalDate.now(),
     ): List<Conflict>
@@ -50,13 +55,13 @@ class OccurrenceRepositoryImpl(
     private val kidRepository: KidRepository,
     private val activityRepository: ActivityRepository,
 ) : OccurrenceRepository {
-    override fun getOccurrencesForDate(date: LocalDate): List<ActivityOccurence> = expand(date, date)
+    override suspend fun getOccurrencesForDate(date: LocalDate): List<ActivityOccurence> = expand(date, date)
 
-    override fun getOccurrencesForWeek(weekStart: LocalDate) = expand(weekStart, weekStart.plusDays(6))
+    override suspend fun getOccurrencesForWeek(weekStart: LocalDate) = expand(weekStart, weekStart.plusDays(6))
 
-    override fun getOccurrencesForMonth(month: YearMonth) = expand(month.atDay(1), month.atEndOfMonth())
+    override suspend fun getOccurrencesForMonth(month: YearMonth) = expand(month.atDay(1), month.atEndOfMonth())
 
-    override fun getNextUpcomingOccurrence(after: LocalDateTime): ActivityOccurence? {
+    override suspend fun getNextUpcomingOccurrence(after: LocalDateTime): ActivityOccurence? {
         var date = after.toLocalDate()
         repeat(8) {
             getOccurrencesForDate(date)
@@ -67,7 +72,7 @@ class OccurrenceRepositoryImpl(
         return null
     }
 
-    override fun findConflicts(
+    override suspend fun findConflicts(
         daysAhead: Int,
         from: LocalDate,
     ): List<Conflict> {
@@ -117,7 +122,7 @@ class OccurrenceRepositoryImpl(
             .toMinutes()
             .coerceAtLeast(0)
 
-    private fun expand(
+    private suspend fun expand(
         startDate: LocalDate,
         endDate: LocalDate,
     ): List<ActivityOccurence> =

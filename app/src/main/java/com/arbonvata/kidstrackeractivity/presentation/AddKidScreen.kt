@@ -126,6 +126,7 @@ fun AddKidContent(
             Button(
                 onClick = onSaveClick,
                 modifier = Modifier.fillMaxWidth(),
+                enabled = !uiState.isSaving,
             ) {
                 Text("Save Kid")
             }
