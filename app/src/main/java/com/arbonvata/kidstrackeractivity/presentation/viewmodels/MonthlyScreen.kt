@@ -1,0 +1,190 @@
+package com.arbonvata.kidstrackeractivity.presentation.viewmodels
+
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import com.arbonvata.kidstrackeractivity.data.ActivityOccurrence
+import com.arbonvata.kidstrackeractivity.data.expandActivitiesForDateRange
+import com.arbonvata.kidstrackeractivity.data.objectbox.Activity
+import com.arbonvata.kidstrackeractivity.data.objectbox.Kid
+import java.time.YearMonth
+import java.time.format.DateTimeFormatter
+import androidx.compose.ui.tooling.preview.Preview
+import com.arbonvata.kidstrackeractivity.ui.theme.KidsTrackerActivityTheme
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MonthlyAgendaScreen(
+    kids: List<Kid>,
+    activities: List<Activity>,
+    onEditActivityClick: (Activity) -> Unit
+) {
+    // State for the selected month
+    var selectedMonth by remember { mutableStateOf(YearMonth.now()) }
+
+    // Calculate month boundaries
+    val monthStart = selectedMonth.atDay(1)
+    val monthEnd = selectedMonth.atEndOfMonth()
+
+    // Expand activities for the whole month
+    val occurrences = expandActivitiesForDateRange(kids, activities, monthStart, monthEnd)
+    val groupedByDate = occurrences.groupBy { it.date }
+
+    val dayFormatter = DateTimeFormatter.ofPattern("EEEE, MMMM d")
+    val monthFormatter = DateTimeFormatter.ofPattern("MMMM yyyy")
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        IconButton(onClick = { selectedMonth = selectedMonth.minusMonths(1) }) {
+                            Text("<", style = MaterialTheme.typography.titleLarge)
+                        }
+                        Text(
+                            text = selectedMonth.format(monthFormatter),
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(horizontal = 8.dp)
+                        )
+                        IconButton(onClick = { selectedMonth = selectedMonth.plusMonths(1) }) {
+                            Text(">", style = MaterialTheme.typography.titleLarge)
+                        }
+                    }
+                }
+            )
+        }
+    ) { padding ->
+        LazyColumn(
+            modifier = Modifier.fillMaxSize().padding(padding),
+            contentPadding = PaddingValues(bottom = 16.dp)
+        ) {
+            // Generate an item for every day in the month
+            var currentDate = monthStart
+            while (!currentDate.isAfter(monthEnd)) {
+                val dateKey = currentDate
+
+                // Sticky Header for the Date
+                stickyHeader {
+                    Surface(
+                        color = MaterialTheme.colorScheme.surfaceVariant,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = dateKey.format(dayFormatter),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+
+                // Items for that specific date
+                val dayOccurrences = groupedByDate[dateKey] ?: emptyList()
+
+                if (dayOccurrences.isEmpty()) {
+                    item(key = "${dateKey}_empty") {
+                        Text(
+                            "No activities",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+                        )
+                    }
+                } else {
+                    items(dayOccurrences, key = { "${it.activity.id}_${it.date}" }) { occurrence ->
+                        MonthlyActivityRow(
+                            occurrence = occurrence,
+                            onClick = { onEditActivityClick(occurrence.activity) }
+                        )
+                    }
+                }
+
+                currentDate = currentDate.plusDays(1)
+            }
+        }
+    }
+}
+
+@Composable
+fun MonthlyActivityRow(
+    occurrence: ActivityOccurrence,
+    onClick: () -> Unit
+) {
+    Surface(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth(),
+        color = MaterialTheme.colorScheme.surface
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp).fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Kid Name (Since this view mixes all kids, we show whose activity it is)
+            Text(
+                text = occurrence.kidName,
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.width(80.dp)
+            )
+
+            // Time
+            Text(
+                text = occurrence.startTime.format(DateTimeFormatter.ofPattern("HH:mm")),
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.width(50.dp)
+            )
+
+            // Activity Name
+            Text(
+                text = occurrence.activity.name,
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.weight(1f)
+            )
+        }
+        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun MonthlyAgendaScreenPreview() {
+    KidsTrackerActivityTheme {
+        val kids = listOf(
+            Kid(id = 1, name = "Alice", defaultEndTime = "18:00"),
+            Kid(id = 2, name = "Bob", defaultEndTime = "18:00")
+        )
+        val activities = listOf(
+            Activity(
+                id = 1,
+                kidId = 1,
+                name = "Soccer Practice",
+                startTime = "15:00",
+                endTime = "16:30",
+                isEnabled = true,
+                daysOfWeek = intArrayOf(1, 3, 5)
+            ),
+            Activity(
+                id = 2,
+                kidId = 2,
+                name = "Piano Lesson",
+                startTime = "17:00",
+                endTime = "18:00",
+                isEnabled = true,
+                daysOfWeek = intArrayOf(2, 4)
+            )
+        )
+        MonthlyAgendaScreen(
+            kids = kids,
+            activities = activities,
+            onEditActivityClick = {}
+        )
+    }
+}
