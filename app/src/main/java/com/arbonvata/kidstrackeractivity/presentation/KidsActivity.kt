@@ -8,17 +8,27 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,24 +37,60 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.arbonvata.kidstrackeractivity.presentation.viewmodels.AddActivityUiState
+import com.arbonvata.kidstrackeractivity.presentation.viewmodels.AddActivityViewModel
 import com.arbonvata.kidstrackeractivity.ui.theme.KidsTrackerActivityTheme
+import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
-@OptIn(ExperimentalMaterial3Api::class)
+/**
+ * Stateful entry point of the Add Activity screen: owns the
+ * [AddActivityViewModel] (parameterised with the kidId from the route) and
+ * turns the one-shot `isSaved` flag into navigation.
+ */
 @Composable
 fun AddActivityScreen(
-    kidId: Int,
-    onSaveClick: (name: String, startTime: String, endTime: String, days: List<Int>, isPeriodic: Boolean) -> Unit,
+    kidId: Long,
+    viewModel: AddActivityViewModel = koinViewModel(parameters = { parametersOf(kidId) }),
+    onNavigateBack: () -> Unit,
 ) {
-    var activityName by remember { mutableStateOf("") }
-    var startTime by remember { mutableStateOf(LocalTime.of(17, 0)) }
-    var endTime by remember { mutableStateOf(LocalTime.of(18, 30)) }
-    var selectedDays by remember { mutableStateOf(mutableListOf<Int>()) }
+    val uiState by viewModel.uiState.collectAsState()
 
-    // 1. NEW STATE FOR THE CHECKBOX
+    LaunchedEffect(uiState.isSaved) {
+        if (uiState.isSaved) {
+            viewModel.onSavedHandled()
+            onNavigateBack()
+        }
+    }
+
+    AddActivityContent(
+        uiState = uiState,
+        isKidSelected = kidId != 0L,
+        onNameChange = viewModel::onNameChange,
+        onToggleDay = viewModel::onToggleDay,
+        onStartTimeChange = viewModel::onStartTimeChange,
+        onEndTimeChange = viewModel::onEndTimeChange,
+        onSaveClick = viewModel::saveActivity,
+        onNavigateBack = onNavigateBack,
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AddActivityContent(
+    uiState: AddActivityUiState,
+    isKidSelected: Boolean,
+    onNameChange: (String) -> Unit,
+    onToggleDay: (Int) -> Unit,
+    onStartTimeChange: (LocalTime) -> Unit,
+    onEndTimeChange: (LocalTime) -> Unit,
+    onSaveClick: () -> Unit,
+    onNavigateBack: () -> Unit,
+) {
+    // Not persisted yet: Activity has no column for it.
     var isPeriodic by remember { mutableStateOf(false) }
-
     var showStartTimePicker by remember { mutableStateOf(false) }
     var showEndTimePicker by remember { mutableStateOf(false) }
 
@@ -58,23 +104,42 @@ fun AddActivityScreen(
             "Sat" to 6,
             "Sun" to 7,
         )
+    val timeFormat = DateTimeFormatter.ofPattern("HH:mm")
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Add Activity") }) },
+        topBar = {
+            TopAppBar(
+                title = { Text("Add Activity") },
+                navigationIcon = {
+                    IconButton(onClick = onNavigateBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
+            )
+        },
     ) { padding ->
         Column(
-            modifier = Modifier.fillMaxSize().padding(padding).padding(16.dp),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            // 1. Activity Name
             OutlinedTextField(
-                value = activityName,
-                onValueChange = { activityName = it },
+                value = uiState.name,
+                onValueChange = onNameChange,
                 label = { Text("Activity Name (e.g., Football)") },
+                isError = uiState.nameError,
+                supportingText = {
+                    if (uiState.nameError) {
+                        Text("Please enter an activity name")
+                    }
+                },
+                singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
             )
 
-            // 2. Days of the Week (Chips)
             Text("Select Days:", style = MaterialTheme.typography.titleMedium)
             FlowRow(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -82,20 +147,20 @@ fun AddActivityScreen(
             ) {
                 daysOfWeek.forEach { (label, dayValue) ->
                     FilterChip(
-                        selected = selectedDays.contains(dayValue),
-                        onClick = {
-                            if (selectedDays.contains(dayValue)) {
-                                selectedDays.remove(dayValue)
-                            } else {
-                                selectedDays.add(dayValue)
-                            }
-                        },
+                        selected = dayValue in uiState.selectedDays,
+                        onClick = { onToggleDay(dayValue) },
                         label = { Text(label) },
                     )
                 }
             }
+            if (uiState.daysError) {
+                Text(
+                    "Select at least one day",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
+                )
+            }
 
-            // 3. NEW CHECKBOX UI
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth(),
@@ -111,54 +176,103 @@ fun AddActivityScreen(
                 )
             }
 
-            // 4. Time Pickers
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 OutlinedButton(
                     onClick = { showStartTimePicker = true },
                     modifier = Modifier.weight(1f),
                 ) {
-                    Text("Start: ${startTime.format(DateTimeFormatter.ofPattern("HH:mm"))}")
+                    Text("Start: ${uiState.startTime.format(timeFormat)}")
                 }
                 OutlinedButton(
                     onClick = { showEndTimePicker = true },
                     modifier = Modifier.weight(1f),
                 ) {
-                    Text("End: ${endTime.format(DateTimeFormatter.ofPattern("HH:mm"))}")
+                    Text("End: ${uiState.endTime.format(timeFormat)}")
                 }
+            }
+
+            if (!isKidSelected) {
+                Text(
+                    "No kid selected yet. Open this screen from a kid's activity overview.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
 
             Spacer(Modifier.weight(1f))
 
-            // 5. Save Button
             Button(
-                onClick = {
-                    if (activityName.isNotBlank() && selectedDays.isNotEmpty()) {
-                        // Pass the new isPeriodic state to the save function
-                        onSaveClick(
-                            activityName,
-                            startTime.format(DateTimeFormatter.ofPattern("HH:mm")),
-                            endTime.format(DateTimeFormatter.ofPattern("HH:mm")),
-                            selectedDays.toList(),
-                            isPeriodic, // <--- Passed here
-                        )
-                    }
-                },
+                onClick = onSaveClick,
                 modifier = Modifier.fillMaxWidth(),
-                enabled = activityName.isNotBlank() && selectedDays.isNotEmpty(),
+                enabled = isKidSelected && uiState.name.isNotBlank() && uiState.selectedDays.isNotEmpty(),
             ) {
                 Text("Save Activity")
             }
         }
     }
+
+    if (showStartTimePicker) {
+        TimePickerDialog(
+            initialTime = uiState.startTime,
+            onConfirm = {
+                onStartTimeChange(it)
+                showStartTimePicker = false
+            },
+            onDismiss = { showStartTimePicker = false },
+        )
+    }
+    if (showEndTimePicker) {
+        TimePickerDialog(
+            initialTime = uiState.endTime,
+            onConfirm = {
+                onEndTimeChange(it)
+                showEndTimePicker = false
+            },
+            onDismiss = { showEndTimePicker = false },
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun TimePickerDialog(
+    initialTime: LocalTime,
+    onConfirm: (LocalTime) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val timePickerState =
+        rememberTimePickerState(
+            initialHour = initialTime.hour,
+            initialMinute = initialTime.minute,
+            is24Hour = true,
+        )
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(onClick = { onConfirm(LocalTime.of(timePickerState.hour, timePickerState.minute)) }) {
+                Text("OK")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("Cancel") }
+        },
+        text = { TimePicker(state = timePickerState) },
+    )
 }
 
 @Preview(showBackground = true)
 @Composable
-fun AddActivityScreenPreview() {
+fun AddActivityContentPreview() {
     KidsTrackerActivityTheme {
-        AddActivityScreen(
-            kidId = 1,
-            onSaveClick = { string, string1, string2, ints, bool -> },
+        AddActivityContent(
+            uiState = AddActivityUiState(),
+            isKidSelected = true,
+            onNameChange = {},
+            onToggleDay = {},
+            onStartTimeChange = {},
+            onEndTimeChange = {},
+            onSaveClick = {},
+            onNavigateBack = {},
         )
     }
 }

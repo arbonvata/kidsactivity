@@ -11,7 +11,9 @@ import com.arbonvata.kidstrackeractivity.data.repository.OccurrenceRepository
 import com.arbonvata.kidstrackeractivity.data.repository.OccurrenceRepositoryImpl
 import com.arbonvata.kidstrackeractivity.data.repository.ScheduleOverrideRepository
 import com.arbonvata.kidstrackeractivity.data.repository.ScheduleOverrideRepositoryImpl
+import com.arbonvata.kidstrackeractivity.presentation.viewmodels.AddActivityViewModel
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.AddKidViewModel
+import com.arbonvata.kidstrackeractivity.presentation.viewmodels.KidDetailViewModel
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.KidsViewModel
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.ScheduleViewModel
 import io.objectbox.BoxStore
@@ -36,4 +38,17 @@ val appModule =
         viewModel { ScheduleViewModel(get(), get(), get(), get()) }
         viewModel { KidsViewModel(get()) }
         viewModel { AddKidViewModel(get()) }
+        viewModel { (kidId: Long) ->
+            AddActivityViewModel(
+                kidId = kidId,
+                activityRepository = get(),
+            )
+        }
+        viewModel { (kidId: Long) ->
+            KidDetailViewModel(
+                kidId = kidId,
+                kidRepository = get(),
+                activityRepository = get(),
+            )
+        }
     }

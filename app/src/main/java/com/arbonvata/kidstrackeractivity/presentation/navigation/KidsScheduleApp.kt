@@ -39,6 +39,7 @@ import com.arbonvata.kidstrackeractivity.presentation.AddActivityScreen
 import com.arbonvata.kidstrackeractivity.presentation.AddKidScreen
 import com.arbonvata.kidstrackeractivity.presentation.DailyScheduleScreen
 import com.arbonvata.kidstrackeractivity.presentation.DashboardScreen
+import com.arbonvata.kidstrackeractivity.presentation.KidDetailScreen
 import com.arbonvata.kidstrackeractivity.presentation.KidSelectionScreen
 import com.arbonvata.kidstrackeractivity.presentation.KidsManagementScreen
 import com.arbonvata.kidstrackeractivity.presentation.MonthlyAgendaScreen
@@ -68,7 +69,7 @@ sealed class Screen(
     // Secondary screens (NOT in bottom nav)
     object Settings : Screen("settings", "Settings", Icons.Default.Settings)
 
-    object AddActivity : Screen("add_activity", "Add Activity", Icons.Default.Add)
+    object AddActivity : Screen("add_activity?kidId={kidId}", "Add Activity", Icons.Default.Add)
 
     object EditActivity : Screen("edit_activity/{activityId}", "Edit Activity", Icons.Default.Edit)
 
@@ -77,6 +78,8 @@ sealed class Screen(
     object AddKid : Screen("add_kid", "Add Kid", Icons.Default.PersonAdd)
 
     object DailySchedule : Screen("daily_schedule/{kidIds}", "Daily Schedule", Icons.Default.ViewDay)
+
+    object KidDetail : Screen("kid_detail/{kidId}", "Kid Detail", Icons.Default.ViewDay)
 
     object SchoolOverrides : Screen("school_overrides", "School Overrides", Icons.Default.Event)
 
@@ -150,7 +153,7 @@ fun KidsScheduleApp(viewModel: ScheduleViewModel) {
                 DashboardScreen(
                     kids = emptyList(),
                     todayOccurrences = todayOccurrences,
-                    onAddActivityClick = { navController.navigate(Screen.AddActivity.route) },
+                    onAddActivityClick = { navController.navigate("add_activity") },
                     onViewWeekClick = { navController.navigate(Screen.Week.route) },
                     onActivityClick = { activity ->
                         navController.navigate("edit_activity/${activity.id}")
@@ -211,13 +214,20 @@ fun KidsScheduleApp(viewModel: ScheduleViewModel) {
                 )
             }
 
-            composable(Screen.AddActivity.route) {
+            composable(
+                route = Screen.AddActivity.route,
+                arguments =
+                    listOf(
+                        navArgument("kidId") {
+                            type = NavType.LongType
+                            defaultValue = 0L
+                        },
+                    ),
+            ) { backStackEntry ->
+                val kidId = backStackEntry.arguments?.getLong("kidId") ?: 0L
                 AddActivityScreen(
-                    kidId = 0, // Pass selected kid or 0 for new
-                    onSaveClick = { name, startTime, endTime, days, isPeriodic ->
-                        // viewModel.saveActivity(name, startTime, endTime, days, isPeriodic)
-                        navController.popBackStack()
-                    },
+                    kidId = kidId,
+                    onNavigateBack = { navController.popBackStack() },
                 )
             }
 
@@ -288,7 +298,23 @@ fun KidsScheduleApp(viewModel: ScheduleViewModel) {
             composable(Screen.KidsManagement.route) {
                 KidsManagementScreen(
                     onAddKidClick = { navController.navigate(Screen.AddKid.route) },
+                    onKidClick = { kid -> navController.navigate("kid_detail/${kid.id}") },
                     onBackClick = { navController.popBackStack() },
+                )
+            }
+
+            composable(
+                route = Screen.KidDetail.route,
+                arguments = listOf(navArgument("kidId") { type = NavType.LongType }),
+            ) { backStackEntry ->
+                val kidId = backStackEntry.arguments?.getLong("kidId") ?: return@composable
+                KidDetailScreen(
+                    kidId = kidId,
+                    onNavigateBack = { navController.popBackStack() },
+                    onActivityClick = { activityId ->
+                        navController.navigate("edit_activity/$activityId")
+                    },
+                    onAddActivityClick = { navController.navigate("add_activity?kidId=$kidId") },
                 )
             }
         }

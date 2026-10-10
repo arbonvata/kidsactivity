@@ -29,6 +29,9 @@ interface ActivityRepository {
      */
     suspend fun getActivitiesForKid(kidId: Long): List<Activity>
 
+    /** Reactive: one kid's activities ordered by start time, now and on every change. */
+    fun getActivitiesForKidFlow(kidId: Long): Flow<List<Activity>>
+
     /** dayOfWeek follows java.time.DayOfWeek: 1 = Monday, 7 = Sunday. */
     suspend fun getActivitiesForKidOnDay(
         kidId: Long,
@@ -92,6 +95,15 @@ class ActivityRepositoryImpl(
                 .order(Activity_.startTime)
                 .build()
                 .find()
+        }
+
+    override fun getActivitiesForKidFlow(kidId: Long): Flow<List<Activity>> =
+        queryFlow {
+            activityBox
+                .query()
+                .equal(Activity_.kidId, kidId)
+                .order(Activity_.startTime)
+                .build()
         }
 
     override suspend fun getActivitiesForKidOnDay(

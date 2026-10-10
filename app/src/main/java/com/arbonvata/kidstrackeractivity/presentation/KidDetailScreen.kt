@@ -1,36 +1,67 @@
 package com.arbonvata.kidstrackeractivity.presentation
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.arbonvata.kidstrackeractivity.presentation.viewmodels.ScheduleViewModel
+import com.arbonvata.kidstrackeractivity.data.objectbox.Activity
+import com.arbonvata.kidstrackeractivity.data.objectbox.Kid
+import com.arbonvata.kidstrackeractivity.presentation.viewmodels.KidDetailUiState
+import com.arbonvata.kidstrackeractivity.presentation.viewmodels.KidDetailViewModel
 import com.arbonvata.kidstrackeractivity.ui.theme.KidsTrackerActivityTheme
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 /**
- * Stateful entry point: owns the [ScheduleViewModel] and forwards the bulk
- * delete of the kid's activities to it.
+ * Stateful entry point of one kid's activity overview: owns the
+ * [KidDetailViewModel] (scoped to this destination and parameterised with
+ * the kidId from the route).
  */
 @Composable
 fun KidDetailScreen(
-    kidId: Int,
-    kidName: String,
-    viewModel: ScheduleViewModel = koinViewModel(),
+    kidId: Long,
+    viewModel: KidDetailViewModel = koinViewModel(parameters = { parametersOf(kidId) }),
     onNavigateBack: () -> Unit,
+    onActivityClick: (activityId: Long) -> Unit,
+    onAddActivityClick: () -> Unit,
 ) {
+    val uiState by viewModel.uiState.collectAsState()
+
     KidDetailContent(
-        kidName = kidName,
-        onDeleteAllClick = { viewModel.deleteAllActivitiesForKid(kidId) },
+        uiState = uiState,
+        onDeleteAllClick = viewModel::deleteAllActivities,
+        onActivityClick = onActivityClick,
+        onAddActivityClick = onAddActivityClick,
         onNavigateBack = onNavigateBack,
     )
 }
@@ -38,40 +69,152 @@ fun KidDetailScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun KidDetailContent(
-    kidName: String,
+    uiState: KidDetailUiState,
     onDeleteAllClick: () -> Unit,
+    onActivityClick: (activityId: Long) -> Unit,
+    onAddActivityClick: () -> Unit,
     onNavigateBack: () -> Unit,
 ) {
+    val kid = uiState.kid
     Scaffold(
-        topBar = { TopAppBar(title = { Text("$kidName's Schedule") }) },
+        topBar = {
+            TopAppBar(
+                title = { Text(kid?.let { "${it.name}'s Activities" } ?: "Kid") },
+                navigationIcon = {
+                    IconButton(onClick = onNavigateBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
+            )
+        },
+        floatingActionButton = {
+            ExtendedFloatingActionButton(
+                onClick = onAddActivityClick,
+                icon = { Icon(Icons.Default.Add, contentDescription = null) },
+                text = { Text("Add New Activity") },
+            )
+        },
     ) { padding ->
-        Column(
+        when {
+            uiState.isLoading ->
+                Box(
+                    modifier = Modifier.fillMaxSize().padding(padding),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    CircularProgressIndicator()
+                }
+
+            kid == null ->
+                Box(
+                    modifier = Modifier.fillMaxSize().padding(padding),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text("This kid no longer exists.")
+                }
+
+            uiState.activities.isEmpty() ->
+                Box(
+                    modifier = Modifier.fillMaxSize().padding(padding),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text("No activities yet.")
+                        Spacer(Modifier.height(16.dp))
+                        DeleteAllActivitiesButton(
+                            kidName = kid.name,
+                            onDeleteClick = onDeleteAllClick,
+                        )
+                    }
+                }
+
+            else ->
+                LazyColumn(
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(padding),
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    items(uiState.activities, key = { it.id }) { activity ->
+                        KidActivityRow(
+                            activity = activity,
+                            onClick = { onActivityClick(activity.id) },
+                        )
+                    }
+                    item {
+                        DeleteAllActivitiesButton(
+                            kidName = kid.name,
+                            onDeleteClick = onDeleteAllClick,
+                        )
+                    }
+                }
+        }
+    }
+}
+
+@Composable
+fun KidActivityRow(
+    activity: Activity,
+    onClick: () -> Unit,
+) {
+    Card(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
+        Row(
             modifier =
                 Modifier
-                    .fillMaxSize()
-                    .padding(padding)
+                    .fillMaxWidth()
                     .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            // ... list of activities for this kid ...
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            DeleteAllActivitiesButton(
-                kidName = kidName,
-                onDeleteClick = onDeleteAllClick,
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = activity.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                Text(
+                    text = "${dayLabels(activity.daysOfWeek)} · ${activity.startTime} – ${activity.endTime}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            Icon(
+                Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.outline,
             )
         }
     }
 }
+
+private val DAY_LABELS = arrayOf("", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
+
+private fun dayLabels(days: IntArray): String = days.sorted().joinToString { DAY_LABELS[it] }
 
 @Preview(showBackground = true)
 @Composable
 fun KidDetailContentPreview() {
     KidsTrackerActivityTheme {
         KidDetailContent(
-            kidName = "Alex",
+            uiState =
+                KidDetailUiState(
+                    isLoading = false,
+                    kid = Kid(id = 1, name = "Alex", schoolName = "Greenfield Primary"),
+                    activities =
+                        listOf(
+                            Activity(
+                                id = 101,
+                                kidId = 1,
+                                name = "Soccer Practice",
+                                startTime = "17:00",
+                                endTime = "18:30",
+                                daysOfWeek = intArrayOf(1, 3, 5),
+                            ),
+                        ),
+                ),
             onDeleteAllClick = {},
+            onActivityClick = {},
+            onAddActivityClick = {},
             onNavigateBack = {},
         )
     }

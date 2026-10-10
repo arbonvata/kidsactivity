@@ -14,9 +14,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -47,6 +49,7 @@ import org.koin.androidx.compose.koinViewModel
 fun KidsManagementScreen(
     viewModel: KidsViewModel = koinViewModel(),
     onAddKidClick: () -> Unit,
+    onKidClick: (Kid) -> Unit,
     onBackClick: () -> Unit,
 ) {
     val kids by viewModel.kids.collectAsState()
@@ -54,6 +57,7 @@ fun KidsManagementScreen(
     KidsManagementContent(
         kids = kids,
         onAddKidClick = onAddKidClick,
+        onKidClick = onKidClick,
         onBackClick = onBackClick,
     )
 }
@@ -64,6 +68,7 @@ fun KidsManagementScreen(
 fun KidsManagementContent(
     kids: List<Kid>,
     onAddKidClick: () -> Unit,
+    onKidClick: (Kid) -> Unit,
     onBackClick: () -> Unit,
 ) {
     Scaffold(
@@ -108,7 +113,10 @@ fun KidsManagementContent(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 items(kids, key = { it.id }) { kid ->
-                    KidsManagementRow(kid)
+                    KidsManagementRow(
+                        kid = kid,
+                        onClick = { onKidClick(kid) },
+                    )
                 }
             }
         }
@@ -116,30 +124,40 @@ fun KidsManagementContent(
 }
 
 @Composable
-fun KidsManagementRow(kid: Kid) {
-    Row(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Icon(
-            Icons.Default.Person,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.primary,
-        )
-        Spacer(modifier = Modifier.width(16.dp))
-        Column {
-            Text(
-                text = kid.name,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
+fun KidsManagementRow(
+    kid: Kid,
+    onClick: () -> Unit,
+) {
+    Card(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                Icons.Default.Person,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
             )
-            Text(
-                text = "School: ${kid.schoolName}",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            Spacer(modifier = Modifier.width(16.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = kid.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                Text(
+                    text = "School: ${kid.schoolName}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            Icon(
+                Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.outline,
             )
         }
     }
@@ -156,6 +174,7 @@ fun KidsManagementContentPreview() {
                     Kid(id = 2, name = "Bob", schoolName = "St. Mary's"),
                 ),
             onAddKidClick = {},
+            onKidClick = {},
             onBackClick = {},
         )
     }

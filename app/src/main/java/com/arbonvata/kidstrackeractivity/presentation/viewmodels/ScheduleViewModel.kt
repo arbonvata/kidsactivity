@@ -54,14 +54,6 @@ class ScheduleViewModel(
         viewModelScope.launch { activityRepository.setActivityEnabled(activityId, enabled) }
     }
 
-    fun deleteAllActivitiesForKid(kidId: Long) {
-        viewModelScope.launch { activityRepository.deleteAllActivitiesForKid(kidId) }
-    }
-
-    fun deleteAllActivitiesForKid(kidId: Int) {
-        deleteAllActivitiesForKid(kidId.toLong())
-    }
-
     fun setOverride(
         kidId: Long,
         date: LocalDate,
