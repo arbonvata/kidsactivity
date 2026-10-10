@@ -39,6 +39,10 @@ android {
     buildFeatures {
         compose = true
     }
+    testOptions {
+        // JUnit Jupiter (6.x) runs on the JUnit Platform, not the JUnit 4 runner.
+        unitTests.all { it.useJUnitPlatform() }
+    }
 }
 
 dependencies {
@@ -58,7 +62,10 @@ dependencies {
     implementation(platform(libs.koin.bom))
     implementation(libs.koin.android)
     implementation(libs.koin.androidx.compose)
-    testImplementation(libs.junit)
+    testImplementation(libs.junit.jupiter)
+    testImplementation(libs.mockk)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testRuntimeOnly(libs.junit.platform.launcher)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.androidx.espresso.core)
