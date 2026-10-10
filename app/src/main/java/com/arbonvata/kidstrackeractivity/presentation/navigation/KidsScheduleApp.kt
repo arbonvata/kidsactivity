@@ -34,11 +34,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.arbonvata.kidstrackeractivity.data.expandActivitiesForDateRange
 import com.arbonvata.kidstrackeractivity.presentation.AddActivityScreen
 import com.arbonvata.kidstrackeractivity.presentation.AddKidScreen
 import com.arbonvata.kidstrackeractivity.presentation.DailyScheduleScreen
-import com.arbonvata.kidstrackeractivity.presentation.DashboardScreen
 import com.arbonvata.kidstrackeractivity.presentation.KidDetailScreen
 import com.arbonvata.kidstrackeractivity.presentation.KidSelectionScreen
 import com.arbonvata.kidstrackeractivity.presentation.KidsManagementScreen
@@ -46,6 +44,7 @@ import com.arbonvata.kidstrackeractivity.presentation.MonthlyAgendaScreen
 import com.arbonvata.kidstrackeractivity.presentation.MoreScreen
 import com.arbonvata.kidstrackeractivity.presentation.SettingsScreen
 import com.arbonvata.kidstrackeractivity.presentation.SettingsState
+import com.arbonvata.kidstrackeractivity.presentation.TodayScreen
 import com.arbonvata.kidstrackeractivity.presentation.WeeklyScheduleScreen
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.KidsViewModel
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.ScheduleViewModel
@@ -140,25 +139,12 @@ fun KidsScheduleApp(viewModel: ScheduleViewModel) {
         ) {
             // --- MAIN TABS ---
             composable(Screen.Today.route) {
-                // val kids by viewModel.kidsFlow.collectAsState(initial = emptyList())
-                // val activities by viewModel.activitiesFlow.collectAsState(initial = emptyList())
-                val todayOccurrences =
-                    expandActivitiesForDateRange(
-                        emptyList(),
-                        emptyList(),
-                        java.time.LocalDate.now(),
-                        java.time.LocalDate.now(),
-                    )
-
-                DashboardScreen(
-                    kids = emptyList(),
-                    todayOccurrences = todayOccurrences,
+                TodayScreen(
                     onAddActivityClick = { navController.navigate("add_activity") },
                     onViewWeekClick = { navController.navigate(Screen.Week.route) },
                     onActivityClick = { activity ->
                         navController.navigate("edit_activity/${activity.id}")
                     },
-                    // onSettingsClick = { navController.navigate(Screen.Settings.route) }
                 )
             }
 

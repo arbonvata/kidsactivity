@@ -16,6 +16,7 @@ import com.arbonvata.kidstrackeractivity.presentation.viewmodels.AddKidViewModel
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.KidDetailViewModel
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.KidsViewModel
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.ScheduleViewModel
+import com.arbonvata.kidstrackeractivity.presentation.viewmodels.TodayViewModel
 import io.objectbox.BoxStore
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
@@ -38,10 +39,12 @@ val appModule =
         viewModel { ScheduleViewModel(get(), get(), get(), get()) }
         viewModel { KidsViewModel(get()) }
         viewModel { AddKidViewModel(get()) }
+        viewModel { TodayViewModel(get(), get()) }
         viewModel { (kidId: Long) ->
             AddActivityViewModel(
                 kidId = kidId,
                 activityRepository = get(),
+                kidRepository = get(),
             )
         }
         viewModel { (kidId: Long) ->

@@ -13,7 +13,11 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -37,6 +41,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.arbonvata.kidstrackeractivity.data.objectbox.Kid
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.AddActivityUiState
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.AddActivityViewModel
 import com.arbonvata.kidstrackeractivity.ui.theme.KidsTrackerActivityTheme
@@ -57,6 +62,7 @@ fun AddActivityScreen(
     onNavigateBack: () -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val kids by viewModel.kids.collectAsState()
 
     LaunchedEffect(uiState.isSaved) {
         if (uiState.isSaved) {
@@ -67,7 +73,9 @@ fun AddActivityScreen(
 
     AddActivityContent(
         uiState = uiState,
-        isKidSelected = kidId != 0L,
+        kids = kids,
+        isKidPickerEnabled = kidId == 0L,
+        onKidSelected = viewModel::onKidSelected,
         onNameChange = viewModel::onNameChange,
         onToggleDay = viewModel::onToggleDay,
         onStartTimeChange = viewModel::onStartTimeChange,
@@ -81,7 +89,9 @@ fun AddActivityScreen(
 @Composable
 fun AddActivityContent(
     uiState: AddActivityUiState,
-    isKidSelected: Boolean,
+    kids: List<Kid>,
+    isKidPickerEnabled: Boolean,
+    onKidSelected: (Long) -> Unit,
     onNameChange: (String) -> Unit,
     onToggleDay: (Int) -> Unit,
     onStartTimeChange: (LocalTime) -> Unit,
@@ -126,6 +136,22 @@ fun AddActivityContent(
                     .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
+            if (isKidPickerEnabled) {
+                KidPickerField(
+                    kids = kids,
+                    selectedKidId = uiState.selectedKidId,
+                    onKidSelected = onKidSelected,
+                )
+            } else {
+                kids.firstOrNull { it.id == uiState.selectedKidId }?.let { kid ->
+                    Text(
+                        "For ${kid.name}",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+
             OutlinedTextField(
                 value = uiState.name,
                 onValueChange = onNameChange,
@@ -191,20 +217,12 @@ fun AddActivityContent(
                 }
             }
 
-            if (!isKidSelected) {
-                Text(
-                    "No kid selected yet. Open this screen from a kid's activity overview.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-
             Spacer(Modifier.weight(1f))
 
             Button(
                 onClick = onSaveClick,
                 modifier = Modifier.fillMaxWidth(),
-                enabled = isKidSelected && uiState.name.isNotBlank() && uiState.selectedDays.isNotEmpty(),
+                enabled = uiState.selectedKidId != 0L && uiState.name.isNotBlank() && uiState.selectedDays.isNotEmpty(),
             ) {
                 Text("Save Activity")
             }
@@ -230,6 +248,56 @@ fun AddActivityContent(
             },
             onDismiss = { showEndTimePicker = false },
         )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun KidPickerField(
+    kids: List<Kid>,
+    selectedKidId: Long,
+    onKidSelected: (Long) -> Unit,
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val selectedKid = kids.firstOrNull { it.id == selectedKidId }
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = it },
+    ) {
+        OutlinedTextField(
+            value = selectedKid?.name ?: "",
+            onValueChange = {},
+            readOnly = true,
+            label = { Text("Kid") },
+            supportingText =
+                if (kids.isEmpty()) {
+                    {
+                        Text("No kids yet — add a kid first")
+                    }
+                } else {
+                    null
+                },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
+        )
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+        ) {
+            kids.forEach { kid ->
+                DropdownMenuItem(
+                    text = { Text(kid.name) },
+                    onClick = {
+                        onKidSelected(kid.id)
+                        expanded = false
+                    },
+                )
+            }
+        }
     }
 }
 
@@ -266,7 +334,9 @@ fun AddActivityContentPreview() {
     KidsTrackerActivityTheme {
         AddActivityContent(
             uiState = AddActivityUiState(),
-            isKidSelected = true,
+            kids = listOf(Kid(id = 1, name = "Leo"), Kid(id = 2, name = "Mia")),
+            isKidPickerEnabled = true,
+            onKidSelected = {},
             onNameChange = {},
             onToggleDay = {},
             onStartTimeChange = {},

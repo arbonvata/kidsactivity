@@ -40,6 +40,7 @@ import com.arbonvata.kidstrackeractivity.data.ActivityOccurence
 import com.arbonvata.kidstrackeractivity.data.objectbox.Activity
 import java.time.LocalDate
 import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 
 data class Conflict(
     val activity1: ActivityOccurence,
@@ -191,7 +192,7 @@ fun ConflictActivityRow(
             Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Text(
                 "${occurrence.startTime.format(
-                    java.time.format.DateTimeFormatter
+                    DateTimeFormatter
                         .ofPattern("HH:mm"),
                 )} - ${occurrence.activity.endTime}",
                 style = MaterialTheme.typography.bodyMedium,
