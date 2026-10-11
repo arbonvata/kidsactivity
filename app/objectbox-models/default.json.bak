@@ -64,11 +64,6 @@
           "type": 9
         },
         {
-          "id": "3:4499378332650017260",
-          "name": "defaultEndTime",
-          "type": 9
-        },
-        {
           "id": "4:6609365806878301094",
           "name": "schoolName",
           "type": 9
@@ -119,7 +114,9 @@
   "modelVersionParserMinimum": 5,
   "retiredEntityUids": [],
   "retiredIndexUids": [],
-  "retiredPropertyUids": [],
+  "retiredPropertyUids": [
+    4499378332650017260
+  ],
   "retiredRelationUids": [],
   "version": 1
 }

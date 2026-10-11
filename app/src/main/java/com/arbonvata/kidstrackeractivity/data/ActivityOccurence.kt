@@ -29,7 +29,8 @@ fun expandActivitiesForDateRange(
         val dayOfWeekValue = currentDate.dayOfWeek.value
 
         for (activity in activities) {
-            if (activity.isEnabled && activity.daysOfWeek.contains(dayOfWeekValue)) {
+            val matchesDay = activity.daysOfWeek.contains(dayOfWeekValue)
+            if (activity.isEnabled && matchesDay && isWithinActivePeriod(activity, currentDate)) {
                 val kid = kidMap[activity.kidId]
                 if (kid != null) {
                     occurrences.add(
@@ -48,4 +49,20 @@ fun expandActivitiesForDateRange(
 
     // Sort by Date, then by Time
     return occurrences.sortedWith(compareBy({ it.date }, { it.startTime }))
+}
+
+/**
+ * Periodic activities recur on their weekdays indefinitely; one-offs are
+ * limited to the 7-day window starting at firstDate, so each selected weekday
+ * occurs exactly once in the creation week. A null/blank firstDate is treated
+ * as unbounded: rows written before the column existed read null from the
+ * database and keep their old repeating behaviour.
+ */
+private fun isWithinActivePeriod(
+    activity: Activity,
+    date: LocalDate,
+): Boolean {
+    if (activity.isPeriodic) return true
+    val anchor = activity.firstDate?.takeIf { it.isNotEmpty() }?.let(LocalDate::parse) ?: return true
+    return !date.isBefore(anchor) && date.isBefore(anchor.plusDays(7))
 }

@@ -40,7 +40,7 @@ import com.arbonvata.kidstrackeractivity.presentation.DailyScheduleScreen
 import com.arbonvata.kidstrackeractivity.presentation.KidDetailScreen
 import com.arbonvata.kidstrackeractivity.presentation.KidSelectionScreen
 import com.arbonvata.kidstrackeractivity.presentation.KidsManagementScreen
-import com.arbonvata.kidstrackeractivity.presentation.MonthlyAgendaScreen
+import com.arbonvata.kidstrackeractivity.presentation.MonthScreen
 import com.arbonvata.kidstrackeractivity.presentation.MoreScreen
 import com.arbonvata.kidstrackeractivity.presentation.SettingsScreen
 import com.arbonvata.kidstrackeractivity.presentation.SettingsState
@@ -157,12 +157,7 @@ fun KidsScheduleApp(viewModel: ScheduleViewModel) {
             }
 
             composable(Screen.Month.route) {
-                // val kids by viewModel.kidsFlow.collectAsState(initial = emptyList())
-                // val activities by viewModel.activitiesFlow.collectAsState(initial = emptyList())
-
-                MonthlyAgendaScreen(
-                    kids = emptyList(),
-                    activities = emptyList(),
+                MonthScreen(
                     onEditActivityClick = { activity ->
                         navController.navigate("edit_activity/${activity.id}")
                     },

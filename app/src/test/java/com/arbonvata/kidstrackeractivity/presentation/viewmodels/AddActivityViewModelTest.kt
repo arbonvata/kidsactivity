@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 import java.time.LocalDate
 import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class AddActivityViewModelTest {
@@ -54,6 +55,7 @@ class AddActivityViewModelTest {
             assertEquals(LocalTime.of(17, 0), state.startTime)
             assertEquals(LocalTime.of(18, 30), state.endTime)
             assertFalse(state.nameError)
+            assertFalse(state.isPeriodic)
         }
 
     @Test
@@ -167,10 +169,28 @@ class AddActivityViewModelTest {
             assertEquals("18:00", savedActivity.captured.startTime)
             assertEquals("19:30", savedActivity.captured.endTime)
             assertTrue(savedActivity.captured.isEnabled)
+            assertFalse(savedActivity.captured.isPeriodic)
+            assertEquals(LocalDate.now().format(DateTimeFormatter.ISO_DATE), savedActivity.captured.firstDate)
             val expectedDays = setOf(todaysDayOfWeek, 5, 3).sorted().toIntArray()
             assertTrue(savedActivity.captured.daysOfWeek.contentEquals(expectedDays))
             assertFalse(viewModel.uiState.value.isSaving)
             assertTrue(viewModel.uiState.value.isSaved)
+        }
+
+    @Test
+    fun saveActivityPersistsPeriodicFlagWhenChecked() =
+        runTest {
+            val viewModel = AddActivityViewModel(kidId = 5L, activityRepository, kidRepository)
+            val savedActivity = slot<Activity>()
+            coEvery { activityRepository.addActivity(capture(savedActivity)) } returns Activity(id = 1L)
+            viewModel.onNameChange("Football")
+            viewModel.onPeriodicChange(true)
+            assertTrue(viewModel.uiState.value.isPeriodic)
+
+            viewModel.saveActivity()
+
+            coVerify { activityRepository.addActivity(any()) }
+            assertTrue(savedActivity.captured.isPeriodic)
         }
 
     @Test

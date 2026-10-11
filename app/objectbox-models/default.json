@@ -5,7 +5,7 @@
   "entities": [
     {
       "id": "1:6241753072432626048",
-      "lastPropertyId": "7:1127275106773455116",
+      "lastPropertyId": "9:1914762641605883935",
       "name": "Activity",
       "properties": [
         {
@@ -43,6 +43,16 @@
           "id": "7:1127275106773455116",
           "name": "daysOfWeek",
           "type": 26
+        },
+        {
+          "id": "8:2550479335355434487",
+          "name": "isPeriodic",
+          "type": 1
+        },
+        {
+          "id": "9:1914762641605883935",
+          "name": "firstDate",
+          "type": 9
         }
       ],
       "relations": []

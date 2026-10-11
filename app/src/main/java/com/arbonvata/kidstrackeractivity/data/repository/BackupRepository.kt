@@ -102,6 +102,8 @@ class BackupRepositoryImpl(
                             endTime = activityJson.optString("endTime"),
                             isEnabled = activityJson.optBoolean("isEnabled", true),
                             daysOfWeek = days?.let { IntArray(days.length()) { days.optInt(it) } } ?: intArrayOf(),
+                            isPeriodic = activityJson.optBoolean("isPeriodic"),
+                            firstDate = activityJson.optString("firstDate"),
                         ),
                     )
                 }
@@ -142,6 +144,8 @@ class BackupRepositoryImpl(
             .put("endTime", activity.endTime)
             .put("isEnabled", activity.isEnabled)
             .put("daysOfWeek", JSONArray(activity.daysOfWeek.toList()))
+            .put("isPeriodic", activity.isPeriodic)
+            .put("firstDate", activity.firstDate)
 
     private fun overrideToJson(override: DailySchedule): JSONObject =
         JSONObject()

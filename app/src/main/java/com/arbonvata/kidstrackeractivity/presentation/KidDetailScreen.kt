@@ -173,7 +173,9 @@ fun KidActivityRow(
                     fontWeight = FontWeight.SemiBold,
                 )
                 Text(
-                    text = "${dayLabels(activity.daysOfWeek)} · ${activity.startTime} – ${activity.endTime}",
+                    text =
+                        "${dayLabels(activity.daysOfWeek)} · ${activity.startTime} – ${activity.endTime}" +
+                            if (activity.isPeriodic) " · weekly" else " · once",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )

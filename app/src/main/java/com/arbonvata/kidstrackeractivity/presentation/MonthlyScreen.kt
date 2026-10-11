@@ -1,5 +1,6 @@
 package com.arbonvata.kidstrackeractivity.presentation
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -8,8 +9,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -17,39 +23,67 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.arbonvata.kidstrackeractivity.data.ActivityOccurence
+import com.arbonvata.kidstrackeractivity.data.DebugTestData
 import com.arbonvata.kidstrackeractivity.data.expandActivitiesForDateRange
 import com.arbonvata.kidstrackeractivity.data.objectbox.Activity
-import com.arbonvata.kidstrackeractivity.data.objectbox.Kid
+import com.arbonvata.kidstrackeractivity.presentation.viewmodels.MonthViewModel
 import com.arbonvata.kidstrackeractivity.ui.theme.KidsTrackerActivityTheme
+import org.koin.androidx.compose.koinViewModel
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
+
+/**
+ * Stateful entry point of the Month tab: owns the [MonthViewModel] and
+ * delegates rendering to the stateless [MonthlyAgendaScreen].
+ */
+@Composable
+fun MonthScreen(
+    viewModel: MonthViewModel = koinViewModel(),
+    onEditActivityClick: (Activity) -> Unit,
+) {
+    val uiState by viewModel.uiState.collectAsState()
+
+    when {
+        uiState.isLoading -> {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center,
+            ) {
+                CircularProgressIndicator()
+            }
+        }
+
+        else -> {
+            MonthlyAgendaScreen(
+                selectedMonth = uiState.selectedMonth,
+                occurrences = uiState.monthOccurrences,
+                onPreviousMonthClick = viewModel::previousMonth,
+                onNextMonthClick = viewModel::nextMonth,
+                onEditActivityClick = onEditActivityClick,
+            )
+        }
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MonthlyAgendaScreen(
-    kids: List<Kid>,
-    activities: List<Activity>,
+    selectedMonth: YearMonth,
+    occurrences: List<ActivityOccurence>,
+    onPreviousMonthClick: () -> Unit,
+    onNextMonthClick: () -> Unit,
     onEditActivityClick: (Activity) -> Unit,
 ) {
-    // State for the selected month
-    var selectedMonth by remember { mutableStateOf(YearMonth.now()) }
-
-    // Calculate month boundaries
     val monthStart = selectedMonth.atDay(1)
     val monthEnd = selectedMonth.atEndOfMonth()
-
-    // Expand activities for the whole month
-    val occurrences = expandActivitiesForDateRange(kids, activities, monthStart, monthEnd)
     val groupedByDate = occurrences.groupBy { it.date }
 
     val dayFormatter = DateTimeFormatter.ofPattern("EEEE, MMMM d")
@@ -59,19 +93,16 @@ fun MonthlyAgendaScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        IconButton(onClick = { selectedMonth = selectedMonth.minusMonths(1) }) {
-                            Text("<", style = MaterialTheme.typography.titleLarge)
-                        }
-                        Text(
-                            text = selectedMonth.format(monthFormatter),
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(horizontal = 8.dp),
-                        )
-                        IconButton(onClick = { selectedMonth = selectedMonth.plusMonths(1) }) {
-                            Text(">", style = MaterialTheme.typography.titleLarge)
-                        }
+                    Text(selectedMonth.format(monthFormatter))
+                },
+                navigationIcon = {
+                    IconButton(onClick = onPreviousMonthClick) {
+                        Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "Previous month")
+                    }
+                },
+                actions = {
+                    IconButton(onClick = onNextMonthClick) {
+                        Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = "Next month")
                     }
                 },
             )
@@ -173,35 +204,20 @@ fun MonthlyActivityRow(
 @Composable
 fun MonthlyAgendaScreenPreview() {
     KidsTrackerActivityTheme {
-        val kids =
-            listOf(
-                Kid(id = 1, name = "Alice"),
-                Kid(id = 2, name = "Bob"),
-            )
-        val activities =
-            listOf(
-                Activity(
-                    id = 1,
-                    kidId = 1,
-                    name = "Soccer Practice",
-                    startTime = "15:00",
-                    endTime = "16:30",
-                    isEnabled = true,
-                    daysOfWeek = intArrayOf(1, 3, 5),
-                ),
-                Activity(
-                    id = 2,
-                    kidId = 2,
-                    name = "Piano Lesson",
-                    startTime = "17:00",
-                    endTime = "18:00",
-                    isEnabled = true,
-                    daysOfWeek = intArrayOf(2, 4),
-                ),
+        // A fixed month so the preview is deterministic.
+        val selectedMonth = YearMonth.of(2026, 10)
+        val occurrences =
+            expandActivitiesForDateRange(
+                DebugTestData.mockKids,
+                DebugTestData.mockActivities,
+                selectedMonth.atDay(1),
+                selectedMonth.atEndOfMonth(),
             )
         MonthlyAgendaScreen(
-            kids = kids,
-            activities = activities,
+            selectedMonth = selectedMonth,
+            occurrences = occurrences,
+            onPreviousMonthClick = {},
+            onNextMonthClick = {},
             onEditActivityClick = {},
         )
     }

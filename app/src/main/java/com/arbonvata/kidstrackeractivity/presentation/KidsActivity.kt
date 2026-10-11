@@ -81,6 +81,7 @@ fun AddActivityScreen(
         onToggleDay = viewModel::onToggleDay,
         onStartTimeChange = viewModel::onStartTimeChange,
         onEndTimeChange = viewModel::onEndTimeChange,
+        onPeriodicChange = viewModel::onPeriodicChange,
         onSaveClick = viewModel::saveActivity,
         onNavigateBack = onNavigateBack,
     )
@@ -97,11 +98,10 @@ fun AddActivityContent(
     onToggleDay: (Int) -> Unit,
     onStartTimeChange: (LocalTime) -> Unit,
     onEndTimeChange: (LocalTime) -> Unit,
+    onPeriodicChange: (Boolean) -> Unit,
     onSaveClick: () -> Unit,
     onNavigateBack: () -> Unit,
 ) {
-    // Not persisted yet: Activity has no column for it.
-    var isPeriodic by remember { mutableStateOf(false) }
     var showStartTimePicker by remember { mutableStateOf(false) }
     var showEndTimePicker by remember { mutableStateOf(false) }
 
@@ -193,8 +193,8 @@ fun AddActivityContent(
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Checkbox(
-                    checked = isPeriodic,
-                    onCheckedChange = { isPeriodic = it },
+                    checked = uiState.isPeriodic,
+                    onCheckedChange = onPeriodicChange,
                 )
                 Text(
                     text = "Periodic for the entire year",
@@ -342,6 +342,7 @@ fun AddActivityContentPreview() {
             onToggleDay = {},
             onStartTimeChange = {},
             onEndTimeChange = {},
+            onPeriodicChange = {},
             onSaveClick = {},
             onNavigateBack = {},
         )

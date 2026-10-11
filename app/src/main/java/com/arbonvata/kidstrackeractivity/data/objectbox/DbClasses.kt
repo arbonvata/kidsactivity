@@ -22,6 +22,13 @@ data class Activity(
     // No need for TypeConverters or Gson.
     // Values represent java.time.DayOfWeek (1 = Monday, 7 = Sunday)
     var daysOfWeek: IntArray = intArrayOf(),
+    // Periodic activities repeat on their weekdays indefinitely; one-offs
+    // occur only during the week anchored at firstDate.
+    var isPeriodic: Boolean = true,
+    // ISO-8601 date, e.g. "2026-10-20". Null/blank means unbounded: rows
+    // written before this column existed read null from the DB (ObjectBox
+    // does not apply Kotlin defaults to stored rows).
+    var firstDate: String? = null,
 ) {
     // Overriding equals and hashCode is highly recommended when using IntArray
     // in data classes, because arrays in Kotlin compare by reference by default.
@@ -38,6 +45,8 @@ data class Activity(
         if (endTime != other.endTime) return false
         if (isEnabled != other.isEnabled) return false
         if (!daysOfWeek.contentEquals(other.daysOfWeek)) return false
+        if (isPeriodic != other.isPeriodic) return false
+        if (firstDate != other.firstDate) return false
 
         return true
     }
@@ -50,6 +59,8 @@ data class Activity(
         result = 31 * result + endTime.hashCode()
         result = 31 * result + isEnabled.hashCode()
         result = 31 * result + daysOfWeek.contentHashCode()
+        result = 31 * result + isPeriodic.hashCode()
+        result = 31 * result + firstDate.hashCode()
         return result
     }
 }

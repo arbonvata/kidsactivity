@@ -23,6 +23,7 @@ data class AddActivityUiState(
     val selectedDays: Set<Int> = emptySet(),
     val startTime: LocalTime = LocalTime.of(17, 0),
     val endTime: LocalTime = LocalTime.of(18, 30),
+    val isPeriodic: Boolean = false,
     val nameError: Boolean = false,
     val daysError: Boolean = false,
     val isSaving: Boolean = false,
@@ -81,6 +82,10 @@ class AddActivityViewModel(
         _uiState.update { it.copy(endTime = time) }
     }
 
+    fun onPeriodicChange(isPeriodic: Boolean) {
+        _uiState.update { it.copy(isPeriodic = isPeriodic) }
+    }
+
     private fun isValidName(name: String) = name.isNotBlank()
 
     fun saveActivity() {
@@ -103,6 +108,8 @@ class AddActivityViewModel(
                     endTime = state.endTime.format(TIME_FORMATTER),
                     isEnabled = true,
                     daysOfWeek = state.selectedDays.sorted().toIntArray(),
+                    isPeriodic = state.isPeriodic,
+                    firstDate = LocalDate.now().format(DateTimeFormatter.ISO_DATE),
                 ),
             )
             _uiState.update { it.copy(isSaved = true, isSaving = false) }
