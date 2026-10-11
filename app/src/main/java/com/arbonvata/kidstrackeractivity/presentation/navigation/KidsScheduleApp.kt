@@ -45,7 +45,7 @@ import com.arbonvata.kidstrackeractivity.presentation.MoreScreen
 import com.arbonvata.kidstrackeractivity.presentation.SettingsScreen
 import com.arbonvata.kidstrackeractivity.presentation.SettingsState
 import com.arbonvata.kidstrackeractivity.presentation.TodayScreen
-import com.arbonvata.kidstrackeractivity.presentation.WeeklyScheduleScreen
+import com.arbonvata.kidstrackeractivity.presentation.WeekScreen
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.KidsViewModel
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.ScheduleViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -149,12 +149,7 @@ fun KidsScheduleApp(viewModel: ScheduleViewModel) {
             }
 
             composable(Screen.Week.route) {
-                // val kids by viewModel.kidsFlow.collectAsState(initial = emptyList())
-                // val activities by viewModel.activitiesFlow.collectAsState(initial = emptyList())
-
-                WeeklyScheduleScreen(
-                    kids = emptyList(),
-                    activities = emptyList(),
+                WeekScreen(
                     onEditActivityClick = { activity ->
                         navController.navigate("edit_activity/${activity.id}")
                     },

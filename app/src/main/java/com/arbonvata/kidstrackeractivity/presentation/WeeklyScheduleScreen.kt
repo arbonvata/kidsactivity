@@ -1,6 +1,7 @@
 package com.arbonvata.kidstrackeractivity.presentation
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -12,57 +13,103 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.arbonvata.kidstrackeractivity.data.ActivityOccurence
-import com.arbonvata.kidstrackeractivity.data.expandActivitiesForDateRange
 import com.arbonvata.kidstrackeractivity.data.objectbox.Activity
 import com.arbonvata.kidstrackeractivity.data.objectbox.Kid
+import com.arbonvata.kidstrackeractivity.presentation.viewmodels.WeekViewModel
 import com.arbonvata.kidstrackeractivity.ui.theme.KidsTrackerActivityTheme
-import java.time.DayOfWeek
+import org.koin.androidx.compose.koinViewModel
 import java.time.LocalDate
+import java.time.LocalTime
 import java.time.format.DateTimeFormatter
-import java.time.temporal.TemporalAdjusters
+
+/**
+ * Stateful entry point of the Week tab: owns the [WeekViewModel] and delegates
+ * rendering to the stateless [WeeklyScheduleScreen].
+ */
+@Composable
+fun WeekScreen(
+    viewModel: WeekViewModel = koinViewModel(),
+    onEditActivityClick: (Activity) -> Unit,
+) {
+    val uiState by viewModel.uiState.collectAsState()
+
+    when {
+        uiState.isLoading -> {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center,
+            ) {
+                CircularProgressIndicator()
+            }
+        }
+
+        else -> {
+            WeeklyScheduleScreen(
+                kids = uiState.kids,
+                weekStart = uiState.weekStart,
+                occurrences = uiState.weekOccurrences,
+                onPreviousWeekClick = viewModel::previousWeek,
+                onNextWeekClick = viewModel::nextWeek,
+                onEditActivityClick = onEditActivityClick,
+            )
+        }
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WeeklyScheduleScreen(
     kids: List<Kid>,
-    activities: List<Activity>,
+    weekStart: LocalDate,
+    occurrences: List<ActivityOccurence>,
+    onPreviousWeekClick: () -> Unit,
+    onNextWeekClick: () -> Unit,
     onEditActivityClick: (Activity) -> Unit,
 ) {
-    // Calculate this week's Monday and Sunday
-    val today = LocalDate.now()
-    val weekStart = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
-    val weekEnd = today.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY))
-
-    // Expand and group by Kid
-    val occurrences = expandActivitiesForDateRange(kids, activities, weekStart, weekEnd)
+    val weekEnd = weekStart.plusDays(6)
     val groupedByKid = occurrences.groupBy { it.activity.kidId }
 
     val dateFormatter = DateTimeFormatter.ofPattern("EEE, MMM d")
+    val rangeFormatter = DateTimeFormatter.ofPattern("MMM d")
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(
-                        "This Week: ${weekStart.format(
-                            DateTimeFormatter.ofPattern("MMM d"),
-                        )} - ${weekEnd.format(DateTimeFormatter.ofPattern("MMM d"))}",
-                    )
+                    Text("${weekStart.format(rangeFormatter)} - ${weekEnd.format(rangeFormatter)}")
+                },
+                navigationIcon = {
+                    IconButton(onClick = onPreviousWeekClick) {
+                        Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "Previous week")
+                    }
+                },
+                actions = {
+                    IconButton(onClick = onNextWeekClick) {
+                        Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = "Next week")
+                    }
                 },
             )
         },
@@ -163,35 +210,45 @@ fun WeeklyActivityRow(
 @Composable
 fun WeeklyScheduleScreenPreview() {
     KidsTrackerActivityTheme {
+        // A fixed Monday so the preview is deterministic.
+        val weekStart = LocalDate.of(2026, 10, 19)
         val kids =
             listOf(
                 Kid(id = 1, name = "Alice"),
                 Kid(id = 2, name = "Bob"),
             )
-        val activities =
+        val soccer =
+            Activity(
+                id = 1,
+                kidId = 1,
+                name = "Soccer Practice",
+                startTime = "15:00",
+                endTime = "16:30",
+                isEnabled = true,
+                daysOfWeek = intArrayOf(1, 3, 5),
+            )
+        val piano =
+            Activity(
+                id = 2,
+                kidId = 2,
+                name = "Piano Lesson",
+                startTime = "17:00",
+                endTime = "18:00",
+                isEnabled = true,
+                daysOfWeek = intArrayOf(2, 4),
+            )
+        val occurrences =
             listOf(
-                Activity(
-                    id = 1,
-                    kidId = 1,
-                    name = "Soccer Practice",
-                    startTime = "15:00",
-                    endTime = "16:30",
-                    isEnabled = true,
-                    daysOfWeek = intArrayOf(1, 3, 5),
-                ),
-                Activity(
-                    id = 2,
-                    kidId = 2,
-                    name = "Piano Lesson",
-                    startTime = "17:00",
-                    endTime = "18:00",
-                    isEnabled = true,
-                    daysOfWeek = intArrayOf(2, 4),
-                ),
+                ActivityOccurence(soccer, "Alice", weekStart, LocalTime.of(15, 0)),
+                ActivityOccurence(piano, "Bob", weekStart.plusDays(1), LocalTime.of(17, 0)),
+                ActivityOccurence(soccer, "Alice", weekStart.plusDays(2), LocalTime.of(15, 0)),
             )
         WeeklyScheduleScreen(
             kids = kids,
-            activities = activities,
+            weekStart = weekStart,
+            occurrences = occurrences,
+            onPreviousWeekClick = {},
+            onNextWeekClick = {},
             onEditActivityClick = {},
         )
     }
