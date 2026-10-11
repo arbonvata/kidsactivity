@@ -36,13 +36,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.arbonvata.kidstrackeractivity.data.ActivityOccurence
+import com.arbonvata.kidstrackeractivity.data.DebugTestData
+import com.arbonvata.kidstrackeractivity.data.expandActivitiesForDateRange
 import com.arbonvata.kidstrackeractivity.data.objectbox.Activity
 import com.arbonvata.kidstrackeractivity.data.objectbox.Kid
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.WeekViewModel
 import com.arbonvata.kidstrackeractivity.ui.theme.KidsTrackerActivityTheme
 import org.koin.androidx.compose.koinViewModel
 import java.time.LocalDate
-import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
 /**
@@ -212,39 +213,15 @@ fun WeeklyScheduleScreenPreview() {
     KidsTrackerActivityTheme {
         // A fixed Monday so the preview is deterministic.
         val weekStart = LocalDate.of(2026, 10, 19)
-        val kids =
-            listOf(
-                Kid(id = 1, name = "Alice"),
-                Kid(id = 2, name = "Bob"),
-            )
-        val soccer =
-            Activity(
-                id = 1,
-                kidId = 1,
-                name = "Soccer Practice",
-                startTime = "15:00",
-                endTime = "16:30",
-                isEnabled = true,
-                daysOfWeek = intArrayOf(1, 3, 5),
-            )
-        val piano =
-            Activity(
-                id = 2,
-                kidId = 2,
-                name = "Piano Lesson",
-                startTime = "17:00",
-                endTime = "18:00",
-                isEnabled = true,
-                daysOfWeek = intArrayOf(2, 4),
-            )
         val occurrences =
-            listOf(
-                ActivityOccurence(soccer, "Alice", weekStart, LocalTime.of(15, 0)),
-                ActivityOccurence(piano, "Bob", weekStart.plusDays(1), LocalTime.of(17, 0)),
-                ActivityOccurence(soccer, "Alice", weekStart.plusDays(2), LocalTime.of(15, 0)),
+            expandActivitiesForDateRange(
+                DebugTestData.mockKids,
+                DebugTestData.mockActivities,
+                weekStart,
+                weekStart.plusDays(6),
             )
         WeeklyScheduleScreen(
-            kids = kids,
+            kids = DebugTestData.mockKids,
             weekStart = weekStart,
             occurrences = occurrences,
             onPreviousWeekClick = {},

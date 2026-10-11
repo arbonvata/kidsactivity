@@ -41,6 +41,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.arbonvata.kidstrackeractivity.data.DebugTestData
 import com.arbonvata.kidstrackeractivity.data.objectbox.Kid
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.AddActivityUiState
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.AddActivityViewModel
@@ -334,7 +335,7 @@ fun AddActivityContentPreview() {
     KidsTrackerActivityTheme {
         AddActivityContent(
             uiState = AddActivityUiState(),
-            kids = listOf(Kid(id = 1, name = "Leo"), Kid(id = 2, name = "Mia")),
+            kids = DebugTestData.mockKids,
             isKidPickerEnabled = true,
             onKidSelected = {},
             onNameChange = {},

@@ -34,8 +34,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.arbonvata.kidstrackeractivity.data.DebugTestData
 import com.arbonvata.kidstrackeractivity.data.objectbox.Activity
-import com.arbonvata.kidstrackeractivity.data.objectbox.Kid
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.KidDetailUiState
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.KidDetailViewModel
 import com.arbonvata.kidstrackeractivity.ui.theme.KidsTrackerActivityTheme
@@ -199,18 +199,8 @@ fun KidDetailContentPreview() {
             uiState =
                 KidDetailUiState(
                     isLoading = false,
-                    kid = Kid(id = 1, name = "Alex", schoolName = "Greenfield Primary"),
-                    activities =
-                        listOf(
-                            Activity(
-                                id = 101,
-                                kidId = 1,
-                                name = "Soccer Practice",
-                                startTime = "17:00",
-                                endTime = "18:30",
-                                daysOfWeek = intArrayOf(1, 3, 5),
-                            ),
-                        ),
+                    kid = DebugTestData.mockKids[0],
+                    activities = DebugTestData.mockActivities.filter { it.kidId == DebugTestData.mockKids[0].id },
                 ),
             onDeleteAllClick = {},
             onActivityClick = {},

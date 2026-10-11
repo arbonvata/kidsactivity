@@ -37,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.arbonvata.kidstrackeractivity.data.DebugTestData
 import com.arbonvata.kidstrackeractivity.data.objectbox.Kid
 import com.arbonvata.kidstrackeractivity.ui.theme.KidsTrackerActivityTheme
 
@@ -182,13 +183,8 @@ fun KidSelectionRow(
 @Composable
 fun KidSelectionScreenPreview() {
     KidsTrackerActivityTheme {
-        val kids =
-            listOf(
-                Kid(id = 1, name = "Alice", schoolName = "Greenfield Primary"),
-                Kid(id = 2, name = "Bob", schoolName = "Greenfield Primary"),
-            )
         KidSelectionScreen(
-            kids = kids,
+            kids = DebugTestData.mockKids,
             onAddKidClick = {},
             onContinueClick = {},
         )

@@ -35,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.arbonvata.kidstrackeractivity.data.DebugTestData
 import com.arbonvata.kidstrackeractivity.data.objectbox.Kid
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.KidsViewModel
 import com.arbonvata.kidstrackeractivity.ui.theme.KidsTrackerActivityTheme
@@ -168,11 +169,7 @@ fun KidsManagementRow(
 fun KidsManagementContentPreview() {
     KidsTrackerActivityTheme {
         KidsManagementContent(
-            kids =
-                listOf(
-                    Kid(id = 1, name = "Alice", schoolName = "Greenfield Primary"),
-                    Kid(id = 2, name = "Bob", schoolName = "St. Mary's"),
-                ),
+            kids = DebugTestData.mockKids,
             onAddKidClick = {},
             onKidClick = {},
             onBackClick = {},

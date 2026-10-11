@@ -39,6 +39,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.arbonvata.kidstrackeractivity.data.ActivityOccurence
+import com.arbonvata.kidstrackeractivity.data.DebugTestData
 import com.arbonvata.kidstrackeractivity.data.expandActivitiesForDateRange
 import com.arbonvata.kidstrackeractivity.data.objectbox.Activity
 import com.arbonvata.kidstrackeractivity.data.objectbox.Kid
@@ -209,35 +210,9 @@ fun DailyActivityCard(
 @Composable
 fun DailyScheduleScreenPreview() {
     KidsTrackerActivityTheme {
-        val kids =
-            listOf(
-                Kid(id = 1, name = "Alice"),
-                Kid(id = 2, name = "Bob"),
-            )
-        val activities =
-            listOf(
-                Activity(
-                    id = 1,
-                    kidId = 1,
-                    name = "Soccer Practice",
-                    startTime = "15:00",
-                    endTime = "16:30",
-                    isEnabled = true,
-                    daysOfWeek = intArrayOf(1, 3, 5),
-                ),
-                Activity(
-                    id = 2,
-                    kidId = 2,
-                    name = "Piano Lesson",
-                    startTime = "17:00",
-                    endTime = "18:00",
-                    isEnabled = true,
-                    daysOfWeek = intArrayOf(2, 4),
-                ),
-            )
         DailyScheduleScreen(
-            kids = kids,
-            activities = activities,
+            kids = DebugTestData.mockKids,
+            activities = DebugTestData.mockActivities,
             selectedKidIds = setOf(1L, 2L),
             onEditActivityClick = {},
             onBackClick = {},

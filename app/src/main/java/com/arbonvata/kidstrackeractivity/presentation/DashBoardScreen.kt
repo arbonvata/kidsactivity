@@ -39,6 +39,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.arbonvata.kidstrackeractivity.data.ActivityOccurence
+import com.arbonvata.kidstrackeractivity.data.DebugTestData
+import com.arbonvata.kidstrackeractivity.data.expandActivitiesForDateRange
 import com.arbonvata.kidstrackeractivity.data.objectbox.Activity
 import com.arbonvata.kidstrackeractivity.data.objectbox.Kid
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.TodayViewModel
@@ -265,23 +267,17 @@ fun DashboardScreen(
 @Composable
 fun DashboardScreenPreview() {
     MaterialTheme {
-        val mockKids =
-            listOf(
-                Kid(id = 1, name = "Leo"),
-                Kid(id = 2, name = "Mia"),
-            )
-        val mockActivities =
-            listOf(
-                Activity(id = 1, kidId = 1, name = "Football", startTime = "17:00", endTime = "18:30", daysOfWeek = intArrayOf(2, 4)),
-                Activity(id = 2, kidId = 2, name = "Piano", startTime = "16:00", endTime = "17:00", daysOfWeek = intArrayOf(3)),
-            )
+        // Today's occurrences from the shared debug fixtures; varies with the
+        // real weekday (weekends render the empty state).
         val mockOccurrences =
-            listOf(
-                ActivityOccurence(mockActivities[0], "Leo", LocalDate.now(), LocalTime.of(17, 0)),
-                ActivityOccurence(mockActivities[1], "Mia", LocalDate.now(), LocalTime.of(16, 0)),
+            expandActivitiesForDateRange(
+                DebugTestData.mockKids,
+                DebugTestData.mockActivities,
+                LocalDate.now(),
+                LocalDate.now(),
             )
         DashboardScreen(
-            kids = mockKids,
+            kids = DebugTestData.mockKids,
             todayOccurrences = mockOccurrences,
             onAddActivityClick = {},
             onViewWeekClick = {},
