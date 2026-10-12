@@ -43,7 +43,6 @@ import com.arbonvata.kidstrackeractivity.presentation.KidsManagementScreen
 import com.arbonvata.kidstrackeractivity.presentation.MonthScreen
 import com.arbonvata.kidstrackeractivity.presentation.MoreScreen
 import com.arbonvata.kidstrackeractivity.presentation.SettingsScreen
-import com.arbonvata.kidstrackeractivity.presentation.SettingsState
 import com.arbonvata.kidstrackeractivity.presentation.TodayScreen
 import com.arbonvata.kidstrackeractivity.presentation.WeekScreen
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.KidsViewModel
@@ -178,14 +177,8 @@ fun KidsScheduleApp(viewModel: ScheduleViewModel) {
             // --- SECONDARY SCREENS ---
             composable(Screen.Settings.route) {
                 SettingsScreen(
-                    state = SettingsState(), // Get from ViewModel in real app
-                    onSchoolAlarmChange = { /* handle */ },
-                    onActivityAlarmChange = { /* handle */ },
-                    onRequestExactAlarm = { /* handle */ },
-                    onRequestNotifications = { /* handle */ },
-                    onDisableBatteryOpt = { /* handle */ },
-                    onBackupClick = { /* handle */ },
-                    onRestoreClick = { /* handle */ },
+                    onBackupClick = { /* TODO: wire backup export */ },
+                    onRestoreClick = { /* TODO: wire backup import */ },
                     onBackClick = { navController.popBackStack() },
                 )
             }

@@ -1,5 +1,15 @@
 package com.arbonvata.kidstrackeractivity.presentation
 
+import android.Manifest
+import android.app.AlarmManager
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
+import android.os.PowerManager
+import android.provider.Settings
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -31,12 +41,23 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 
 data class SettingsState(
     val schoolAlarmMinutes: Int = 10,
@@ -46,9 +67,89 @@ data class SettingsState(
     val batteryOptimizationDisabled: Boolean = false,
 )
 
-@OptIn(ExperimentalMaterial3Api::class)
+/**
+ * Stateful entry point of the Settings screen: reads the real permission
+ * state from the system, launches the matching request flows, and refreshes
+ * the statuses on every resume (e.g. after returning from system settings).
+ * The alarm-minute sliders are local state for now; persisting them needs a
+ * preferences store.
+ */
 @Composable
 fun SettingsScreen(
+    onBackupClick: () -> Unit,
+    onRestoreClick: () -> Unit,
+    onBackClick: () -> Unit,
+) {
+    val context = LocalContext.current
+    var state by remember { mutableStateOf(SettingsState()) }
+
+    fun refreshPermissions() {
+        val alarmManager = context.getSystemService(AlarmManager::class.java)
+        val powerManager = context.getSystemService(PowerManager::class.java)
+        state =
+            state.copy(
+                exactAlarmGranted = alarmManager.canScheduleExactAlarms(),
+                notificationsGranted = areNotificationsGranted(context),
+                batteryOptimizationDisabled = powerManager.isIgnoringBatteryOptimizations(context.packageName),
+            )
+    }
+
+    val requestNotifications =
+        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
+            refreshPermissions()
+        }
+    val requestExactAlarm =
+        rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            refreshPermissions()
+        }
+    val requestIgnoreBatteryOpt =
+        rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            refreshPermissions()
+        }
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer =
+            LifecycleEventObserver { _, event ->
+                if (event == Lifecycle.Event.ON_RESUME) refreshPermissions()
+            }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
+    SettingsContent(
+        state = state,
+        onSchoolAlarmChange = { state = state.copy(schoolAlarmMinutes = it) },
+        onActivityAlarmChange = { state = state.copy(activityAlarmMinutes = it) },
+        onRequestExactAlarm = {
+            requestExactAlarm.launch(
+                Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, "package:${context.packageName}".toUri()),
+            )
+        },
+        onRequestNotifications = {
+            // Below Android 13 notifications need no runtime permission.
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                requestNotifications.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        },
+        onDisableBatteryOpt = {
+            requestIgnoreBatteryOpt.launch(
+                Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, "package:${context.packageName}".toUri()),
+            )
+        },
+        onBackupClick = onBackupClick,
+        onRestoreClick = onRestoreClick,
+        onBackClick = onBackClick,
+    )
+}
+
+private fun areNotificationsGranted(context: Context): Boolean =
+    Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+        ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SettingsContent(
     state: SettingsState,
     onSchoolAlarmChange: (Int) -> Unit,
     onActivityAlarmChange: (Int) -> Unit,
@@ -238,9 +339,9 @@ fun SettingsSlider(
 
 @Preview(showBackground = true)
 @Composable
-fun SettingsScreenPreview() {
+fun SettingsContentPreview() {
     MaterialTheme {
-        SettingsScreen(
+        SettingsContent(
             state =
                 SettingsState(
                     schoolAlarmMinutes = 10,
