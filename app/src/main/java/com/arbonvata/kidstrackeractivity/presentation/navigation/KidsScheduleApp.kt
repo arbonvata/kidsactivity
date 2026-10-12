@@ -141,6 +141,7 @@ fun KidsScheduleApp(viewModel: ScheduleViewModel) {
                 TodayScreen(
                     onAddActivityClick = { navController.navigate("add_activity") },
                     onViewWeekClick = { navController.navigate(Screen.Week.route) },
+                    onSettingsClick = { navController.navigate(Screen.Settings.route) },
                     onActivityClick = { activity ->
                         navController.navigate("edit_activity/${activity.id}")
                     },

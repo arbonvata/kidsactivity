@@ -59,6 +59,7 @@ fun TodayScreen(
     viewModel: TodayViewModel = koinViewModel(),
     onAddActivityClick: () -> Unit,
     onViewWeekClick: () -> Unit,
+    onSettingsClick: () -> Unit,
     onActivityClick: (Activity) -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -79,6 +80,7 @@ fun TodayScreen(
                 todayOccurrences = uiState.todayOccurrences,
                 onAddActivityClick = onAddActivityClick,
                 onViewWeekClick = onViewWeekClick,
+                onSettingsClick = onSettingsClick,
                 onActivityClick = onActivityClick,
             )
         }
@@ -92,6 +94,7 @@ fun DashboardScreen(
     todayOccurrences: List<ActivityOccurence>,
     onAddActivityClick: () -> Unit,
     onViewWeekClick: () -> Unit,
+    onSettingsClick: () -> Unit,
     onActivityClick: (Activity) -> Unit,
 ) {
     val now = LocalTime.now()
@@ -105,7 +108,7 @@ fun DashboardScreen(
             TopAppBar(
                 title = { Text("Today") },
                 actions = {
-                    IconButton(onClick = { /* Open settings */ }) {
+                    IconButton(onClick = onSettingsClick) {
                         Icon(Icons.Default.Settings, contentDescription = "Settings")
                     }
                 },
@@ -281,6 +284,7 @@ fun DashboardScreenPreview() {
             todayOccurrences = mockOccurrences,
             onAddActivityClick = {},
             onViewWeekClick = {},
+            onSettingsClick = {},
             onActivityClick = {},
         )
     }
