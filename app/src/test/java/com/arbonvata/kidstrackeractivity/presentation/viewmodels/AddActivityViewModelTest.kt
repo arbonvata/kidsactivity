@@ -56,6 +56,7 @@ class AddActivityViewModelTest {
             assertEquals(LocalTime.of(18, 30), state.endTime)
             assertFalse(state.nameError)
             assertFalse(state.isPeriodic)
+            assertFalse(state.isSchoolActivity)
         }
 
     @Test
@@ -170,6 +171,7 @@ class AddActivityViewModelTest {
             assertEquals("19:30", savedActivity.captured.endTime)
             assertTrue(savedActivity.captured.isEnabled)
             assertFalse(savedActivity.captured.isPeriodic)
+            assertFalse(savedActivity.captured.isSchoolActivity)
             assertEquals(LocalDate.now().format(DateTimeFormatter.ISO_DATE), savedActivity.captured.firstDate)
             val expectedDays = setOf(todaysDayOfWeek, 5, 3).sorted().toIntArray()
             assertTrue(savedActivity.captured.daysOfWeek.contentEquals(expectedDays))
@@ -191,6 +193,22 @@ class AddActivityViewModelTest {
 
             coVerify { activityRepository.addActivity(any()) }
             assertTrue(savedActivity.captured.isPeriodic)
+        }
+
+    @Test
+    fun saveActivityPersistsSchoolActivityFlagWhenChecked() =
+        runTest {
+            val viewModel = AddActivityViewModel(kidId = 5L, activityRepository, kidRepository)
+            val savedActivity = slot<Activity>()
+            coEvery { activityRepository.addActivity(capture(savedActivity)) } returns Activity(id = 1L)
+            viewModel.onNameChange("School")
+            viewModel.onSchoolActivityChange(true)
+            assertTrue(viewModel.uiState.value.isSchoolActivity)
+
+            viewModel.saveActivity()
+
+            coVerify { activityRepository.addActivity(any()) }
+            assertTrue(savedActivity.captured.isSchoolActivity)
         }
 
     @Test

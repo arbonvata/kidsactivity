@@ -82,6 +82,7 @@ fun AddActivityScreen(
         onStartTimeChange = viewModel::onStartTimeChange,
         onEndTimeChange = viewModel::onEndTimeChange,
         onPeriodicChange = viewModel::onPeriodicChange,
+        onSchoolActivityChange = viewModel::onSchoolActivityChange,
         onSaveClick = viewModel::saveActivity,
         onNavigateBack = onNavigateBack,
     )
@@ -99,6 +100,7 @@ fun AddActivityContent(
     onStartTimeChange: (LocalTime) -> Unit,
     onEndTimeChange: (LocalTime) -> Unit,
     onPeriodicChange: (Boolean) -> Unit,
+    onSchoolActivityChange: (Boolean) -> Unit,
     onSaveClick: () -> Unit,
     onNavigateBack: () -> Unit,
 ) {
@@ -201,6 +203,27 @@ fun AddActivityContent(
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier.padding(start = 8.dp),
                 )
+            }
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Checkbox(
+                    checked = uiState.isSchoolActivity,
+                    onCheckedChange = onSchoolActivityChange,
+                )
+                Column(modifier = Modifier.padding(start = 8.dp)) {
+                    Text(
+                        text = "School Activity",
+                        style = MaterialTheme.typography.bodyLarge,
+                    )
+                    Text(
+                        text = "Remind after it ends instead of before it starts",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
             }
 
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -343,6 +366,7 @@ fun AddActivityContentPreview() {
             onStartTimeChange = {},
             onEndTimeChange = {},
             onPeriodicChange = {},
+            onSchoolActivityChange = {},
             onSaveClick = {},
             onNavigateBack = {},
         )

@@ -29,6 +29,9 @@ data class Activity(
     // written before this column existed read null from the DB (ObjectBox
     // does not apply Kotlin defaults to stored rows).
     var firstDate: String? = null,
+    // School activities remind AFTER they end (pickup); everything else
+    // reminds before it starts. Consumed by the future alarm scheduler.
+    var isSchoolActivity: Boolean = false,
 ) {
     // Overriding equals and hashCode is highly recommended when using IntArray
     // in data classes, because arrays in Kotlin compare by reference by default.
@@ -47,6 +50,7 @@ data class Activity(
         if (!daysOfWeek.contentEquals(other.daysOfWeek)) return false
         if (isPeriodic != other.isPeriodic) return false
         if (firstDate != other.firstDate) return false
+        if (isSchoolActivity != other.isSchoolActivity) return false
 
         return true
     }
@@ -60,7 +64,8 @@ data class Activity(
         result = 31 * result + isEnabled.hashCode()
         result = 31 * result + daysOfWeek.contentHashCode()
         result = 31 * result + isPeriodic.hashCode()
-        result = 31 * result + firstDate.hashCode()
+        result = 31 * result + (firstDate?.hashCode() ?: 0)
+        result = 31 * result + isSchoolActivity.hashCode()
         return result
     }
 }
