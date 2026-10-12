@@ -1,8 +1,13 @@
 package com.arbonvata.kidstrackeractivity.di
 
+import com.arbonvata.kidstrackeractivity.alarms.AlarmManagerAlarmScheduler
+import com.arbonvata.kidstrackeractivity.alarms.AlarmScheduler
+import com.arbonvata.kidstrackeractivity.alarms.AlarmSyncCoordinator
 import com.arbonvata.kidstrackeractivity.data.objectbox.MyObjectBox
 import com.arbonvata.kidstrackeractivity.data.repository.ActivityRepository
 import com.arbonvata.kidstrackeractivity.data.repository.ActivityRepositoryImpl
+import com.arbonvata.kidstrackeractivity.data.repository.AlarmSettingsRepository
+import com.arbonvata.kidstrackeractivity.data.repository.AlarmSettingsRepositoryImpl
 import com.arbonvata.kidstrackeractivity.data.repository.BackupRepository
 import com.arbonvata.kidstrackeractivity.data.repository.BackupRepositoryImpl
 import com.arbonvata.kidstrackeractivity.data.repository.KidRepository
@@ -17,9 +22,13 @@ import com.arbonvata.kidstrackeractivity.presentation.viewmodels.KidDetailViewMo
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.KidsViewModel
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.MonthViewModel
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.ScheduleViewModel
+import com.arbonvata.kidstrackeractivity.presentation.viewmodels.SettingsViewModel
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.TodayViewModel
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.WeekViewModel
 import io.objectbox.BoxStore
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
@@ -38,12 +47,17 @@ val appModule =
         single<ScheduleOverrideRepository> { ScheduleOverrideRepositoryImpl(get()) }
         single<OccurrenceRepository> { OccurrenceRepositoryImpl(get(), get()) }
         single<BackupRepository> { BackupRepositoryImpl(get()) }
+        single<AlarmSettingsRepository> { AlarmSettingsRepositoryImpl(androidContext()) }
+        single<CoroutineScope> { CoroutineScope(SupervisorJob() + Dispatchers.Default) }
+        single<AlarmScheduler> { AlarmManagerAlarmScheduler(androidContext()) }
+        single<AlarmSyncCoordinator> { AlarmSyncCoordinator(get(), get(), get(), get(), get()) }
         viewModel { ScheduleViewModel(get(), get(), get(), get()) }
         viewModel { KidsViewModel(get()) }
         viewModel { AddKidViewModel(get()) }
         viewModel { TodayViewModel(get(), get()) }
         viewModel { WeekViewModel(get(), get()) }
         viewModel { MonthViewModel(get(), get()) }
+        viewModel { SettingsViewModel(get()) }
         viewModel { (kidId: Long) ->
             AddActivityViewModel(
                 kidId = kidId,

@@ -42,6 +42,8 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -58,6 +60,8 @@ import androidx.core.net.toUri
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.arbonvata.kidstrackeractivity.presentation.viewmodels.SettingsViewModel
+import org.koin.androidx.compose.koinViewModel
 
 data class SettingsState(
     val schoolAlarmMinutes: Int = 10,
@@ -68,20 +72,28 @@ data class SettingsState(
 )
 
 /**
- * Stateful entry point of the Settings screen: reads the real permission
- * state from the system, launches the matching request flows, and refreshes
- * the statuses on every resume (e.g. after returning from system settings).
- * The alarm-minute sliders are local state for now; persisting them needs a
- * preferences store.
+ * Stateful entry point of the Settings screen: exposes the persisted alarm
+ * offsets via [SettingsViewModel] (dragging updates local state; the value is
+ * written on release), reads the real permission state from the system,
+ * launches the matching request flows, and refreshes the statuses on every
+ * resume (e.g. after returning from system settings).
  */
 @Composable
 fun SettingsScreen(
+    viewModel: SettingsViewModel = koinViewModel(),
     onBackupClick: () -> Unit,
     onRestoreClick: () -> Unit,
     onBackClick: () -> Unit,
 ) {
     val context = LocalContext.current
+    val schoolMinutes by viewModel.schoolAlarmMinutes.collectAsState()
+    val activityMinutes by viewModel.activityAlarmMinutes.collectAsState()
     var state by remember { mutableStateOf(SettingsState()) }
+
+    // Adopt persisted offsets when they change outside a drag (e.g. on first
+    // load); keyed on the flow value, so an in-progress drag is not fought.
+    LaunchedEffect(schoolMinutes) { state = state.copy(schoolAlarmMinutes = schoolMinutes) }
+    LaunchedEffect(activityMinutes) { state = state.copy(activityAlarmMinutes = activityMinutes) }
 
     fun refreshPermissions() {
         val alarmManager = context.getSystemService(AlarmManager::class.java)
@@ -120,7 +132,9 @@ fun SettingsScreen(
     SettingsContent(
         state = state,
         onSchoolAlarmChange = { state = state.copy(schoolAlarmMinutes = it) },
+        onSchoolAlarmChangeFinished = { viewModel.onSchoolAlarmChange(state.schoolAlarmMinutes) },
         onActivityAlarmChange = { state = state.copy(activityAlarmMinutes = it) },
+        onActivityAlarmChangeFinished = { viewModel.onActivityAlarmChange(state.activityAlarmMinutes) },
         onRequestExactAlarm = {
             requestExactAlarm.launch(
                 Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, "package:${context.packageName}".toUri()),
@@ -152,7 +166,9 @@ private fun areNotificationsGranted(context: Context): Boolean =
 fun SettingsContent(
     state: SettingsState,
     onSchoolAlarmChange: (Int) -> Unit,
+    onSchoolAlarmChangeFinished: () -> Unit,
     onActivityAlarmChange: (Int) -> Unit,
+    onActivityAlarmChangeFinished: () -> Unit,
     onRequestExactAlarm: () -> Unit,
     onRequestNotifications: () -> Unit,
     onDisableBatteryOpt: () -> Unit,
@@ -213,6 +229,7 @@ fun SettingsContent(
                     valueRange = 5..30,
                     suffix = "min after",
                     onValueChange = onSchoolAlarmChange,
+                    onValueChangeFinished = onSchoolAlarmChangeFinished,
                 )
                 HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
                 SettingsSlider(
@@ -221,6 +238,7 @@ fun SettingsContent(
                     valueRange = 5..60,
                     suffix = "min before",
                     onValueChange = onActivityAlarmChange,
+                    onValueChangeFinished = onActivityAlarmChangeFinished,
                 )
             }
 
@@ -319,6 +337,7 @@ fun SettingsSlider(
     valueRange: IntRange,
     suffix: String,
     onValueChange: (Int) -> Unit,
+    onValueChangeFinished: () -> Unit,
 ) {
     Column {
         Row(
@@ -331,6 +350,7 @@ fun SettingsSlider(
         Slider(
             value = value.toFloat(),
             onValueChange = { onValueChange(it.toInt()) },
+            onValueChangeFinished = onValueChangeFinished,
             valueRange = valueRange.first.toFloat()..valueRange.last.toFloat(),
             steps = (valueRange.last - valueRange.first) / 5 - 1,
         )
@@ -351,7 +371,9 @@ fun SettingsContentPreview() {
                     batteryOptimizationDisabled = false,
                 ),
             onSchoolAlarmChange = {},
+            onSchoolAlarmChangeFinished = {},
             onActivityAlarmChange = {},
+            onActivityAlarmChangeFinished = {},
             onRequestExactAlarm = {},
             onRequestNotifications = {},
             onDisableBatteryOpt = {},
