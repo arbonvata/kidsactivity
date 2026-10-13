@@ -63,15 +63,17 @@ class AddActivityViewModelTest {
     fun onToggleDayAddsAndRemovesDaysAroundThePreselection() =
         runTest {
             val viewModel = AddActivityViewModel(kidId = 5L, activityRepository, kidRepository)
+            // Pick two weekdays that never collide with the preselected one.
+            val extraDays = (1..7).filter { it != todaysDayOfWeek }.take(2)
 
-            viewModel.onToggleDay(3)
-            viewModel.onToggleDay(5)
+            viewModel.onToggleDay(extraDays[0])
+            viewModel.onToggleDay(extraDays[1])
 
-            assertEquals(setOf(todaysDayOfWeek, 3, 5), viewModel.uiState.value.selectedDays)
+            assertEquals(setOf(todaysDayOfWeek) + extraDays, viewModel.uiState.value.selectedDays)
 
-            viewModel.onToggleDay(3)
+            viewModel.onToggleDay(extraDays[0])
 
-            assertEquals(setOf(todaysDayOfWeek, 5), viewModel.uiState.value.selectedDays)
+            assertEquals(setOf(todaysDayOfWeek, extraDays[1]), viewModel.uiState.value.selectedDays)
         }
 
     @Test
@@ -156,9 +158,11 @@ class AddActivityViewModelTest {
             val viewModel = AddActivityViewModel(kidId = 5L, activityRepository, kidRepository)
             val savedActivity = slot<Activity>()
             coEvery { activityRepository.addActivity(capture(savedActivity)) } returns Activity(id = 1L)
+            // Pick two weekdays that never collide with the preselected one.
+            val extraDays = (1..7).filter { it != todaysDayOfWeek }.take(2)
             viewModel.onNameChange("  Football  ")
-            viewModel.onToggleDay(5)
-            viewModel.onToggleDay(3)
+            viewModel.onToggleDay(extraDays[0])
+            viewModel.onToggleDay(extraDays[1])
             viewModel.onStartTimeChange(LocalTime.of(18, 0))
             viewModel.onEndTimeChange(LocalTime.of(19, 30))
 
@@ -173,7 +177,7 @@ class AddActivityViewModelTest {
             assertFalse(savedActivity.captured.isPeriodic)
             assertFalse(savedActivity.captured.isSchoolActivity)
             assertEquals(LocalDate.now().format(DateTimeFormatter.ISO_DATE), savedActivity.captured.firstDate)
-            val expectedDays = setOf(todaysDayOfWeek, 5, 3).sorted().toIntArray()
+            val expectedDays = (setOf(todaysDayOfWeek) + extraDays).sorted().toIntArray()
             assertTrue(savedActivity.captured.daysOfWeek.contentEquals(expectedDays))
             assertFalse(viewModel.uiState.value.isSaving)
             assertTrue(viewModel.uiState.value.isSaved)

@@ -50,7 +50,7 @@ class AlarmReceiver : BroadcastReceiver() {
         val notification =
             NotificationCompat
                 .Builder(context, NotificationChannels.ACTIVITY_ALARMS)
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setSmallIcon(R.drawable.ic_notification)
                 .setContentTitle(title)
                 .setContentText(text)
                 .setStyle(NotificationCompat.BigTextStyle().bigText(text))
