@@ -1,0 +1,143 @@
+package com.arbonvata.kidstrackeractivity.presentation.viewmodels
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.arbonvata.kidstrackeractivity.data.objectbox.Activity
+import com.arbonvata.kidstrackeractivity.data.objectbox.Kid
+import com.arbonvata.kidstrackeractivity.data.repository.ActivityRepository
+import com.arbonvata.kidstrackeractivity.data.repository.KidRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import java.time.LocalTime
+
+data class EditActivityUiState(
+    /** The loaded form; null while loading. */
+    val form: AddActivityUiState? = null,
+    val isNotFound: Boolean = false,
+    val isSaving: Boolean = false,
+    val isSaved: Boolean = false,
+    val isDeleted: Boolean = false,
+)
+
+/**
+ * Edit form for one existing activity. The form fields reuse
+ * [AddActivityUiState] so the Add screen's composable renders this too;
+ * the stored id, kidId, isEnabled and firstDate anchor are preserved on
+ * save (editing a one-off does not re-anchor it).
+ */
+class EditActivityViewModel(
+    private val activityId: Long,
+    private val activityRepository: ActivityRepository,
+    kidRepository: KidRepository,
+) : ViewModel() {
+    private val _uiState = MutableStateFlow(EditActivityUiState())
+    val uiState: StateFlow<EditActivityUiState> = _uiState.asStateFlow()
+
+    val kids: StateFlow<List<Kid>> =
+        kidRepository
+            .getAllKidsFlow()
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    private var original: Activity? = null
+
+    init {
+        viewModelScope.launch {
+            val activity = activityRepository.getActivity(activityId)
+            original = activity
+            if (activity == null) {
+                _uiState.update { it.copy(isNotFound = true) }
+            } else {
+                _uiState.update {
+                    it.copy(
+                        form =
+                            AddActivityUiState(
+                                selectedKidId = activity.kidId,
+                                name = activity.name,
+                                selectedDays = activity.daysOfWeek.toSet(),
+                                startTime = LocalTime.parse(activity.startTime),
+                                endTime = LocalTime.parse(activity.endTime),
+                                isPeriodic = activity.isPeriodic,
+                                isSchoolActivity = activity.isSchoolActivity,
+                            ),
+                    )
+                }
+            }
+        }
+    }
+
+    fun onNameChange(name: String) = updateForm { it.copy(name = name, nameError = name.isBlank()) }
+
+    fun onToggleDay(day: Int) =
+        updateForm {
+            it.copy(
+                selectedDays = if (day in it.selectedDays) it.selectedDays - day else it.selectedDays + day,
+                daysError = false,
+            )
+        }
+
+    fun onStartTimeChange(time: LocalTime) = updateForm { it.copy(startTime = time) }
+
+    fun onEndTimeChange(time: LocalTime) = updateForm { it.copy(endTime = time) }
+
+    fun onPeriodicChange(isPeriodic: Boolean) = updateForm { it.copy(isPeriodic = isPeriodic) }
+
+    fun onSchoolActivityChange(isSchoolActivity: Boolean) = updateForm { it.copy(isSchoolActivity = isSchoolActivity) }
+
+    fun saveActivity() {
+        val form = _uiState.value.form ?: return
+        val original = original ?: return
+        val nameError = form.name.isBlank()
+        val daysError = form.selectedDays.isEmpty()
+        if (nameError || daysError) {
+            _uiState.update { state ->
+                state.copy(form = form.copy(nameError = nameError, daysError = daysError))
+            }
+            return
+        }
+
+        viewModelScope.launch {
+            _uiState.update { it.copy(isSaving = true) }
+            activityRepository.updateActivity(
+                Activity(
+                    id = original.id,
+                    kidId = original.kidId,
+                    name = form.name.trim(),
+                    startTime = form.startTime.format(AddActivityViewModel.TIME_FORMATTER),
+                    endTime = form.endTime.format(AddActivityViewModel.TIME_FORMATTER),
+                    isEnabled = original.isEnabled,
+                    daysOfWeek = form.selectedDays.sorted().toIntArray(),
+                    isPeriodic = form.isPeriodic,
+                    isSchoolActivity = form.isSchoolActivity,
+                    firstDate = original.firstDate,
+                ),
+            )
+            _uiState.update { it.copy(isSaved = true, isSaving = false) }
+        }
+    }
+
+    fun deleteActivity() {
+        viewModelScope.launch {
+            activityRepository.deleteActivity(activityId)
+            _uiState.update { it.copy(isDeleted = true) }
+        }
+    }
+
+    /** Called by the UI after it has reacted to [EditActivityUiState.isSaved]. */
+    fun onSavedHandled() {
+        _uiState.update { it.copy(isSaved = false) }
+    }
+
+    /** Called by the UI after it has reacted to [EditActivityUiState.isDeleted]. */
+    fun onDeletedHandled() {
+        _uiState.update { it.copy(isDeleted = false) }
+    }
+
+    private fun updateForm(transform: (AddActivityUiState) -> AddActivityUiState) {
+        _uiState.update { state -> state.form?.let { state.copy(form = transform(it)) } ?: state }
+    }
+}

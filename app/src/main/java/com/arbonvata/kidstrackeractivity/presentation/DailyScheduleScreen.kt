@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -29,10 +30,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -43,34 +42,62 @@ import com.arbonvata.kidstrackeractivity.data.DebugTestData
 import com.arbonvata.kidstrackeractivity.data.expandActivitiesForDateRange
 import com.arbonvata.kidstrackeractivity.data.objectbox.Activity
 import com.arbonvata.kidstrackeractivity.data.objectbox.Kid
+import com.arbonvata.kidstrackeractivity.presentation.viewmodels.DailyScheduleViewModel
 import com.arbonvata.kidstrackeractivity.ui.theme.KidsTrackerActivityTheme
+import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-@OptIn(ExperimentalMaterial3Api::class)
+/**
+ * Stateful entry point of the daily view: owns the [DailyScheduleViewModel]
+ * scoped to the kid ids from the route and delegates rendering to the
+ * stateless [DailyScheduleContent].
+ */
 @Composable
 fun DailyScheduleScreen(
-    kids: List<Kid>,
-    activities: List<Activity>,
-    selectedKidIds: Set<Long>, // <--- NEW PARAMETER
+    selectedKidIds: Set<Long>,
+    viewModel: DailyScheduleViewModel = koinViewModel(parameters = { parametersOf(selectedKidIds) }),
     onEditActivityClick: (Activity) -> Unit,
     onBackClick: () -> Unit,
 ) {
-    var selectedDate by remember { mutableStateOf(LocalDate.now()) }
+    val uiState by viewModel.uiState.collectAsState()
 
-    // Filter kids and activities to only those selected
-    val filteredKids = kids.filter { it.id in selectedKidIds }
-    val filteredActivities = activities.filter { it.kidId in selectedKidIds && it.isEnabled }
+    when {
+        uiState.isLoading -> {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center,
+            ) {
+                CircularProgressIndicator()
+            }
+        }
 
-    // Get occurrences for the selected date (only for selected kids)
-    val occurrences =
-        expandActivitiesForDateRange(
-            filteredKids,
-            filteredActivities,
-            selectedDate,
-            selectedDate,
-        )
+        else -> {
+            DailyScheduleContent(
+                kids = uiState.kids,
+                selectedDate = uiState.selectedDate,
+                occurrences = uiState.dayOccurrences,
+                onPreviousDayClick = viewModel::previousDay,
+                onNextDayClick = viewModel::nextDay,
+                onEditActivityClick = onEditActivityClick,
+                onBackClick = onBackClick,
+            )
+        }
+    }
+}
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DailyScheduleContent(
+    kids: List<Kid>,
+    selectedDate: LocalDate,
+    occurrences: List<ActivityOccurence>,
+    onPreviousDayClick: () -> Unit,
+    onNextDayClick: () -> Unit,
+    onEditActivityClick: (Activity) -> Unit,
+    onBackClick: () -> Unit,
+) {
     val dateFormatter = DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy")
 
     Scaffold(
@@ -84,7 +111,7 @@ fun DailyScheduleScreen(
                         IconButton(onClick = onBackClick) {
                             Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                         }
-                        IconButton(onClick = { selectedDate = selectedDate.minusDays(1) }) {
+                        IconButton(onClick = onPreviousDayClick) {
                             Icon(Icons.Default.ChevronLeft, contentDescription = "Previous day")
                         }
                         Column(
@@ -97,12 +124,12 @@ fun DailyScheduleScreen(
                                 fontWeight = FontWeight.Bold,
                             )
                             Text(
-                                text = "${filteredKids.joinToString(", ") { it.name }}",
+                                text = kids.joinToString(", ") { it.name },
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }
-                        IconButton(onClick = { selectedDate = selectedDate.plusDays(1) }) {
+                        IconButton(onClick = onNextDayClick) {
                             Icon(Icons.Default.ChevronRight, contentDescription = "Next day")
                         }
                     }
@@ -208,12 +235,18 @@ fun DailyActivityCard(
 
 @Preview(showBackground = true)
 @Composable
-fun DailyScheduleScreenPreview() {
+fun DailyScheduleContentPreview() {
     KidsTrackerActivityTheme {
-        DailyScheduleScreen(
+        // A fixed Tuesday so the preview is deterministic.
+        val selectedDate = LocalDate.of(2026, 10, 20)
+        val occurrences =
+            expandActivitiesForDateRange(DebugTestData.mockKids, DebugTestData.mockActivities, selectedDate, selectedDate)
+        DailyScheduleContent(
             kids = DebugTestData.mockKids,
-            activities = DebugTestData.mockActivities,
-            selectedKidIds = setOf(1L, 2L),
+            selectedDate = selectedDate,
+            occurrences = occurrences,
+            onPreviousDayClick = {},
+            onNextDayClick = {},
             onEditActivityClick = {},
             onBackClick = {},
         )

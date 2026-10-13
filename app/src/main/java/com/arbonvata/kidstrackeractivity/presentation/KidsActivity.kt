@@ -1,6 +1,7 @@
 package com.arbonvata.kidstrackeractivity.presentation
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
@@ -10,9 +11,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
@@ -45,6 +48,7 @@ import com.arbonvata.kidstrackeractivity.data.DebugTestData
 import com.arbonvata.kidstrackeractivity.data.objectbox.Kid
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.AddActivityUiState
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.AddActivityViewModel
+import com.arbonvata.kidstrackeractivity.presentation.viewmodels.EditActivityViewModel
 import com.arbonvata.kidstrackeractivity.ui.theme.KidsTrackerActivityTheme
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -88,6 +92,95 @@ fun AddActivityScreen(
     )
 }
 
+/**
+ * Stateful entry point of the Edit Activity screen: loads the activity into
+ * the shared Add form, saves via updateActivity (preserving id, kid, enable
+ * flag and one-off anchor), deletes with confirmation, and turns the
+ * one-shot isSaved/isDeleted flags into navigation.
+ */
+@Composable
+fun EditActivityScreen(
+    activityId: Long,
+    viewModel: EditActivityViewModel = koinViewModel(parameters = { parametersOf(activityId) }),
+    onNavigateBack: () -> Unit,
+) {
+    val uiState by viewModel.uiState.collectAsState()
+    val kids by viewModel.kids.collectAsState()
+    var showDeleteDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(uiState.isSaved) {
+        if (uiState.isSaved) {
+            viewModel.onSavedHandled()
+            onNavigateBack()
+        }
+    }
+    LaunchedEffect(uiState.isDeleted) {
+        if (uiState.isDeleted) {
+            viewModel.onDeletedHandled()
+            onNavigateBack()
+        }
+    }
+
+    val form = uiState.form
+    when {
+        uiState.isNotFound -> {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text("Activity not found")
+            }
+        }
+
+        form == null -> {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center,
+            ) {
+                CircularProgressIndicator()
+            }
+        }
+
+        else -> {
+            AddActivityContent(
+                uiState = form,
+                kids = kids,
+                isKidPickerEnabled = false,
+                onKidSelected = {},
+                onNameChange = viewModel::onNameChange,
+                onToggleDay = viewModel::onToggleDay,
+                onStartTimeChange = viewModel::onStartTimeChange,
+                onEndTimeChange = viewModel::onEndTimeChange,
+                onPeriodicChange = viewModel::onPeriodicChange,
+                onSchoolActivityChange = viewModel::onSchoolActivityChange,
+                onSaveClick = viewModel::saveActivity,
+                onNavigateBack = onNavigateBack,
+                screenTitle = "Edit Activity",
+                onDeleteClick = { showDeleteDialog = true },
+            )
+        }
+    }
+
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text("Delete activity?") },
+            text = { Text("The activity and its reminders will be removed.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showDeleteDialog = false
+                        viewModel.deleteActivity()
+                    },
+                ) { Text("Delete") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog = false }) { Text("Cancel") }
+            },
+        )
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddActivityContent(
@@ -103,6 +196,8 @@ fun AddActivityContent(
     onSchoolActivityChange: (Boolean) -> Unit,
     onSaveClick: () -> Unit,
     onNavigateBack: () -> Unit,
+    screenTitle: String = "Add Activity",
+    onDeleteClick: (() -> Unit)? = null,
 ) {
     var showStartTimePicker by remember { mutableStateOf(false) }
     var showEndTimePicker by remember { mutableStateOf(false) }
@@ -122,10 +217,17 @@ fun AddActivityContent(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Add Activity") },
+                title = { Text(screenTitle) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                actions = {
+                    onDeleteClick?.let { onDelete ->
+                        IconButton(onClick = onDelete) {
+                            Icon(Icons.Default.Delete, contentDescription = "Delete")
+                        }
                     }
                 },
             )

@@ -58,6 +58,7 @@ class AlarmManagerAlarmScheduler(
             Intent(context, AlarmReceiver::class.java)
                 .setAction(AlarmReceiver.ACTION_ALARM)
                 .putExtra(AlarmReceiver.EXTRA_REQUEST_CODE, requestCode)
+                .putExtra(AlarmReceiver.EXTRA_ACTIVITY_ID, alarm?.activityId ?: 0L)
                 .putExtra(AlarmReceiver.EXTRA_TITLE, alarm?.title)
                 .putExtra(AlarmReceiver.EXTRA_TEXT, alarm?.text)
         return PendingIntent.getBroadcast(

@@ -18,6 +18,7 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -96,6 +97,27 @@ class ActivityRepositoryImplTest {
             repository.deleteActivity(7L)
 
             verify { activityBox.remove(7L) }
+        }
+
+    @Test
+    fun getActivityReturnsActivityFromTheBox() =
+        runTest {
+            val stored = Activity(id = 5L, kidId = 1L, name = "Football")
+            every { activityBox.get(5L) } returns stored
+
+            assertSame(stored, repository.getActivity(5L))
+
+            verify { activityBox.get(5L) }
+        }
+
+    @Test
+    fun getActivityReturnsNullWhenMissing() =
+        runTest {
+            every { activityBox.get(9L) } returns null
+
+            assertNull(repository.getActivity(9L))
+
+            verify { activityBox.get(9L) }
         }
 
     @Test

@@ -1,5 +1,6 @@
 package com.arbonvata.kidstrackeractivity.presentation.navigation
 
+import android.content.Intent
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -22,6 +23,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -34,9 +36,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import androidx.navigation.navDeepLink
 import com.arbonvata.kidstrackeractivity.presentation.AddActivityScreen
 import com.arbonvata.kidstrackeractivity.presentation.AddKidScreen
 import com.arbonvata.kidstrackeractivity.presentation.DailyScheduleScreen
+import com.arbonvata.kidstrackeractivity.presentation.EditActivityScreen
 import com.arbonvata.kidstrackeractivity.presentation.KidDetailScreen
 import com.arbonvata.kidstrackeractivity.presentation.KidSelectionScreen
 import com.arbonvata.kidstrackeractivity.presentation.KidsManagementScreen
@@ -92,8 +96,17 @@ sealed class Screen(
 val bottomNavItems = listOf(Screen.Today, Screen.Week, Screen.Month, Screen.More)
 
 @Composable
-fun KidsScheduleApp(viewModel: ScheduleViewModel) {
+fun KidsScheduleApp(
+    viewModel: ScheduleViewModel,
+    deepLinkIntent: Intent? = null,
+) {
     val navController = rememberNavController()
+
+    // Notification deep links (kidstracker://edit_activity/{id}) arrive via
+    // the Activity's intent, both on cold start and through onNewIntent.
+    LaunchedEffect(deepLinkIntent) {
+        deepLinkIntent?.let(navController::handleDeepLink)
+    }
 
     // Track current back stack entry to determine selected tab
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -212,10 +225,16 @@ fun KidsScheduleApp(viewModel: ScheduleViewModel) {
             composable(
                 route = "edit_activity/{activityId}",
                 arguments = listOf(navArgument("activityId") { type = NavType.LongType }),
+                deepLinks =
+                    listOf(
+                        navDeepLink { uriPattern = "kidstracker://edit_activity/{activityId}" },
+                    ),
             ) { backStackEntry ->
                 val activityId = backStackEntry.arguments?.getLong("activityId") ?: return@composable
-                // Load activity from ViewModel and show edit screen
-                // EditActivityScreen(...)
+                EditActivityScreen(
+                    activityId = activityId,
+                    onNavigateBack = { navController.popBackStack() },
+                )
             }
 
             composable(Screen.KidSelection.route) {
@@ -247,12 +266,8 @@ fun KidsScheduleApp(viewModel: ScheduleViewModel) {
                         .filter { it.isNotBlank() }
                         .map { it.toLong() }
                         .toSet()
-                // val kids by viewModel.kidsFlow.collectAsState(initial = emptyList())
-                // val activities by viewModel.activitiesFlow.collectAsState(initial = emptyList())
 
                 DailyScheduleScreen(
-                    kids = emptyList(),
-                    activities = emptyList(),
                     selectedKidIds = selectedIds,
                     onEditActivityClick = { activity ->
                         navController.navigate("edit_activity/${activity.id}")

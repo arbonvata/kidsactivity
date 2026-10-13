@@ -15,6 +15,8 @@ interface ActivityRepository {
 
     suspend fun deleteActivity(activityId: Long)
 
+    suspend fun getActivity(activityId: Long): Activity?
+
     /** Enables or disables an activity without deleting it (spec 2.2). */
     suspend fun setActivityEnabled(
         activityId: Long,
@@ -65,6 +67,8 @@ class ActivityRepositoryImpl(
     override suspend fun deleteActivity(activityId: Long) {
         withContext(ioDispatcher) { activityBox.remove(activityId) }
     }
+
+    override suspend fun getActivity(activityId: Long): Activity? = withContext(ioDispatcher) { activityBox.get(activityId) }
 
     override suspend fun setActivityEnabled(
         activityId: Long,

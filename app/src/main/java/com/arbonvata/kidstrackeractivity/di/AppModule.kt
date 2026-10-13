@@ -18,6 +18,8 @@ import com.arbonvata.kidstrackeractivity.data.repository.ScheduleOverrideReposit
 import com.arbonvata.kidstrackeractivity.data.repository.ScheduleOverrideRepositoryImpl
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.AddActivityViewModel
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.AddKidViewModel
+import com.arbonvata.kidstrackeractivity.presentation.viewmodels.DailyScheduleViewModel
+import com.arbonvata.kidstrackeractivity.presentation.viewmodels.EditActivityViewModel
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.KidDetailViewModel
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.KidsViewModel
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.MonthViewModel
@@ -68,6 +70,20 @@ val appModule =
         viewModel { (kidId: Long) ->
             KidDetailViewModel(
                 kidId = kidId,
+                kidRepository = get(),
+                activityRepository = get(),
+            )
+        }
+        viewModel { (activityId: Long) ->
+            EditActivityViewModel(
+                activityId = activityId,
+                activityRepository = get(),
+                kidRepository = get(),
+            )
+        }
+        viewModel { (kidIds: Set<Long>) ->
+            DailyScheduleViewModel(
+                selectedKidIds = kidIds,
                 kidRepository = get(),
                 activityRepository = get(),
             )
