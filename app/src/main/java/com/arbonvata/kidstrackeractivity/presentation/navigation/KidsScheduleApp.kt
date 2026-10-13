@@ -102,6 +102,25 @@ fun KidsScheduleApp(viewModel: ScheduleViewModel) {
     // Check if we should show the bottom bar (hide it on secondary screens)
     val showBottomBar = currentDestination?.route in bottomNavItems.map { it.route }
 
+    /**
+     * The single way to navigate to a bottom-bar tab. Every tab navigation
+     * must use the same options (also the in-content ones like "View Full
+     * Week"), otherwise the save/restore bookkeeping of the back stack
+     * becomes asymmetric and tab clicks can silently stop navigating.
+     */
+    fun navigateToTab(screen: Screen) {
+        navController.navigate(screen.route) {
+            // Pop up to the start destination to avoid building a massive stack
+            popUpTo(navController.graph.findStartDestination().id) {
+                saveState = true
+            }
+            // Avoid multiple copies of the same destination
+            launchSingleTop = true
+            // Restore state when re-selecting already selected item
+            restoreState = true
+        }
+    }
+
     Scaffold(
         bottomBar = {
             if (showBottomBar) {
@@ -113,18 +132,7 @@ fun KidsScheduleApp(viewModel: ScheduleViewModel) {
                             icon = { Icon(screen.icon, contentDescription = screen.title) },
                             label = { Text(screen.title) },
                             selected = selected,
-                            onClick = {
-                                navController.navigate(screen.route) {
-                                    // Pop up to the start destination to avoid building a massive stack
-                                    popUpTo(navController.graph.findStartDestination().id) {
-                                        saveState = true
-                                    }
-                                    // Avoid multiple copies of the same destination
-                                    launchSingleTop = true
-                                    // Restore state when re-selecting already selected item
-                                    restoreState = true
-                                }
-                            },
+                            onClick = { navigateToTab(screen) },
                         )
                     }
                 }
@@ -140,7 +148,7 @@ fun KidsScheduleApp(viewModel: ScheduleViewModel) {
             composable(Screen.Today.route) {
                 TodayScreen(
                     onAddActivityClick = { navController.navigate("add_activity") },
-                    onViewWeekClick = { navController.navigate(Screen.Week.route) },
+                    onViewWeekClick = { navigateToTab(Screen.Week) },
                     onSettingsClick = { navController.navigate(Screen.Settings.route) },
                     onActivityClick = { activity ->
                         navController.navigate("edit_activity/${activity.id}")
