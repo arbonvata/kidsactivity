@@ -25,6 +25,7 @@ import com.arbonvata.kidstrackeractivity.presentation.viewmodels.KidsViewModel
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.MonthViewModel
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.ScheduleViewModel
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.SettingsViewModel
+import com.arbonvata.kidstrackeractivity.presentation.viewmodels.ShareViewModel
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.TodayViewModel
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.WeekViewModel
 import io.objectbox.BoxStore
@@ -60,6 +61,7 @@ val appModule =
         viewModel { WeekViewModel(get(), get()) }
         viewModel { MonthViewModel(get(), get()) }
         viewModel { SettingsViewModel(get()) }
+        viewModel { ShareViewModel(get()) }
         viewModel { (kidId: Long) ->
             AddActivityViewModel(
                 kidId = kidId,

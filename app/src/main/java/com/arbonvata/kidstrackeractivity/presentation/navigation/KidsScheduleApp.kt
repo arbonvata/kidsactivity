@@ -47,6 +47,7 @@ import com.arbonvata.kidstrackeractivity.presentation.KidsManagementScreen
 import com.arbonvata.kidstrackeractivity.presentation.MonthScreen
 import com.arbonvata.kidstrackeractivity.presentation.MoreScreen
 import com.arbonvata.kidstrackeractivity.presentation.SettingsScreen
+import com.arbonvata.kidstrackeractivity.presentation.ShareScreen
 import com.arbonvata.kidstrackeractivity.presentation.TodayScreen
 import com.arbonvata.kidstrackeractivity.presentation.WeekScreen
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.KidsViewModel
@@ -199,8 +200,8 @@ fun KidsScheduleApp(
             // --- SECONDARY SCREENS ---
             composable(Screen.Settings.route) {
                 SettingsScreen(
-                    onBackupClick = { /* TODO: wire backup export */ },
-                    onRestoreClick = { /* TODO: wire backup import */ },
+                    onBackupClick = { navController.navigate(Screen.Share.route) },
+                    onRestoreClick = { navController.navigate(Screen.Share.route) },
                     onBackClick = { navController.popBackStack() },
                 )
             }
@@ -285,7 +286,7 @@ fun KidsScheduleApp(
             }
 
             composable(Screen.Share.route) {
-                // ShareScreen(...)
+                ShareScreen(onBackClick = { navController.popBackStack() })
             }
 
             composable(Screen.KidsManagement.route) {
