@@ -43,7 +43,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.arbonvata.kidstrackeractivity.data.ActivityOccurence
 import com.arbonvata.kidstrackeractivity.data.DebugTestData
-import com.arbonvata.kidstrackeractivity.data.expandActivitiesForDateRange
 import com.arbonvata.kidstrackeractivity.data.objectbox.Activity
 import com.arbonvata.kidstrackeractivity.data.objectbox.Kid
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.TodayViewModel
@@ -281,23 +280,36 @@ fun DashboardScreen(
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true)
+@Preview(showBackground = true, showSystemUi = true, name = "Today — mixed enabled and muted rows")
 @Composable
 fun DashboardScreenPreview() {
     MaterialTheme {
-        // Today's occurrences from the shared debug fixtures; varies with the
-        // real weekday (weekends render the empty state).
-        val mockOccurrences =
-            expandActivitiesForDateRange(
-                DebugTestData.mockKids,
-                DebugTestData.mockActivities,
-                LocalDate.now(),
-                LocalDate.now(),
-                includeDisabled = true,
+        val today = LocalDate.now()
+        // Hand-built so both row styles are always visible, regardless of
+        // the real weekday.
+        val todayOccurrences =
+            listOf(
+                ActivityOccurence(DebugTestData.mockActivities[0], "Leo", today, LocalTime.of(17, 0)),
+                ActivityOccurence(DebugTestData.mockActivities[2], "Leo", today, LocalTime.of(15, 0)),
             )
         DashboardScreen(
             kids = DebugTestData.mockKids,
-            todayOccurrences = mockOccurrences,
+            todayOccurrences = todayOccurrences,
+            onAddActivityClick = {},
+            onViewWeekClick = {},
+            onSettingsClick = {},
+            onActivityClick = {},
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Today — no activities")
+@Composable
+fun DashboardScreenEmptyPreview() {
+    MaterialTheme {
+        DashboardScreen(
+            kids = DebugTestData.mockKids,
+            todayOccurrences = emptyList(),
             onAddActivityClick = {},
             onViewWeekClick = {},
             onSettingsClick = {},

@@ -215,7 +215,7 @@ fun MonthlyActivityRow(
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, name = "Month — with activities (muted included)")
 @Composable
 fun MonthlyAgendaScreenPreview() {
     KidsTrackerActivityTheme {
@@ -232,6 +232,20 @@ fun MonthlyAgendaScreenPreview() {
         MonthlyAgendaScreen(
             selectedMonth = selectedMonth,
             occurrences = occurrences,
+            onPreviousMonthClick = {},
+            onNextMonthClick = {},
+            onEditActivityClick = {},
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Month — empty (no occurrences)")
+@Composable
+fun MonthlyAgendaScreenEmptyPreview() {
+    KidsTrackerActivityTheme {
+        MonthlyAgendaScreen(
+            selectedMonth = YearMonth.of(2026, 10),
+            occurrences = emptyList(),
             onPreviousMonthClick = {},
             onNextMonthClick = {},
             onEditActivityClick = {},

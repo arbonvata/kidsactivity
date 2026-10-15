@@ -360,7 +360,7 @@ fun SettingsSlider(
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, name = "Permissions — one still pending")
 @Composable
 fun SettingsContentPreview() {
     MaterialTheme {
@@ -372,6 +372,33 @@ fun SettingsContentPreview() {
                     exactAlarmGranted = true,
                     notificationsGranted = true,
                     batteryOptimizationDisabled = false,
+                ),
+            onSchoolAlarmChange = {},
+            onSchoolAlarmChangeFinished = {},
+            onActivityAlarmChange = {},
+            onActivityAlarmChangeFinished = {},
+            onRequestExactAlarm = {},
+            onRequestNotifications = {},
+            onDisableBatteryOpt = {},
+            onBackupClick = {},
+            onRestoreClick = {},
+            onBackClick = {},
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Permissions — all granted")
+@Composable
+fun SettingsContentGrantedPreview() {
+    MaterialTheme {
+        SettingsContent(
+            state =
+                SettingsState(
+                    schoolAlarmMinutes = 20,
+                    activityAlarmMinutes = 30,
+                    exactAlarmGranted = true,
+                    notificationsGranted = true,
+                    batteryOptimizationDisabled = true,
                 ),
             onSchoolAlarmChange = {},
             onSchoolAlarmChangeFinished = {},

@@ -312,12 +312,26 @@ fun ShareOptionRow(
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, name = "Backup — idle")
 @Composable
 fun ShareContentPreview() {
     KidsTrackerActivityTheme {
         ShareContent(
             isWorking = false,
+            onSaveToFileClick = {},
+            onShareFileClick = {},
+            onImportClick = {},
+            onBackClick = {},
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Restore — in progress")
+@Composable
+fun ShareContentWorkingPreview() {
+    KidsTrackerActivityTheme {
+        ShareContent(
+            isWorking = true,
             onSaveToFileClick = {},
             onShareFileClick = {},
             onImportClick = {},

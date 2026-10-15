@@ -220,7 +220,7 @@ fun WeeklyActivityRow(
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, name = "Week — with activities (muted included)")
 @Composable
 fun WeeklyScheduleScreenPreview() {
     KidsTrackerActivityTheme {
@@ -238,6 +238,45 @@ fun WeeklyScheduleScreenPreview() {
             kids = DebugTestData.mockKids,
             weekStart = weekStart,
             occurrences = occurrences,
+            onPreviousWeekClick = {},
+            onNextWeekClick = {},
+            onEditActivityClick = {},
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Week — one kid without activities")
+@Composable
+fun WeeklyScheduleScreenEmptyKidPreview() {
+    KidsTrackerActivityTheme {
+        val weekStart = LocalDate.of(2026, 10, 19)
+        val occurrences =
+            expandActivitiesForDateRange(
+                DebugTestData.mockKids,
+                DebugTestData.mockActivities,
+                weekStart,
+                weekStart.plusDays(6),
+                includeDisabled = true,
+            )
+        WeeklyScheduleScreen(
+            kids = DebugTestData.mockKids + Kid(id = 3, name = "Anna"),
+            weekStart = weekStart,
+            occurrences = occurrences,
+            onPreviousWeekClick = {},
+            onNextWeekClick = {},
+            onEditActivityClick = {},
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Week — no kids yet")
+@Composable
+fun WeeklyScheduleScreenNoKidsPreview() {
+    KidsTrackerActivityTheme {
+        WeeklyScheduleScreen(
+            kids = emptyList(),
+            weekStart = LocalDate.of(2026, 10, 19),
+            occurrences = emptyList(),
             onPreviousWeekClick = {},
             onNextWeekClick = {},
             onEditActivityClick = {},

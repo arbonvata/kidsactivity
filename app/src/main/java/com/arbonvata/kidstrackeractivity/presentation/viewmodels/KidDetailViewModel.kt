@@ -6,8 +6,10 @@ import com.arbonvata.kidstrackeractivity.data.objectbox.Activity
 import com.arbonvata.kidstrackeractivity.data.objectbox.Kid
 import com.arbonvata.kidstrackeractivity.data.repository.ActivityRepository
 import com.arbonvata.kidstrackeractivity.data.repository.KidRepository
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
@@ -48,5 +50,22 @@ class KidDetailViewModel(
         enabled: Boolean,
     ) {
         viewModelScope.launch { activityRepository.setActivityEnabled(activityId, enabled) }
+    }
+
+    private val _isKidDeleted = MutableStateFlow(false)
+
+    /** One-shot: deleting the kid removes their activities and overrides too. */
+    val isKidDeleted: StateFlow<Boolean> = _isKidDeleted.asStateFlow()
+
+    fun deleteKid() {
+        viewModelScope.launch {
+            kidRepository.deleteKid(kidId)
+            _isKidDeleted.value = true
+        }
+    }
+
+    /** Called by the UI after it has reacted to [isKidDeleted]. */
+    fun onKidDeletedHandled() {
+        _isKidDeleted.value = false
     }
 }

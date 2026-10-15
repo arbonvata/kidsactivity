@@ -244,7 +244,7 @@ fun DailyActivityCard(
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, name = "Day — with activities (muted included)")
 @Composable
 fun DailyScheduleContentPreview() {
     KidsTrackerActivityTheme {
@@ -262,6 +262,22 @@ fun DailyScheduleContentPreview() {
             kids = DebugTestData.mockKids,
             selectedDate = selectedDate,
             occurrences = occurrences,
+            onPreviousDayClick = {},
+            onNextDayClick = {},
+            onEditActivityClick = {},
+            onBackClick = {},
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Day — nothing scheduled")
+@Composable
+fun DailyScheduleContentEmptyPreview() {
+    KidsTrackerActivityTheme {
+        DailyScheduleContent(
+            kids = DebugTestData.mockKids,
+            selectedDate = LocalDate.of(2026, 10, 20),
+            occurrences = emptyList(),
             onPreviousDayClick = {},
             onNextDayClick = {},
             onEditActivityClick = {},

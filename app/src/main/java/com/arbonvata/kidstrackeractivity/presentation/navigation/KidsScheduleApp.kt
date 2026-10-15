@@ -41,6 +41,7 @@ import com.arbonvata.kidstrackeractivity.presentation.AddActivityScreen
 import com.arbonvata.kidstrackeractivity.presentation.AddKidScreen
 import com.arbonvata.kidstrackeractivity.presentation.DailyScheduleScreen
 import com.arbonvata.kidstrackeractivity.presentation.EditActivityScreen
+import com.arbonvata.kidstrackeractivity.presentation.EditKidScreen
 import com.arbonvata.kidstrackeractivity.presentation.KidDetailScreen
 import com.arbonvata.kidstrackeractivity.presentation.KidSelectionScreen
 import com.arbonvata.kidstrackeractivity.presentation.KidsManagementScreen
@@ -305,10 +306,22 @@ fun KidsScheduleApp(
                 KidDetailScreen(
                     kidId = kidId,
                     onNavigateBack = { navController.popBackStack() },
+                    onEditKidClick = { navController.navigate("edit_kid/$kidId") },
                     onActivityClick = { activityId ->
                         navController.navigate("edit_activity/$activityId")
                     },
                     onAddActivityClick = { navController.navigate("add_activity?kidId=$kidId") },
+                )
+            }
+
+            composable(
+                route = "edit_kid/{kidId}",
+                arguments = listOf(navArgument("kidId") { type = NavType.LongType }),
+            ) { backStackEntry ->
+                val kidId = backStackEntry.arguments?.getLong("kidId") ?: return@composable
+                EditKidScreen(
+                    kidId = kidId,
+                    onNavigateBack = { navController.popBackStack() },
                 )
             }
         }

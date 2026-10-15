@@ -17,6 +17,7 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 
@@ -25,7 +26,7 @@ class KidDetailViewModelTest {
     @RegisterExtension
     val mainDispatcherRule = MainDispatcherRule()
 
-    private val kidRepository = mockk<KidRepository>()
+    private val kidRepository = mockk<KidRepository>(relaxUnitFun = true)
     private val activityRepository = mockk<ActivityRepository>(relaxUnitFun = true)
 
     @Test
@@ -74,5 +75,21 @@ class KidDetailViewModelTest {
             viewModel.deleteAllActivities()
 
             coVerify { activityRepository.deleteAllActivitiesForKid(7L) }
+        }
+
+    @Test
+    fun deleteKidCascadesThroughTheRepositoryAndSignalsDeleted() =
+        runTest {
+            every { activityRepository.getActivitiesForKidFlow(7L) } returns flowOf(emptyList())
+            val viewModel = KidDetailViewModel(7L, kidRepository, activityRepository)
+
+            viewModel.deleteKid()
+
+            coVerify { kidRepository.deleteKid(7L) }
+            assertTrue(viewModel.isKidDeleted.value)
+
+            viewModel.onKidDeletedHandled()
+
+            assertFalse(viewModel.isKidDeleted.value)
         }
 }

@@ -454,7 +454,7 @@ private fun TimePickerDialog(
     )
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, name = "Add — empty form")
 @Composable
 fun AddActivityContentPreview() {
     KidsTrackerActivityTheme {
@@ -471,6 +471,65 @@ fun AddActivityContentPreview() {
             onSchoolActivityChange = {},
             onSaveClick = {},
             onNavigateBack = {},
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Add — both flags checked")
+@Composable
+fun AddActivityContentCheckedPreview() {
+    KidsTrackerActivityTheme {
+        AddActivityContent(
+            uiState =
+                AddActivityUiState(
+                    name = "Football",
+                    selectedDays = setOf(1, 3, 5),
+                    isPeriodic = true,
+                    isSchoolActivity = true,
+                ),
+            kids = DebugTestData.mockKids,
+            isKidPickerEnabled = true,
+            onKidSelected = {},
+            onNameChange = {},
+            onToggleDay = {},
+            onStartTimeChange = {},
+            onEndTimeChange = {},
+            onPeriodicChange = {},
+            onSchoolActivityChange = {},
+            onSaveClick = {},
+            onNavigateBack = {},
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Edit — filled school activity with delete")
+@Composable
+fun EditActivityContentPreview() {
+    KidsTrackerActivityTheme {
+        AddActivityContent(
+            uiState =
+                AddActivityUiState(
+                    selectedKidId = 1L,
+                    name = "School",
+                    selectedDays = setOf(1, 3, 5),
+                    startTime = LocalTime.of(8, 0),
+                    endTime = LocalTime.of(14, 0),
+                    isPeriodic = true,
+                    isSchoolActivity = true,
+                ),
+            kids = DebugTestData.mockKids,
+            isKidPickerEnabled = false,
+            onKidSelected = {},
+            onNameChange = {},
+            onToggleDay = {},
+            onStartTimeChange = {},
+            onEndTimeChange = {},
+            onPeriodicChange = {},
+            onSchoolActivityChange = {},
+            onSaveClick = {},
+            onNavigateBack = {},
+            screenTitle = "Edit Activity",
+            onDeleteClick = {},
         )
     }
 }

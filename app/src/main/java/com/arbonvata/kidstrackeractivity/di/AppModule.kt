@@ -20,6 +20,7 @@ import com.arbonvata.kidstrackeractivity.presentation.viewmodels.AddActivityView
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.AddKidViewModel
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.DailyScheduleViewModel
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.EditActivityViewModel
+import com.arbonvata.kidstrackeractivity.presentation.viewmodels.EditKidViewModel
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.KidDetailViewModel
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.KidsViewModel
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.MonthViewModel
@@ -74,6 +75,12 @@ val appModule =
                 kidId = kidId,
                 kidRepository = get(),
                 activityRepository = get(),
+            )
+        }
+        viewModel { (kidId: Long) ->
+            EditKidViewModel(
+                kidId = kidId,
+                kidRepository = get(),
             )
         }
         viewModel { (activityId: Long) ->

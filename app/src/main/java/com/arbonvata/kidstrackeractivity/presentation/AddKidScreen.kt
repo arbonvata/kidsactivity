@@ -1,6 +1,7 @@
 package com.arbonvata.kidstrackeractivity.presentation
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -20,14 +22,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.AddKidUiState
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.AddKidViewModel
+import com.arbonvata.kidstrackeractivity.presentation.viewmodels.EditKidViewModel
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.KidNameError
 import com.arbonvata.kidstrackeractivity.ui.theme.KidsTrackerActivityTheme
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 /**
  * Stateful entry point of the Add Kid screen: owns the [AddKidViewModel],
@@ -57,6 +62,59 @@ fun AddKidScreen(
 }
 
 /**
+ * Stateful entry point of the Edit Kid screen: loads the stored kid into the
+ * shared Add Kid form and saves via updateKid (the duplicate check ignores
+ * the kid itself).
+ */
+@Composable
+fun EditKidScreen(
+    kidId: Long,
+    viewModel: EditKidViewModel = koinViewModel(parameters = { parametersOf(kidId) }),
+    onNavigateBack: () -> Unit,
+) {
+    val uiState by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(uiState.form?.isSaved) {
+        if (uiState.form?.isSaved == true) {
+            viewModel.onSavedHandled()
+            onNavigateBack()
+        }
+    }
+
+    val form = uiState.form
+    when {
+        uiState.isNotFound -> {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text("This kid no longer exists.")
+            }
+        }
+
+        form == null -> {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center,
+            ) {
+                CircularProgressIndicator()
+            }
+        }
+
+        else -> {
+            AddKidContent(
+                uiState = form,
+                onNameChange = viewModel::onNameChange,
+                onSchoolNameChange = viewModel::onSchoolNameChange,
+                onSaveClick = viewModel::saveKid,
+                onNavigateBack = onNavigateBack,
+                screenTitle = "Edit Kid",
+            )
+        }
+    }
+}
+
+/**
  * Stateless form: plain state in, callbacks out, so it previews and UI-tests
  * without a database or fake repositories.
  */
@@ -68,11 +126,12 @@ fun AddKidContent(
     onSchoolNameChange: (String) -> Unit,
     onSaveClick: () -> Unit,
     onNavigateBack: () -> Unit,
+    screenTitle: String = "Add Kid",
 ) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Add Kid") },
+                title = { Text(screenTitle) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -134,7 +193,7 @@ fun AddKidContent(
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, name = "Add kid — empty form")
 @Composable
 fun AddKidContentPreview() {
     KidsTrackerActivityTheme {
@@ -144,6 +203,21 @@ fun AddKidContentPreview() {
             onSchoolNameChange = {},
             onSaveClick = {},
             onNavigateBack = {},
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Edit kid — filled")
+@Composable
+fun EditKidContentPreview() {
+    KidsTrackerActivityTheme {
+        AddKidContent(
+            uiState = AddKidUiState(name = "Leo", schoolName = "Greenfield Primary"),
+            onNameChange = {},
+            onSchoolNameChange = {},
+            onSaveClick = {},
+            onNavigateBack = {},
+            screenTitle = "Edit Kid",
         )
     }
 }

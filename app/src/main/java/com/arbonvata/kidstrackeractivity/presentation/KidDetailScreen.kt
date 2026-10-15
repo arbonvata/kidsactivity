@@ -16,6 +16,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -26,10 +29,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -53,25 +61,63 @@ fun KidDetailScreen(
     kidId: Long,
     viewModel: KidDetailViewModel = koinViewModel(parameters = { parametersOf(kidId) }),
     onNavigateBack: () -> Unit,
+    onEditKidClick: () -> Unit,
     onActivityClick: (activityId: Long) -> Unit,
     onAddActivityClick: () -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val isKidDeleted by viewModel.isKidDeleted.collectAsState()
+    var showDeleteDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(isKidDeleted) {
+        if (isKidDeleted) {
+            viewModel.onKidDeletedHandled()
+            onNavigateBack()
+        }
+    }
 
     KidDetailContent(
         uiState = uiState,
+        onEditKidClick = onEditKidClick,
+        onDeleteKidClick = { showDeleteDialog = true },
         onDeleteAllClick = viewModel::deleteAllActivities,
         onActivityClick = onActivityClick,
         onActivityEnabledChange = viewModel::setActivityEnabled,
         onAddActivityClick = onAddActivityClick,
         onNavigateBack = onNavigateBack,
     )
+
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text("Delete kid?") },
+            text = {
+                Text(
+                    "All of ${uiState.kid?.name ?: "this kid"}'s activities and school-day " +
+                        "overrides will be removed too.",
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showDeleteDialog = false
+                        viewModel.deleteKid()
+                    },
+                ) { Text("Delete") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog = false }) { Text("Cancel") }
+            },
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun KidDetailContent(
     uiState: KidDetailUiState,
+    onEditKidClick: () -> Unit,
+    onDeleteKidClick: () -> Unit,
     onDeleteAllClick: () -> Unit,
     onActivityClick: (activityId: Long) -> Unit,
     onActivityEnabledChange: (activityId: Long, enabled: Boolean) -> Unit,
@@ -86,6 +132,14 @@ fun KidDetailContent(
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                actions = {
+                    IconButton(onClick = onEditKidClick) {
+                        Icon(Icons.Default.Edit, contentDescription = "Edit kid")
+                    }
+                    IconButton(onClick = onDeleteKidClick) {
+                        Icon(Icons.Default.Delete, contentDescription = "Delete kid")
                     }
                 },
             )
@@ -210,7 +264,7 @@ private val DAY_LABELS = arrayOf("", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "
 
 private fun dayLabels(days: IntArray): String = days.sorted().joinToString { DAY_LABELS[it] }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, name = "Detail — with activities (muted included)")
 @Composable
 fun KidDetailContentPreview() {
     KidsTrackerActivityTheme {
@@ -222,6 +276,63 @@ fun KidDetailContentPreview() {
                     activities = DebugTestData.mockActivities.filter { it.kidId == DebugTestData.mockKids[0].id },
                 ),
             onDeleteAllClick = {},
+            onEditKidClick = {},
+            onDeleteKidClick = {},
+            onActivityClick = {},
+            onActivityEnabledChange = { _, _ -> },
+            onAddActivityClick = {},
+            onNavigateBack = {},
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Detail — loading")
+@Composable
+fun KidDetailContentLoadingPreview() {
+    KidsTrackerActivityTheme {
+        KidDetailContent(
+            uiState = KidDetailUiState(),
+            onDeleteAllClick = {},
+            onEditKidClick = {},
+            onDeleteKidClick = {},
+            onActivityClick = {},
+            onActivityEnabledChange = { _, _ -> },
+            onAddActivityClick = {},
+            onNavigateBack = {},
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Detail — kid no longer exists")
+@Composable
+fun KidDetailContentMissingKidPreview() {
+    KidsTrackerActivityTheme {
+        KidDetailContent(
+            uiState = KidDetailUiState(isLoading = false),
+            onDeleteAllClick = {},
+            onEditKidClick = {},
+            onDeleteKidClick = {},
+            onActivityClick = {},
+            onActivityEnabledChange = { _, _ -> },
+            onAddActivityClick = {},
+            onNavigateBack = {},
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Detail — no activities yet")
+@Composable
+fun KidDetailContentNoActivitiesPreview() {
+    KidsTrackerActivityTheme {
+        KidDetailContent(
+            uiState =
+                KidDetailUiState(
+                    isLoading = false,
+                    kid = DebugTestData.mockKids[0],
+                ),
+            onDeleteAllClick = {},
+            onEditKidClick = {},
+            onDeleteKidClick = {},
             onActivityClick = {},
             onActivityEnabledChange = { _, _ -> },
             onAddActivityClick = {},
