@@ -16,7 +16,6 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 import java.time.LocalDate
@@ -120,7 +119,7 @@ class DailyScheduleViewModelTest {
         }
 
     @Test
-    fun disabledActivitiesAndEmptySelectionYieldNoOccurrences() =
+    fun disabledActivitiesStayVisibleForTheirDays() =
         runTest {
             val today = LocalDate.now()
             val kid = Kid(id = 1L, name = "Leo")
@@ -149,6 +148,6 @@ class DailyScheduleViewModelTest {
 
             val state = viewModel.uiState.value
             assertFalse(state.isLoading)
-            assertTrue(state.dayOccurrences.isEmpty())
+            assertEquals(listOf(disabled), state.dayOccurrences.map { it.activity })
         }
 }

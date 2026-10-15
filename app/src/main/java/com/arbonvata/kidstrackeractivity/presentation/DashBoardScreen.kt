@@ -11,10 +11,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.NotificationsOff
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
@@ -125,7 +128,8 @@ fun DashboardScreen(
                 Modifier
                     .fillMaxSize()
                     .padding(padding)
-                    .padding(16.dp),
+                    .padding(16.dp)
+                    .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             // Date Header
@@ -216,6 +220,8 @@ fun DashboardScreen(
                 }
             } else {
                 todayOccurrences.forEach { occurrence ->
+                    val alarmsDisabled = !occurrence.activity.isEnabled
+                    val dimmed = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
                     OutlinedCard(
                         onClick = { onActivityClick(occurrence.activity) },
                         modifier = Modifier.fillMaxWidth(),
@@ -228,7 +234,7 @@ fun DashboardScreen(
                                 occurrence.startTime.format(DateTimeFormatter.ofPattern("HH:mm")),
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.primary,
+                                color = if (alarmsDisabled) dimmed else MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.width(60.dp),
                             )
                             Column(modifier = Modifier.weight(1f)) {
@@ -236,12 +242,21 @@ fun DashboardScreen(
                                     occurrence.activity.name,
                                     style = MaterialTheme.typography.bodyLarge,
                                     fontWeight = FontWeight.SemiBold,
+                                    color = if (alarmsDisabled) dimmed else MaterialTheme.colorScheme.onSurface,
                                 )
                                 Text(
                                     occurrence.kidName,
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
+                            }
+                            if (alarmsDisabled) {
+                                Icon(
+                                    Icons.Default.NotificationsOff,
+                                    contentDescription = "Alarms disabled",
+                                    tint = MaterialTheme.colorScheme.error,
+                                )
+                                Spacer(Modifier.width(8.dp))
                             }
                             Icon(
                                 Icons.Default.ChevronRight,
@@ -278,6 +293,7 @@ fun DashboardScreenPreview() {
                 DebugTestData.mockActivities,
                 LocalDate.now(),
                 LocalDate.now(),
+                includeDisabled = true,
             )
         DashboardScreen(
             kids = DebugTestData.mockKids,

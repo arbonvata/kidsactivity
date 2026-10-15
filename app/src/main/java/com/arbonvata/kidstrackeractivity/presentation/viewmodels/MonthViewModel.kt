@@ -43,7 +43,15 @@ class MonthViewModel(
             MonthUiState(
                 isLoading = false,
                 kids = kids,
-                monthOccurrences = expandActivitiesForDateRange(kids, activities, month.atDay(1), month.atEndOfMonth()),
+                monthOccurrences =
+                    expandActivitiesForDateRange(
+                        kids,
+                        activities,
+                        month.atDay(1),
+                        month.atEndOfMonth(),
+                        // Muted activities stay listed (marked); only alarms skip them.
+                        includeDisabled = true,
+                    ),
                 selectedMonth = month,
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), MonthUiState())

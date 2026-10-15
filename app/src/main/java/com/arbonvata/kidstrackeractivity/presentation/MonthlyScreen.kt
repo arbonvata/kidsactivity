@@ -3,6 +3,7 @@ package com.arbonvata.kidstrackeractivity.presentation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -12,6 +13,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.NotificationsOff
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -165,6 +167,8 @@ fun MonthlyActivityRow(
     occurrence: ActivityOccurence,
     onClick: () -> Unit,
 ) {
+    val alarmsDisabled = !occurrence.activity.isEnabled
+    val dimmed = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
     Surface(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
@@ -178,7 +182,7 @@ fun MonthlyActivityRow(
             Text(
                 text = occurrence.kidName,
                 style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.primary,
+                color = if (alarmsDisabled) dimmed else MaterialTheme.colorScheme.primary,
                 modifier = Modifier.width(80.dp),
             )
 
@@ -186,6 +190,7 @@ fun MonthlyActivityRow(
             Text(
                 text = occurrence.startTime.format(DateTimeFormatter.ofPattern("HH:mm")),
                 style = MaterialTheme.typography.bodyMedium,
+                color = if (alarmsDisabled) dimmed else MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.width(50.dp),
             )
 
@@ -193,8 +198,18 @@ fun MonthlyActivityRow(
             Text(
                 text = occurrence.activity.name,
                 style = MaterialTheme.typography.bodyLarge,
+                color = if (alarmsDisabled) dimmed else MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.weight(1f),
             )
+
+            if (alarmsDisabled) {
+                Icon(
+                    Icons.Default.NotificationsOff,
+                    contentDescription = "Alarms disabled",
+                    tint = MaterialTheme.colorScheme.error,
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+            }
         }
         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
     }
@@ -212,6 +227,7 @@ fun MonthlyAgendaScreenPreview() {
                 DebugTestData.mockActivities,
                 selectedMonth.atDay(1),
                 selectedMonth.atEndOfMonth(),
+                includeDisabled = true,
             )
         MonthlyAgendaScreen(
             selectedMonth = selectedMonth,

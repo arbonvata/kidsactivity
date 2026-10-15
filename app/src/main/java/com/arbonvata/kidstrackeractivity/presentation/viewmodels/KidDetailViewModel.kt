@@ -41,4 +41,12 @@ class KidDetailViewModel(
     fun deleteAllActivities() {
         viewModelScope.launch { activityRepository.deleteAllActivitiesForKid(kidId) }
     }
+
+    /** Mutes or un-mutes one activity's reminders without deleting it. */
+    fun setActivityEnabled(
+        activityId: Long,
+        enabled: Boolean,
+    ) {
+        viewModelScope.launch { activityRepository.setActivityEnabled(activityId, enabled) }
+    }
 }

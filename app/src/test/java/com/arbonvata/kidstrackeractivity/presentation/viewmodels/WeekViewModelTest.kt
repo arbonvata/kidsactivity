@@ -64,6 +64,43 @@ class WeekViewModelTest {
         }
 
     @Test
+    fun disabledActivitiesStayVisibleForTheSchedule() =
+        runTest {
+            // Pins that Week passes includeDisabled = true: muted activities
+            // stay listed (rendered dimmed) while alarms skip them.
+            val monday = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+            val kid = Kid(id = 1L, name = "Leo")
+            val muted =
+                Activity(
+                    id = 1L,
+                    kidId = 1L,
+                    name = "Football",
+                    startTime = "17:00",
+                    endTime = "18:30",
+                    isEnabled = false,
+                    daysOfWeek = intArrayOf(monday.dayOfWeek.value),
+                )
+            every { kidRepository.getAllKidsFlow() } returns flowOf(listOf(kid))
+            every { activityRepository.getAllActivitiesFlow() } returns flowOf(listOf(muted))
+            val viewModel = WeekViewModel(kidRepository, activityRepository)
+
+            backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+                viewModel.uiState.collect()
+            }
+
+            assertEquals(
+                listOf(monday),
+                viewModel.uiState.value.weekOccurrences
+                    .map { it.date },
+            )
+            assertEquals(
+                listOf(muted),
+                viewModel.uiState.value.weekOccurrences
+                    .map { it.activity },
+            )
+        }
+
+    @Test
     fun nextAndPreviousWeekShiftTheRangeAndReExpandOccurrences() =
         runTest {
             val monday = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))

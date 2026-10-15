@@ -41,12 +41,13 @@ class DailyScheduleViewModel(
             selectedDate,
         ) { kids, activities, date ->
             val filteredKids = kids.filter { it.id in selectedKidIds }
-            val filteredActivities = activities.filter { it.kidId in selectedKidIds && it.isEnabled }
+            // Muted activities stay listed (marked); only alarms skip them.
+            val filteredActivities = activities.filter { it.kidId in selectedKidIds }
             DailyScheduleUiState(
                 isLoading = false,
                 kids = filteredKids,
                 selectedDate = date,
-                dayOccurrences = expandActivitiesForDateRange(filteredKids, filteredActivities, date, date),
+                dayOccurrences = expandActivitiesForDateRange(filteredKids, filteredActivities, date, date, includeDisabled = true),
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), DailyScheduleUiState())
 

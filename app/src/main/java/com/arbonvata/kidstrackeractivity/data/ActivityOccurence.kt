@@ -13,12 +13,18 @@ data class ActivityOccurence(
     val startTime: LocalTime,
 )
 
-// Expands recurring activities into concrete dates between startDate and endDate
+/**
+ * Expands recurring activities into concrete dates between startDate and
+ * endDate. Disabled activities are skipped unless [includeDisabled] is set —
+ * the schedule views set it so muted activities stay visible (marked), while
+ * alarm computation and conflict detection keep the default.
+ */
 fun expandActivitiesForDateRange(
     kids: List<Kid>,
     activities: List<Activity>,
     startDate: LocalDate,
     endDate: LocalDate,
+    includeDisabled: Boolean = false,
 ): List<ActivityOccurence> {
     val kidMap = kids.associateBy { it.id }
     val occurrences = mutableListOf<ActivityOccurence>()
@@ -30,7 +36,8 @@ fun expandActivitiesForDateRange(
 
         for (activity in activities) {
             val matchesDay = activity.daysOfWeek.contains(dayOfWeekValue)
-            if (activity.isEnabled && matchesDay && isWithinActivePeriod(activity, currentDate)) {
+            val active = activity.isEnabled || includeDisabled
+            if (active && matchesDay && isWithinActivePeriod(activity, currentDate)) {
                 val kid = kidMap[activity.kidId]
                 if (kid != null) {
                     occurrences.add(

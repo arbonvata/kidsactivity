@@ -30,6 +30,17 @@ object DebugTestData {
                 isEnabled = true,
                 daysOfWeek = intArrayOf(2, 4), // Tue, Thu
             ),
+            // Muted fixture: previews render it dimmed with the
+            // notifications-off marker.
+            Activity(
+                id = 103,
+                kidId = 1,
+                name = "Swimming",
+                startTime = "15:00",
+                endTime = "16:00",
+                isEnabled = false,
+                daysOfWeek = intArrayOf(2, 4), // Tue, Thu
+            ),
         )
 
     // Sample navigation route arguments for debugging

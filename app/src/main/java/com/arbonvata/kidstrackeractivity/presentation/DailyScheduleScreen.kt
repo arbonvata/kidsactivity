@@ -18,6 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.NotificationsOff
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -170,6 +171,8 @@ fun DailyActivityCard(
     occurrence: ActivityOccurence,
     onClick: () -> Unit,
 ) {
+    val alarmsDisabled = !occurrence.activity.isEnabled
+    val dimmed = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
     Card(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
@@ -194,7 +197,7 @@ fun DailyActivityCard(
                     text = occurrence.startTime.format(DateTimeFormatter.ofPattern("HH:mm")),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary,
+                    color = if (alarmsDisabled) dimmed else MaterialTheme.colorScheme.primary,
                 )
                 Text(
                     text = occurrence.activity.endTime.format(DateTimeFormatter.ofPattern("HH:mm")),
@@ -211,7 +214,7 @@ fun DailyActivityCard(
                     text = occurrence.activity.name,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = if (alarmsDisabled) dimmed else MaterialTheme.colorScheme.onSurface,
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -229,6 +232,14 @@ fun DailyActivityCard(
                     )
                 }
             }
+
+            if (alarmsDisabled) {
+                Icon(
+                    Icons.Default.NotificationsOff,
+                    contentDescription = "Alarms disabled",
+                    tint = MaterialTheme.colorScheme.error,
+                )
+            }
         }
     }
 }
@@ -240,7 +251,13 @@ fun DailyScheduleContentPreview() {
         // A fixed Tuesday so the preview is deterministic.
         val selectedDate = LocalDate.of(2026, 10, 20)
         val occurrences =
-            expandActivitiesForDateRange(DebugTestData.mockKids, DebugTestData.mockActivities, selectedDate, selectedDate)
+            expandActivitiesForDateRange(
+                DebugTestData.mockKids,
+                DebugTestData.mockActivities,
+                selectedDate,
+                selectedDate,
+                includeDisabled = true,
+            )
         DailyScheduleContent(
             kids = DebugTestData.mockKids,
             selectedDate = selectedDate,

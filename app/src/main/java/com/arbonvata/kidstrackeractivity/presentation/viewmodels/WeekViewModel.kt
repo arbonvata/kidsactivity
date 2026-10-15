@@ -46,7 +46,7 @@ class WeekViewModel(
             WeekUiState(
                 isLoading = false,
                 kids = kids,
-                weekOccurrences = expandActivitiesForDateRange(kids, activities, start, start.plusDays(6)),
+                weekOccurrences = expandActivitiesForDateRange(kids, activities, start, start.plusDays(6), includeDisabled = true),
                 weekStart = start,
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), WeekUiState())

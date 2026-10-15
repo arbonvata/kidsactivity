@@ -91,4 +91,25 @@ class ActivityOccurenceTest {
 
         assertTrue(occurrences.isEmpty())
     }
+
+    @Test
+    fun includeDisabledKeepsMutedActivitiesForTheScheduleViews() {
+        // The schedule views show muted activities (marked); alarms and
+        // conflicts use the default and skip them.
+        val activity = activity(intArrayOf(DayOfWeek.MONDAY.value), isPeriodic = true, firstDate = "2026-10-19").copy(isEnabled = false)
+
+        val occurrences =
+            expandActivitiesForDateRange(
+                kids,
+                listOf(activity),
+                LocalDate.of(2026, 10, 1),
+                LocalDate.of(2026, 10, 31),
+                includeDisabled = true,
+            )
+
+        assertEquals(
+            listOf("2026-10-05", "2026-10-12", "2026-10-19", "2026-10-26"),
+            occurrences.map { it.date.toString() },
+        )
+    }
 }

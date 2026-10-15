@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.NotificationsOff
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -171,6 +172,8 @@ fun WeeklyActivityRow(
     dateFormatter: DateTimeFormatter,
     onClick: () -> Unit,
 ) {
+    val alarmsDisabled = !occurrence.activity.isEnabled
+    val dimmed = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
     Surface(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
@@ -186,6 +189,7 @@ fun WeeklyActivityRow(
                 text = occurrence.date.format(dateFormatter),
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.SemiBold,
+                color = if (alarmsDisabled) dimmed else MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.width(90.dp),
             )
 
@@ -193,7 +197,7 @@ fun WeeklyActivityRow(
             Text(
                 text = occurrence.startTime.format(DateTimeFormatter.ofPattern("HH:mm")),
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.primary,
+                color = if (alarmsDisabled) dimmed else MaterialTheme.colorScheme.primary,
                 modifier = Modifier.width(50.dp),
             )
 
@@ -201,8 +205,17 @@ fun WeeklyActivityRow(
             Text(
                 text = occurrence.activity.name,
                 style = MaterialTheme.typography.bodyLarge,
+                color = if (alarmsDisabled) dimmed else MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.weight(1f),
             )
+
+            if (alarmsDisabled) {
+                Icon(
+                    Icons.Default.NotificationsOff,
+                    contentDescription = "Alarms disabled",
+                    tint = MaterialTheme.colorScheme.error,
+                )
+            }
         }
     }
 }
@@ -219,6 +232,7 @@ fun WeeklyScheduleScreenPreview() {
                 DebugTestData.mockActivities,
                 weekStart,
                 weekStart.plusDays(6),
+                includeDisabled = true,
             )
         WeeklyScheduleScreen(
             kids = DebugTestData.mockKids,

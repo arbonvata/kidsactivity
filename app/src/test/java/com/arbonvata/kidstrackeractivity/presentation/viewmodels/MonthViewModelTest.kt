@@ -69,6 +69,44 @@ class MonthViewModelTest {
         }
 
     @Test
+    fun disabledActivitiesStayVisibleForTheSchedule() =
+        runTest {
+            // Pins that Month passes includeDisabled = true: muted activities
+            // stay listed (rendered dimmed) while alarms skip them.
+            val month = YearMonth.now()
+            val firstDay = month.atDay(1)
+            val kid = Kid(id = 1L, name = "Leo")
+            val muted =
+                Activity(
+                    id = 1L,
+                    kidId = 1L,
+                    name = "Football",
+                    startTime = "17:00",
+                    endTime = "18:30",
+                    isEnabled = false,
+                    daysOfWeek = intArrayOf(firstDay.dayOfWeek.value),
+                )
+            every { kidRepository.getAllKidsFlow() } returns flowOf(listOf(kid))
+            every { activityRepository.getAllActivitiesFlow() } returns flowOf(listOf(muted))
+            val viewModel = MonthViewModel(kidRepository, activityRepository)
+
+            backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+                viewModel.uiState.collect()
+            }
+
+            val dates =
+                viewModel.uiState.value.monthOccurrences
+                    .map { it.date }
+            assertEquals(firstDay, dates.first())
+            assertTrue(dates.all { it.dayOfWeek == firstDay.dayOfWeek })
+            assertTrue(
+                viewModel.uiState.value.monthOccurrences
+                    .map { it.activity }
+                    .all { !it.isEnabled },
+            )
+        }
+
+    @Test
     fun nextAndPreviousMonthShiftTheRangeAndReExpandOccurrences() =
         runTest {
             val month = YearMonth.now()

@@ -42,6 +42,8 @@ class TodayViewModel(
                         activities,
                         LocalDate.now(),
                         LocalDate.now(),
+                        // Muted activities stay listed (marked); only alarms skip them.
+                        includeDisabled = true,
                     ),
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), TodayUiState())

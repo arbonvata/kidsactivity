@@ -24,6 +24,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -61,6 +62,7 @@ fun KidDetailScreen(
         uiState = uiState,
         onDeleteAllClick = viewModel::deleteAllActivities,
         onActivityClick = onActivityClick,
+        onActivityEnabledChange = viewModel::setActivityEnabled,
         onAddActivityClick = onAddActivityClick,
         onNavigateBack = onNavigateBack,
     )
@@ -72,6 +74,7 @@ fun KidDetailContent(
     uiState: KidDetailUiState,
     onDeleteAllClick: () -> Unit,
     onActivityClick: (activityId: Long) -> Unit,
+    onActivityEnabledChange: (activityId: Long, enabled: Boolean) -> Unit,
     onAddActivityClick: () -> Unit,
     onNavigateBack: () -> Unit,
 ) {
@@ -140,6 +143,9 @@ fun KidDetailContent(
                         KidActivityRow(
                             activity = activity,
                             onClick = { onActivityClick(activity.id) },
+                            onEnabledChange = { enabled ->
+                                onActivityEnabledChange(activity.id, enabled)
+                            },
                         )
                     }
                     item {
@@ -157,6 +163,7 @@ fun KidDetailContent(
 fun KidActivityRow(
     activity: Activity,
     onClick: () -> Unit,
+    onEnabledChange: (Boolean) -> Unit,
 ) {
     Card(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
         Row(
@@ -171,6 +178,12 @@ fun KidActivityRow(
                     text = activity.name,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
+                    color =
+                        if (activity.isEnabled) {
+                            MaterialTheme.colorScheme.onSurface
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                        },
                 )
                 Text(
                     text =
@@ -180,6 +193,10 @@ fun KidActivityRow(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
+            Switch(
+                checked = activity.isEnabled,
+                onCheckedChange = onEnabledChange,
+            )
             Icon(
                 Icons.AutoMirrored.Filled.KeyboardArrowRight,
                 contentDescription = null,
@@ -206,6 +223,7 @@ fun KidDetailContentPreview() {
                 ),
             onDeleteAllClick = {},
             onActivityClick = {},
+            onActivityEnabledChange = { _, _ -> },
             onAddActivityClick = {},
             onNavigateBack = {},
         )
