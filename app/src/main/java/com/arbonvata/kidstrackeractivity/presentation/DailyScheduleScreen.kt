@@ -200,7 +200,7 @@ fun DailyActivityCard(
                     color = if (alarmsDisabled) dimmed else MaterialTheme.colorScheme.primary,
                 )
                 Text(
-                    text = occurrence.activity.endTime.format(DateTimeFormatter.ofPattern("HH:mm")),
+                    text = occurrence.endTime.format(DateTimeFormatter.ofPattern("HH:mm")),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )

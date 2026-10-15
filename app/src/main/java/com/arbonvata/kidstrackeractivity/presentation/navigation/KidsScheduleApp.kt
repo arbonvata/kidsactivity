@@ -47,6 +47,7 @@ import com.arbonvata.kidstrackeractivity.presentation.KidSelectionScreen
 import com.arbonvata.kidstrackeractivity.presentation.KidsManagementScreen
 import com.arbonvata.kidstrackeractivity.presentation.MonthScreen
 import com.arbonvata.kidstrackeractivity.presentation.MoreScreen
+import com.arbonvata.kidstrackeractivity.presentation.SchoolOverrideScreen
 import com.arbonvata.kidstrackeractivity.presentation.SettingsScreen
 import com.arbonvata.kidstrackeractivity.presentation.ShareScreen
 import com.arbonvata.kidstrackeractivity.presentation.TodayScreen
@@ -279,7 +280,7 @@ fun KidsScheduleApp(
             }
 
             composable(Screen.SchoolOverrides.route) {
-                // SchoolOverrideScreen(...)
+                SchoolOverrideScreen(onBackClick = { navController.popBackStack() })
             }
 
             composable(Screen.Conflicts.route) {

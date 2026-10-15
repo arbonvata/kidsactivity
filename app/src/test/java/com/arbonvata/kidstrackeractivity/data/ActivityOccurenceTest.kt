@@ -1,12 +1,14 @@
 package com.arbonvata.kidstrackeractivity.data
 
 import com.arbonvata.kidstrackeractivity.data.objectbox.Activity
+import com.arbonvata.kidstrackeractivity.data.objectbox.DailySchedule
 import com.arbonvata.kidstrackeractivity.data.objectbox.Kid
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.LocalTime
 
 /**
  * Tests the weekly-recurring vs one-off expansion rules of
@@ -111,5 +113,68 @@ class ActivityOccurenceTest {
             listOf("2026-10-05", "2026-10-12", "2026-10-19", "2026-10-26"),
             occurrences.map { it.date.toString() },
         )
+    }
+
+    @Test
+    fun noSchoolOverrideHidesOnlySchoolActivitiesThatDay() {
+        val school = activity(intArrayOf(DayOfWeek.MONDAY.value), isPeriodic = true, firstDate = "2026-10-19").copy(isSchoolActivity = true)
+        val football = activity(intArrayOf(DayOfWeek.MONDAY.value), isPeriodic = true, firstDate = "2026-10-19").copy(id = 2L)
+        val noSchool =
+            DailySchedule(
+                kidId = 1L,
+                date = "2026-10-19",
+                endTime = "",
+                isNoSchool = true,
+            )
+
+        val occurrences =
+            expandActivitiesForDateRange(
+                kids,
+                listOf(school, football),
+                LocalDate.of(2026, 10, 1),
+                LocalDate.of(2026, 10, 31),
+                overrides = listOf(noSchool),
+            )
+
+        // School hidden on Oct 19 only; every other Monday has both.
+        assertEquals(
+            listOf(
+                "2026-10-05" to 1L,
+                "2026-10-05" to 2L,
+                "2026-10-12" to 1L,
+                "2026-10-12" to 2L,
+                "2026-10-19" to 2L,
+                "2026-10-26" to 1L,
+                "2026-10-26" to 2L,
+            ),
+            occurrences.map { it.date.toString() to it.activity.id },
+        )
+    }
+
+    @Test
+    fun customEndOverrideShiftsOnlySchoolOccurrenceEnds() {
+        val school = activity(intArrayOf(DayOfWeek.MONDAY.value), isPeriodic = true, firstDate = "2026-10-19").copy(isSchoolActivity = true)
+        val football = activity(intArrayOf(DayOfWeek.MONDAY.value), isPeriodic = true, firstDate = "2026-10-19").copy(id = 2L)
+        val earlyRelease =
+            DailySchedule(
+                kidId = 1L,
+                date = "2026-10-19",
+                endTime = "12:30",
+                isNoSchool = false,
+            )
+
+        val occurrences =
+            expandActivitiesForDateRange(
+                kids,
+                listOf(school, football),
+                LocalDate.of(2026, 10, 19),
+                LocalDate.of(2026, 10, 19),
+                overrides = listOf(earlyRelease),
+            )
+
+        val schoolOccurrence = occurrences.single { it.activity.id == 1L }
+        val footballOccurrence = occurrences.single { it.activity.id == 2L }
+        assertEquals(LocalTime.of(12, 30), schoolOccurrence.endTime)
+        assertEquals(LocalTime.of(18, 30), footballOccurrence.endTime)
     }
 }

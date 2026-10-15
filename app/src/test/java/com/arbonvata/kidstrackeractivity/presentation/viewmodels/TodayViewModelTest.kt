@@ -4,6 +4,7 @@ import com.arbonvata.kidstrackeractivity.data.objectbox.Activity
 import com.arbonvata.kidstrackeractivity.data.objectbox.Kid
 import com.arbonvata.kidstrackeractivity.data.repository.ActivityRepository
 import com.arbonvata.kidstrackeractivity.data.repository.KidRepository
+import com.arbonvata.kidstrackeractivity.data.repository.ScheduleOverrideRepository
 import com.arbonvata.kidstrackeractivity.testutil.MainDispatcherRule
 import io.mockk.every
 import io.mockk.mockk
@@ -16,6 +17,7 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 import java.time.LocalDate
@@ -27,6 +29,12 @@ class TodayViewModelTest {
 
     private val kidRepository = mockk<KidRepository>()
     private val activityRepository = mockk<ActivityRepository>()
+    private val scheduleOverrideRepository = mockk<ScheduleOverrideRepository>()
+
+    @BeforeEach
+    fun setUpOverridesFlow() {
+        every { scheduleOverrideRepository.getAllOverridesFlow() } returns flowOf(emptyList())
+    }
 
     @Test
     fun expandsTodaysOccurrencesWithKidNames() =
@@ -44,7 +52,7 @@ class TodayViewModelTest {
                 )
             every { kidRepository.getAllKidsFlow() } returns flowOf(listOf(kid))
             every { activityRepository.getAllActivitiesFlow() } returns flowOf(listOf(activity))
-            val viewModel = TodayViewModel(kidRepository, activityRepository)
+            val viewModel = TodayViewModel(kidRepository, activityRepository, scheduleOverrideRepository)
 
             backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
                 viewModel.uiState.collect()
@@ -77,7 +85,7 @@ class TodayViewModelTest {
                 )
             every { kidRepository.getAllKidsFlow() } returns flowOf(listOf(kid))
             every { activityRepository.getAllActivitiesFlow() } returns flowOf(listOf(muted))
-            val viewModel = TodayViewModel(kidRepository, activityRepository)
+            val viewModel = TodayViewModel(kidRepository, activityRepository, scheduleOverrideRepository)
 
             backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
                 viewModel.uiState.collect()

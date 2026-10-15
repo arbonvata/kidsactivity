@@ -6,6 +6,7 @@ import io.objectbox.BoxStore
 import io.objectbox.query.QueryBuilder
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
 
@@ -42,6 +43,9 @@ interface ScheduleOverrideRepository {
     suspend fun deleteOverridesForKid(kidId: Long)
 
     suspend fun getAll(): List<DailySchedule>
+
+    /** Reactive: all overrides ordered by date, now and on every change. */
+    fun getAllOverridesFlow(): Flow<List<DailySchedule>>
 
     suspend fun clearAll()
 }
@@ -118,6 +122,14 @@ class ScheduleOverrideRepositoryImpl(
                 .query()
                 .build()
                 .find()
+        }
+
+    override fun getAllOverridesFlow(): Flow<List<DailySchedule>> =
+        queryFlow {
+            scheduleBox
+                .query()
+                .order(DailySchedule_.date)
+                .build()
         }
 
     override suspend fun clearAll() {

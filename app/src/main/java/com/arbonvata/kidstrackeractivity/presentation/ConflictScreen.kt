@@ -217,8 +217,8 @@ fun ConflictScreenPreview() {
         val conflicts =
             listOf(
                 Conflict(
-                    ActivityOccurence(activity1, "Leo", today, LocalTime.of(17, 0)),
-                    ActivityOccurence(activity2, "Leo", today, LocalTime.of(17, 30)),
+                    ActivityOccurence(activity1, "Leo", today, LocalTime.of(17, 0), LocalTime.of(18, 30)),
+                    ActivityOccurence(activity2, "Leo", today, LocalTime.of(17, 30), LocalTime.of(18, 30)),
                     overlapMinutes = 60,
                 ),
             )

@@ -7,6 +7,7 @@ import com.arbonvata.kidstrackeractivity.data.expandActivitiesForDateRange
 import com.arbonvata.kidstrackeractivity.data.objectbox.Kid
 import com.arbonvata.kidstrackeractivity.data.repository.ActivityRepository
 import com.arbonvata.kidstrackeractivity.data.repository.KidRepository
+import com.arbonvata.kidstrackeractivity.data.repository.ScheduleOverrideRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -24,13 +25,14 @@ data class MonthUiState(
 
 /**
  * Month tab: all kids' activities expanded onto every day of the visible
- * month. Kids and activities are reactive ObjectBox queries, so writes
- * anywhere refresh the agenda automatically; moving to another month
- * re-expands the same flows for the new range.
+ * month. All sources are reactive ObjectBox queries, so writes anywhere
+ * refresh the agenda automatically; moving to another month re-expands the
+ * same flows for the new range. School-day overrides apply.
  */
 class MonthViewModel(
     kidRepository: KidRepository,
     activityRepository: ActivityRepository,
+    scheduleOverrideRepository: ScheduleOverrideRepository,
 ) : ViewModel() {
     private val selectedMonth = MutableStateFlow(YearMonth.now())
 
@@ -38,8 +40,9 @@ class MonthViewModel(
         combine(
             kidRepository.getAllKidsFlow(),
             activityRepository.getAllActivitiesFlow(),
+            scheduleOverrideRepository.getAllOverridesFlow(),
             selectedMonth,
-        ) { kids, activities, month ->
+        ) { kids, activities, overrides, month ->
             MonthUiState(
                 isLoading = false,
                 kids = kids,
@@ -51,6 +54,7 @@ class MonthViewModel(
                         month.atEndOfMonth(),
                         // Muted activities stay listed (marked); only alarms skip them.
                         includeDisabled = true,
+                        overrides = overrides,
                     ),
                 selectedMonth = month,
             )

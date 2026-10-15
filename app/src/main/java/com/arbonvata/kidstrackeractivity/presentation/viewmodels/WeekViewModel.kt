@@ -7,6 +7,7 @@ import com.arbonvata.kidstrackeractivity.data.expandActivitiesForDateRange
 import com.arbonvata.kidstrackeractivity.data.objectbox.Kid
 import com.arbonvata.kidstrackeractivity.data.repository.ActivityRepository
 import com.arbonvata.kidstrackeractivity.data.repository.KidRepository
+import com.arbonvata.kidstrackeractivity.data.repository.ScheduleOverrideRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -26,13 +27,14 @@ data class WeekUiState(
 
 /**
  * Week tab: all kids' activities expanded onto the visible week, Monday to
- * Sunday. Kids and activities are reactive ObjectBox queries, so writes
- * anywhere refresh the week automatically; moving to another week re-expands
- * the same flows for the new range.
+ * Sunday. All sources are reactive ObjectBox queries, so writes anywhere
+ * refresh the week automatically; moving to another week re-expands the
+ * same flows for the new range. School-day overrides apply.
  */
 class WeekViewModel(
     kidRepository: KidRepository,
     activityRepository: ActivityRepository,
+    scheduleOverrideRepository: ScheduleOverrideRepository,
 ) : ViewModel() {
     private val weekStart =
         MutableStateFlow(LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)))
@@ -41,12 +43,21 @@ class WeekViewModel(
         combine(
             kidRepository.getAllKidsFlow(),
             activityRepository.getAllActivitiesFlow(),
+            scheduleOverrideRepository.getAllOverridesFlow(),
             weekStart,
-        ) { kids, activities, start ->
+        ) { kids, activities, overrides, start ->
             WeekUiState(
                 isLoading = false,
                 kids = kids,
-                weekOccurrences = expandActivitiesForDateRange(kids, activities, start, start.plusDays(6), includeDisabled = true),
+                weekOccurrences =
+                    expandActivitiesForDateRange(
+                        kids,
+                        activities,
+                        start,
+                        start.plusDays(6),
+                        includeDisabled = true,
+                        overrides = overrides,
+                    ),
                 weekStart = start,
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), WeekUiState())

@@ -3,6 +3,7 @@ package com.arbonvata.kidstrackeractivity.alarms
 import com.arbonvata.kidstrackeractivity.data.repository.ActivityRepository
 import com.arbonvata.kidstrackeractivity.data.repository.AlarmSettingsRepository
 import com.arbonvata.kidstrackeractivity.data.repository.KidRepository
+import com.arbonvata.kidstrackeractivity.data.repository.ScheduleOverrideRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
@@ -11,13 +12,15 @@ import java.time.LocalDateTime
 
 /**
  * Keeps AlarmManager in sync with the database and settings: any change to
- * kids, activities, or the alarm offsets recomputes the next 7 days of
- * reminders and re-syncs. Started once from the Application; the boot
- * receiver uses [resyncOnce] because no collector is running that early.
+ * kids, activities, school-day overrides, or the alarm offsets recomputes
+ * the next 7 days of reminders and re-syncs. Started once from the
+ * Application; the boot receiver uses [resyncOnce] because no collector is
+ * running that early.
  */
 class AlarmSyncCoordinator(
     private val kidRepository: KidRepository,
     private val activityRepository: ActivityRepository,
+    private val scheduleOverrideRepository: ScheduleOverrideRepository,
     private val alarmSettingsRepository: AlarmSettingsRepository,
     private val alarmScheduler: AlarmScheduler,
     private val scope: CoroutineScope,
@@ -27,10 +30,18 @@ class AlarmSyncCoordinator(
             combine(
                 kidRepository.getAllKidsFlow(),
                 activityRepository.getAllActivitiesFlow(),
+                scheduleOverrideRepository.getAllOverridesFlow(),
                 alarmSettingsRepository.schoolAlarmMinutes,
                 alarmSettingsRepository.activityAlarmMinutes,
-            ) { kids, activities, schoolMinutes, activityMinutes ->
-                computeUpcomingAlarms(kids, activities, schoolMinutes, activityMinutes, LocalDateTime.now())
+            ) { kids, activities, overrides, schoolMinutes, activityMinutes ->
+                computeUpcomingAlarms(
+                    kids,
+                    activities,
+                    schoolMinutes,
+                    activityMinutes,
+                    LocalDateTime.now(),
+                    overrides = overrides,
+                )
             }.collect { alarms -> alarmScheduler.syncAlarms(alarms) }
         }
     }
@@ -38,10 +49,18 @@ class AlarmSyncCoordinator(
     suspend fun resyncOnce() {
         val kids = kidRepository.getAllKids()
         val activities = activityRepository.getAllActivities()
+        val overrides = scheduleOverrideRepository.getAll()
         val schoolMinutes = alarmSettingsRepository.schoolAlarmMinutes.first()
         val activityMinutes = alarmSettingsRepository.activityAlarmMinutes.first()
         alarmScheduler.syncAlarms(
-            computeUpcomingAlarms(kids, activities, schoolMinutes, activityMinutes, LocalDateTime.now()),
+            computeUpcomingAlarms(
+                kids,
+                activities,
+                schoolMinutes,
+                activityMinutes,
+                LocalDateTime.now(),
+                overrides = overrides,
+            ),
         )
     }
 }

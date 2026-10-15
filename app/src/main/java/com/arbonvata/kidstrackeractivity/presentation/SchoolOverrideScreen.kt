@@ -14,21 +14,29 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,22 +49,166 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.arbonvata.kidstrackeractivity.data.objectbox.DailySchedule
+import com.arbonvata.kidstrackeractivity.presentation.viewmodels.SchoolOverridesViewModel
+import com.arbonvata.kidstrackeractivity.ui.theme.KidsTrackerActivityTheme
+import org.koin.androidx.compose.koinViewModel
 import java.time.LocalDate
+import java.time.LocalTime
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 
 data class DayOverride(
     val date: LocalDate,
     val type: OverrideType,
+    val customEndTime: LocalTime? = null,
 )
 
 enum class OverrideType { EARLY_RELEASE, NO_SCHOOL, CUSTOM_TIME }
 
-@OptIn(ExperimentalMaterial3Api::class)
+private fun DailySchedule.toDayOverride(): DayOverride =
+    DayOverride(
+        date = LocalDate.parse(date),
+        type = if (isNoSchool) OverrideType.NO_SCHOOL else OverrideType.CUSTOM_TIME,
+        customEndTime = endTime.takeIf { it.isNotEmpty() }?.let(LocalTime::parse),
+    )
+
+/**
+ * Stateful entry point of the School Overrides screen: kid picker on top,
+ * the month calendar below, and a dialog per tapped day to set a custom
+ * school end time or mark it "No School".
+ */
 @Composable
 fun SchoolOverrideScreen(
+    viewModel: SchoolOverridesViewModel = koinViewModel(),
+    onBackClick: () -> Unit,
+) {
+    val uiState by viewModel.uiState.collectAsState()
+    var editingDate by remember { mutableStateOf<LocalDate?>(null) }
+
+    when {
+        uiState.isLoading -> {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center,
+            ) {
+                CircularProgressIndicator()
+            }
+        }
+
+        uiState.kids.isEmpty() -> {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text("Add a kid to get started!")
+            }
+        }
+
+        else -> {
+            val kidName =
+                uiState.kids
+                    .firstOrNull { it.id == uiState.selectedKidId }
+                    ?.name
+                    .orEmpty()
+            SchoolOverrideContent(
+                kidName = kidName,
+                overrides = uiState.overrides.mapValues { (_, schedule) -> schedule.toDayOverride() },
+                schoolWeekdays = uiState.schoolWeekdays,
+                kidPicker = {
+                    KidPickerField(
+                        kids = uiState.kids,
+                        selectedKidId = uiState.selectedKidId ?: 0L,
+                        onKidSelected = viewModel::onKidSelected,
+                    )
+                },
+                onDayClick = { editingDate = it },
+                onBackClick = onBackClick,
+            )
+        }
+    }
+
+    editingDate?.let { date ->
+        val existing = uiState.overrides[date]
+        var noSchool by remember(date) { mutableStateOf(existing?.isNoSchool == true) }
+        var customEnd by remember(date) { mutableStateOf(existing?.toDayOverride()?.customEndTime) }
+        var showTimePicker by remember(date) { mutableStateOf(false) }
+
+        AlertDialog(
+            onDismissRequest = { editingDate = null },
+            title = { Text(date.format(DateTimeFormatter.ofPattern("EEEE, MMM d"))) },
+            text = {
+                Column {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Checkbox(
+                            checked = noSchool,
+                            onCheckedChange = {
+                                noSchool = it
+                                if (it) customEnd = null
+                            },
+                        )
+                        Text("No school this day")
+                    }
+                    OutlinedButton(
+                        onClick = { showTimePicker = true },
+                        enabled = !noSchool,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(
+                            "School ends: ${customEnd?.format(DateTimeFormatter.ofPattern("HH:mm")) ?: "usual time"}",
+                        )
+                    }
+                    if (existing != null) {
+                        Spacer(Modifier.height(8.dp))
+                        Text(
+                            "Uncheck everything and save to remove the override.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                    if (date.dayOfWeek.value !in uiState.schoolWeekdays) {
+                        Spacer(Modifier.height(8.dp))
+                        Text(
+                            "No school activity on this weekday — the mark only takes effect once one is added.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.tertiary,
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.setDayOverride(date, if (noSchool) null else customEnd, noSchool)
+                        editingDate = null
+                    },
+                ) { Text("Save") }
+            },
+            dismissButton = {
+                TextButton(onClick = { editingDate = null }) { Text("Cancel") }
+            },
+        )
+
+        if (showTimePicker) {
+            TimePickerDialog(
+                initialTime = customEnd ?: LocalTime.of(13, 0),
+                onConfirm = {
+                    customEnd = it
+                    showTimePicker = false
+                },
+                onDismiss = { showTimePicker = false },
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SchoolOverrideContent(
     kidName: String,
     overrides: Map<LocalDate, DayOverride>,
+    schoolWeekdays: Set<Int> = emptySet(),
+    kidPicker: @Composable () -> Unit = {},
     onDayClick: (LocalDate) -> Unit,
     onBackClick: () -> Unit,
 ) {
@@ -82,9 +234,12 @@ fun SchoolOverrideScreen(
                 Modifier
                     .fillMaxSize()
                     .padding(padding)
-                    .padding(16.dp),
+                    .padding(16.dp)
+                    .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
+            kidPicker()
+
             // Month Navigation
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -113,6 +268,11 @@ fun SchoolOverrideScreen(
                 LegendItem(color = MaterialTheme.colorScheme.error, label = "No School")
                 LegendItem(color = MaterialTheme.colorScheme.secondary, label = "Custom")
             }
+            Text(
+                "Dimmed marks: no school activity falls on that weekday (kept for planning).",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
 
             // Weekday Headers
             Row(modifier = Modifier.fillMaxWidth()) {
@@ -146,6 +306,7 @@ fun SchoolOverrideScreen(
                                 day = dayNumber,
                                 override = override,
                                 isToday = date == LocalDate.now(),
+                                hasSchoolActivity = date.dayOfWeek.value in schoolWeekdays,
                                 modifier = Modifier.weight(1f),
                                 onClick = { onDayClick(date) },
                             )
@@ -155,8 +316,6 @@ fun SchoolOverrideScreen(
                     }
                 }
             }
-
-            Spacer(Modifier.weight(1f))
 
             // Summary of overrides
             Card(
@@ -171,18 +330,22 @@ fun SchoolOverrideScreen(
                     )
                     if (overrides.isNotEmpty()) {
                         Spacer(Modifier.height(8.dp))
-                        overrides.entries.take(3).forEach { (date, override) ->
-                            Text(
-                                "${date.format(DateTimeFormatter.ofPattern("MMM d"))}: ${
+                        overrides.entries
+                            .sortedBy { it.key }
+                            .take(3)
+                            .forEach { (date, override) ->
+                                val detail =
                                     when (override.type) {
-                                        OverrideType.EARLY_RELEASE -> "Early Release"
                                         OverrideType.NO_SCHOOL -> "No School"
-                                        OverrideType.CUSTOM_TIME -> "Custom Time"
+                                        OverrideType.EARLY_RELEASE -> "Early Release"
+                                        OverrideType.CUSTOM_TIME ->
+                                            "Custom${override.customEndTime?.let { " · ends $it" } ?: ""}"
                                     }
-                                }",
-                                style = MaterialTheme.typography.bodyMedium,
-                            )
-                        }
+                                Text(
+                                    "${date.format(DateTimeFormatter.ofPattern("MMM d"))}: $detail",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                )
+                            }
                     }
                 }
             }
@@ -195,6 +358,7 @@ fun CalendarDay(
     day: Int,
     override: DayOverride?,
     isToday: Boolean,
+    hasSchoolActivity: Boolean = true,
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {
@@ -205,6 +369,13 @@ fun CalendarDay(
             OverrideType.CUSTOM_TIME -> MaterialTheme.colorScheme.secondary
             null -> Color.Transparent
         }
+    // Marks on weekdays without a school activity are inert — dimmed dots.
+    val markAlpha =
+        when {
+            override == null -> 0f
+            hasSchoolActivity -> 0.3f
+            else -> 0.12f
+        }
 
     Box(
         modifier =
@@ -212,7 +383,7 @@ fun CalendarDay(
                 .aspectRatio(1f)
                 .padding(2.dp)
                 .clip(CircleShape)
-                .background(backgroundColor.copy(alpha = if (override != null) 0.3f else 0f))
+                .background(backgroundColor.copy(alpha = markAlpha))
                 .then(
                     if (isToday) {
                         Modifier.background(
@@ -252,20 +423,37 @@ fun LegendItem(
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, name = "Overrides — with special days")
 @Composable
-fun SchoolOverrideScreenPreview() {
-    MaterialTheme {
+fun SchoolOverrideContentPreview() {
+    KidsTrackerActivityTheme {
         val today = LocalDate.now()
         val mockOverrides =
             mapOf(
                 today.plusDays(3) to DayOverride(today.plusDays(3), OverrideType.EARLY_RELEASE),
                 today.plusDays(7) to DayOverride(today.plusDays(7), OverrideType.NO_SCHOOL),
-                today.plusDays(10) to DayOverride(today.plusDays(10), OverrideType.CUSTOM_TIME),
+                today.plusDays(10) to DayOverride(today.plusDays(10), OverrideType.CUSTOM_TIME, LocalTime.of(13, 0)),
             )
-        SchoolOverrideScreen(
+        SchoolOverrideContent(
             kidName = "Leo",
             overrides = mockOverrides,
+            // School runs only on the +3 day's weekday: that mark renders
+            // solid, the other two dim (inert).
+            schoolWeekdays = setOf(today.plusDays(3).dayOfWeek.value),
+            onDayClick = {},
+            onBackClick = {},
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Overrides — no special days")
+@Composable
+fun SchoolOverrideContentEmptyPreview() {
+    KidsTrackerActivityTheme {
+        SchoolOverrideContent(
+            kidName = "Mia",
+            overrides = emptyMap(),
+            schoolWeekdays = setOf(1, 2, 3, 4, 5),
             onDayClick = {},
             onBackClick = {},
         )

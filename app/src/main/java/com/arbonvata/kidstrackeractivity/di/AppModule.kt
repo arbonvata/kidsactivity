@@ -25,6 +25,7 @@ import com.arbonvata.kidstrackeractivity.presentation.viewmodels.KidDetailViewMo
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.KidsViewModel
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.MonthViewModel
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.ScheduleViewModel
+import com.arbonvata.kidstrackeractivity.presentation.viewmodels.SchoolOverridesViewModel
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.SettingsViewModel
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.ShareViewModel
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.TodayViewModel
@@ -54,15 +55,16 @@ val appModule =
         single<AlarmSettingsRepository> { AlarmSettingsRepositoryImpl(androidContext()) }
         single<CoroutineScope> { CoroutineScope(SupervisorJob() + Dispatchers.Default) }
         single<AlarmScheduler> { AlarmManagerAlarmScheduler(androidContext()) }
-        single<AlarmSyncCoordinator> { AlarmSyncCoordinator(get(), get(), get(), get(), get()) }
+        single<AlarmSyncCoordinator> { AlarmSyncCoordinator(get(), get(), get(), get(), get(), get()) }
         viewModel { ScheduleViewModel(get(), get(), get(), get()) }
         viewModel { KidsViewModel(get()) }
         viewModel { AddKidViewModel(get()) }
-        viewModel { TodayViewModel(get(), get()) }
-        viewModel { WeekViewModel(get(), get()) }
-        viewModel { MonthViewModel(get(), get()) }
+        viewModel { TodayViewModel(get(), get(), get()) }
+        viewModel { WeekViewModel(get(), get(), get()) }
+        viewModel { MonthViewModel(get(), get(), get()) }
         viewModel { SettingsViewModel(get()) }
         viewModel { ShareViewModel(get()) }
+        viewModel { SchoolOverridesViewModel(get(), get(), get()) }
         viewModel { (kidId: Long) ->
             AddActivityViewModel(
                 kidId = kidId,
@@ -92,9 +94,10 @@ val appModule =
         }
         viewModel { (kidIds: Set<Long>) ->
             DailyScheduleViewModel(
-                selectedKidIds = kidIds,
                 kidRepository = get(),
                 activityRepository = get(),
+                scheduleOverrideRepository = get(),
+                selectedKidIds = kidIds,
             )
         }
     }

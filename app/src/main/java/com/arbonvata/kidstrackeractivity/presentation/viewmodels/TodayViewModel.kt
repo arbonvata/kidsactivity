@@ -7,6 +7,7 @@ import com.arbonvata.kidstrackeractivity.data.expandActivitiesForDateRange
 import com.arbonvata.kidstrackeractivity.data.objectbox.Kid
 import com.arbonvata.kidstrackeractivity.data.repository.ActivityRepository
 import com.arbonvata.kidstrackeractivity.data.repository.KidRepository
+import com.arbonvata.kidstrackeractivity.data.repository.ScheduleOverrideRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -20,19 +21,22 @@ data class TodayUiState(
 )
 
 /**
- * Today tab: all kids' activities expanded onto today's date. Both sources
- * are reactive ObjectBox queries, so adding, editing or deleting activities
- * anywhere updates the list automatically.
+ * Today tab: all kids' activities expanded onto today's date. All sources
+ * are reactive ObjectBox queries, so adding, editing or deleting kids,
+ * activities or school-day overrides anywhere updates the list
+ * automatically.
  */
 class TodayViewModel(
     kidRepository: KidRepository,
     activityRepository: ActivityRepository,
+    scheduleOverrideRepository: ScheduleOverrideRepository,
 ) : ViewModel() {
     val uiState: StateFlow<TodayUiState> =
         combine(
             kidRepository.getAllKidsFlow(),
             activityRepository.getAllActivitiesFlow(),
-        ) { kids, activities ->
+            scheduleOverrideRepository.getAllOverridesFlow(),
+        ) { kids, activities, overrides ->
             TodayUiState(
                 isLoading = false,
                 kids = kids,
@@ -44,6 +48,7 @@ class TodayViewModel(
                         LocalDate.now(),
                         // Muted activities stay listed (marked); only alarms skip them.
                         includeDisabled = true,
+                        overrides = overrides,
                     ),
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), TodayUiState())

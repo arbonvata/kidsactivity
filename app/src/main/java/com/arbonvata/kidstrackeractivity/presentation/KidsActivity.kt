@@ -379,7 +379,7 @@ fun AddActivityContent(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun KidPickerField(
+fun KidPickerField(
     kids: List<Kid>,
     selectedKidId: Long,
     onKidSelected: (Long) -> Unit,
@@ -429,7 +429,7 @@ private fun KidPickerField(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun TimePickerDialog(
+fun TimePickerDialog(
     initialTime: LocalTime,
     onConfirm: (LocalTime) -> Unit,
     onDismiss: () -> Unit,

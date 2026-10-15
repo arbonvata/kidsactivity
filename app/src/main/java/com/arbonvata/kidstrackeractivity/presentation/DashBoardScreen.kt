@@ -289,8 +289,8 @@ fun DashboardScreenPreview() {
         // the real weekday.
         val todayOccurrences =
             listOf(
-                ActivityOccurence(DebugTestData.mockActivities[0], "Leo", today, LocalTime.of(17, 0)),
-                ActivityOccurence(DebugTestData.mockActivities[2], "Leo", today, LocalTime.of(15, 0)),
+                ActivityOccurence(DebugTestData.mockActivities[0], "Leo", today, LocalTime.of(17, 0), LocalTime.of(18, 30)),
+                ActivityOccurence(DebugTestData.mockActivities[2], "Leo", today, LocalTime.of(15, 0), LocalTime.of(16, 0)),
             )
         DashboardScreen(
             kids = DebugTestData.mockKids,

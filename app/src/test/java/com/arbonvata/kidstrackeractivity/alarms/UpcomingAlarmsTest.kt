@@ -1,6 +1,7 @@
 package com.arbonvata.kidstrackeractivity.alarms
 
 import com.arbonvata.kidstrackeractivity.data.objectbox.Activity
+import com.arbonvata.kidstrackeractivity.data.objectbox.DailySchedule
 import com.arbonvata.kidstrackeractivity.data.objectbox.Kid
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -131,5 +132,59 @@ class UpcomingAlarmsTest {
 
         assertEquals(monday.requestCode, monday.copy(title = "changed").requestCode)
         assertEquals(3, setOf(monday.requestCode, nextMonday.requestCode, otherActivity.requestCode).size)
+    }
+
+    @Test
+    fun customEndOverrideShiftsThePickupAlarm() {
+        val earlyRelease =
+            DailySchedule(
+                kidId = 1L,
+                date = "2026-10-19",
+                endTime = "12:30",
+                isNoSchool = false,
+            )
+        val now = LocalDateTime.of(2026, 10, 19, 7, 0)
+
+        val alarms =
+            computeUpcomingAlarms(
+                kids,
+                listOf(schoolActivity()),
+                schoolAlarmMinutes = 10,
+                activityAlarmMinutes = 15,
+                now = now,
+                overrides = listOf(earlyRelease),
+            )
+
+        // End 14:00 overridden to 12:30 -> pickup at 12:40, not 14:10.
+        assertEquals(listOf(LocalDateTime.of(2026, 10, 19, 12, 40)), alarms.map { it.triggerAt })
+    }
+
+    @Test
+    fun noSchoolOverrideRemovesThePickupAlarmForThatDay() {
+        val noSchool =
+            DailySchedule(
+                kidId = 1L,
+                date = "2026-10-19",
+                endTime = "",
+                isNoSchool = true,
+            )
+        val now = LocalDateTime.of(2026, 10, 19, 7, 0)
+
+        val alarms =
+            computeUpcomingAlarms(
+                kids,
+                listOf(schoolActivity(), footballActivity()),
+                schoolAlarmMinutes = 10,
+                activityAlarmMinutes = 15,
+                now = now,
+                overrides = listOf(noSchool),
+            )
+
+        // School pickup gone on Oct 19; the normal reminder remains. Next
+        // Monday (Oct 26) is beyond the 7-day horizon from this "now".
+        assertEquals(
+            listOf(LocalDateTime.of(2026, 10, 19, 16, 45)),
+            alarms.map { it.triggerAt },
+        )
     }
 }
