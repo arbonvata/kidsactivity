@@ -55,6 +55,7 @@ class AlarmReceiver : BroadcastReceiver() {
                 .setContentText(text)
                 .setStyle(NotificationCompat.BigTextStyle().bigText(text))
                 .setContentIntent(contentIntent)
+                .setCategory(NotificationCompat.CATEGORY_ALARM)
                 .setAutoCancel(true)
                 .build()
         NotificationManagerCompat.from(context).notify(requestCode, notification)
