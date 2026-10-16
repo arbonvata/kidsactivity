@@ -22,6 +22,7 @@ import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -31,26 +32,57 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.arbonvata.kidstrackeractivity.data.ActivityOccurence
+import com.arbonvata.kidstrackeractivity.data.Conflict
 import com.arbonvata.kidstrackeractivity.data.objectbox.Activity
+import com.arbonvata.kidstrackeractivity.presentation.viewmodels.ConflictViewModel
+import org.koin.androidx.compose.koinViewModel
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
-data class Conflict(
-    val activity1: ActivityOccurence,
-    val activity2: ActivityOccurence,
-    val overlapMinutes: Int,
-)
+/**
+ * Stateful entry point of the Conflicts screen: owns the [ConflictViewModel]
+ * and delegates rendering to the stateless [ConflictContent].
+ */
+@Composable
+fun ConflictScreen(
+    viewModel: ConflictViewModel = koinViewModel(),
+    onResolveClick: (Conflict) -> Unit,
+    onBackClick: () -> Unit,
+) {
+    val uiState by viewModel.uiState.collectAsState()
+
+    when {
+        uiState.isLoading -> {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center,
+            ) {
+                CircularProgressIndicator()
+            }
+        }
+
+        else -> {
+            ConflictContent(
+                conflicts = uiState.conflicts,
+                onResolveClick = onResolveClick,
+                onBackClick = onBackClick,
+            )
+        }
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ConflictScreen(
+fun ConflictContent(
     conflicts: List<Conflict>,
     onResolveClick: (Conflict) -> Unit,
     onBackClick: () -> Unit,
@@ -160,11 +192,11 @@ fun ConflictCard(
             }
             Spacer(Modifier.height(12.dp))
 
-            ConflictActivityRow(occurrence = conflict.activity1, label = "Activity 1")
+            ConflictActivityRow(occurrence = conflict.activity1)
             Spacer(Modifier.height(8.dp))
             HorizontalDivider()
             Spacer(Modifier.height(8.dp))
-            ConflictActivityRow(occurrence = conflict.activity2, label = "Activity 2")
+            ConflictActivityRow(occurrence = conflict.activity2)
 
             Spacer(Modifier.height(12.dp))
             Button(
@@ -180,21 +212,20 @@ fun ConflictCard(
 }
 
 @Composable
-fun ConflictActivityRow(
-    occurrence: ActivityOccurence,
-    label: String,
-) {
+fun ConflictActivityRow(occurrence: ActivityOccurence) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Column(modifier = Modifier.width(80.dp)) {
-            Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Column(modifier = Modifier.width(90.dp)) {
             Text(
-                "${occurrence.startTime.format(
-                    DateTimeFormatter
-                        .ofPattern("HH:mm"),
-                )} - ${occurrence.activity.endTime}",
+                occurrence.date.format(DateTimeFormatter.ofPattern("EEE, MMM d")),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Text(
+                "${occurrence.startTime.format(DateTimeFormatter.ofPattern("HH:mm"))} - " +
+                    occurrence.endTime.format(DateTimeFormatter.ofPattern("HH:mm")),
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.SemiBold,
             )
@@ -207,21 +238,30 @@ fun ConflictActivityRow(
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, name = "Conflicts — one overlap")
 @Composable
-fun ConflictScreenPreview() {
+fun ConflictContentPreview() {
     MaterialTheme {
-        val activity1 = Activity(1, 1, "Football", "17:00", "18:30", true, intArrayOf(2))
-        val activity2 = Activity(2, 1, "Piano", "17:30", "18:30", true, intArrayOf(2))
-        val today = LocalDate.now()
+        // Hand-built occurrences (fixed Monday) so the overlap is stable.
+        val monday = LocalDate.of(2026, 10, 19)
+        val football = Activity(1, 1, "Football", "17:00", "18:30", true, intArrayOf(1))
+        val piano = Activity(2, 1, "Piano", "17:30", "18:30", true, intArrayOf(1))
         val conflicts =
             listOf(
                 Conflict(
-                    ActivityOccurence(activity1, "Leo", today, LocalTime.of(17, 0), LocalTime.of(18, 30)),
-                    ActivityOccurence(activity2, "Leo", today, LocalTime.of(17, 30), LocalTime.of(18, 30)),
-                    overlapMinutes = 60,
+                    ActivityOccurence(football, "Leo", monday, LocalTime.of(17, 0), LocalTime.of(18, 30)),
+                    ActivityOccurence(piano, "Leo", monday, LocalTime.of(17, 30), LocalTime.of(18, 30)),
+                    overlapMinutes = 60L,
                 ),
             )
-        ConflictScreen(conflicts = conflicts, onResolveClick = {}, onBackClick = {})
+        ConflictContent(conflicts = conflicts, onResolveClick = {}, onBackClick = {})
+    }
+}
+
+@Preview(showBackground = true, name = "Conflicts — all clear")
+@Composable
+fun ConflictContentEmptyPreview() {
+    MaterialTheme {
+        ConflictContent(conflicts = emptyList(), onResolveClick = {}, onBackClick = {})
     }
 }

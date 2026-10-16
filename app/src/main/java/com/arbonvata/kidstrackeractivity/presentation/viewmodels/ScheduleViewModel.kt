@@ -6,7 +6,6 @@ import com.arbonvata.kidstrackeractivity.data.ActivityOccurence
 import com.arbonvata.kidstrackeractivity.data.objectbox.Activity
 import com.arbonvata.kidstrackeractivity.data.repository.ActivityRepository
 import com.arbonvata.kidstrackeractivity.data.repository.BackupRepository
-import com.arbonvata.kidstrackeractivity.data.repository.Conflict
 import com.arbonvata.kidstrackeractivity.data.repository.OccurrenceRepository
 import com.arbonvata.kidstrackeractivity.data.repository.ScheduleOverrideRepository
 import kotlinx.coroutines.flow.SharingStarted
@@ -70,11 +69,6 @@ class ScheduleViewModel(
     suspend fun getOccurrencesForWeek(weekStart: LocalDate): List<ActivityOccurence> = occurrenceRepository.getOccurrencesForWeek(weekStart)
 
     suspend fun getOccurrencesForMonth(month: YearMonth): List<ActivityOccurence> = occurrenceRepository.getOccurrencesForMonth(month)
-
-    suspend fun findConflicts(
-        daysAhead: Int = 30,
-        from: LocalDate = LocalDate.now(),
-    ): List<Conflict> = occurrenceRepository.findConflicts(daysAhead, from)
 
     suspend fun exportBackup(): String = backupRepository.exportAll()
 

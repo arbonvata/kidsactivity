@@ -39,6 +39,7 @@ import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
 import com.arbonvata.kidstrackeractivity.presentation.AddActivityScreen
 import com.arbonvata.kidstrackeractivity.presentation.AddKidScreen
+import com.arbonvata.kidstrackeractivity.presentation.ConflictScreen
 import com.arbonvata.kidstrackeractivity.presentation.DailyScheduleScreen
 import com.arbonvata.kidstrackeractivity.presentation.EditActivityScreen
 import com.arbonvata.kidstrackeractivity.presentation.EditKidScreen
@@ -285,7 +286,14 @@ fun KidsScheduleApp(
             }
 
             composable(Screen.Conflicts.route) {
-                // ConflictScreen(...)
+                ConflictScreen(
+                    // Resolve by editing the earlier of the two activities;
+                    // shifting its times there clears the overlap.
+                    onResolveClick = { conflict ->
+                        navController.navigate("edit_activity/${conflict.activity1.activity.id}")
+                    },
+                    onBackClick = { navController.popBackStack() },
+                )
             }
 
             composable(Screen.Share.route) {
