@@ -44,10 +44,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
+import com.arbonvata.kidstrackeractivity.R
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.BackupResult
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.ShareViewModel
 import com.arbonvata.kidstrackeractivity.ui.theme.KidsTrackerActivityTheme
@@ -101,6 +103,9 @@ fun ShareScreen(
             }
         }
 
+    val backupSubject = stringResource(R.string.share_backup_subject)
+    val shareChooserTitle = stringResource(R.string.share_backup_chooser_title)
+
     fun shareBackupFile() {
         scope.launch {
             val json = viewModel.exportBackup()
@@ -113,10 +118,10 @@ fun ShareScreen(
                 Intent(Intent.ACTION_SEND).apply {
                     type = "application/json"
                     putExtra(Intent.EXTRA_STREAM, uri)
-                    putExtra(Intent.EXTRA_SUBJECT, "Kids Activity Tracker backup")
+                    putExtra(Intent.EXTRA_SUBJECT, backupSubject)
                     addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 }
-            context.startActivity(Intent.createChooser(intent, "Share backup"))
+            context.startActivity(Intent.createChooser(intent, shareChooserTitle))
         }
     }
 
@@ -133,12 +138,9 @@ fun ShareScreen(
     pendingImportJson?.let { json ->
         AlertDialog(
             onDismissRequest = { pendingImportJson = null },
-            title = { Text("Restore backup") },
+            title = { Text(stringResource(R.string.share_restore_backup_title)) },
             text = {
-                Text(
-                    "Merge adds the backup's kids and activities to this device. " +
-                        "Replace wipes the current data first.",
-                )
+                Text(stringResource(R.string.share_restore_backup_message))
             },
             confirmButton = {
                 TextButton(
@@ -146,7 +148,7 @@ fun ShareScreen(
                         pendingImportJson = null
                         viewModel.importBackup(json, replaceExisting = true)
                     },
-                ) { Text("Replace") }
+                ) { Text(stringResource(R.string.share_replace)) }
             },
             dismissButton = {
                 TextButton(
@@ -154,7 +156,7 @@ fun ShareScreen(
                         pendingImportJson = null
                         viewModel.importBackup(json, replaceExisting = false)
                     },
-                ) { Text("Merge") }
+                ) { Text(stringResource(R.string.share_merge)) }
             },
         )
     }
@@ -165,8 +167,8 @@ fun ShareScreen(
             title = {
                 Text(
                     when (result) {
-                        is BackupResult.Success -> "Restore complete"
-                        is BackupResult.Error -> "Restore failed"
+                        is BackupResult.Success -> stringResource(R.string.share_restore_complete_title)
+                        is BackupResult.Error -> stringResource(R.string.share_restore_failed_title)
                     },
                 )
             },
@@ -174,13 +176,13 @@ fun ShareScreen(
                 Text(
                     when (result) {
                         is BackupResult.Success ->
-                            "Kids, activities and school-day overrides were restored."
+                            stringResource(R.string.share_restore_complete_message)
                         is BackupResult.Error -> result.message
                     },
                 )
             },
             confirmButton = {
-                TextButton(onClick = viewModel::onResultHandled) { Text("OK") }
+                TextButton(onClick = viewModel::onResultHandled) { Text(stringResource(R.string.share_ok)) }
             },
         )
     }
@@ -198,10 +200,10 @@ fun ShareContent(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Backup & Share") },
+                title = { Text(stringResource(R.string.share_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.share_back))
                     }
                 },
             )
@@ -223,13 +225,13 @@ fun ShareContent(
             ) {
                 Column(modifier = Modifier.padding(20.dp)) {
                     Text(
-                        "Back up your schedules",
+                        stringResource(R.string.share_header_title),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
                     )
                     Spacer(Modifier.height(4.dp))
                     Text(
-                        "Save or share the whole database as a JSON file, and restore it on this or another device.",
+                        stringResource(R.string.share_header_subtitle),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f),
                     )
@@ -237,32 +239,32 @@ fun ShareContent(
             }
 
             Text(
-                "Backup",
+                stringResource(R.string.share_section_backup),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
             )
             ShareOptionRow(
                 icon = Icons.Default.Save,
-                title = "Save to File",
-                subtitle = "Pick where to store the JSON backup",
+                title = stringResource(R.string.share_save_to_file_title),
+                subtitle = stringResource(R.string.share_save_to_file_subtitle),
                 onClick = onSaveToFileClick,
             )
             ShareOptionRow(
                 icon = Icons.Default.Share,
-                title = "Share Backup",
-                subtitle = "Send the JSON file via WhatsApp, Email, …",
+                title = stringResource(R.string.share_share_backup_title),
+                subtitle = stringResource(R.string.share_share_backup_subtitle),
                 onClick = onShareFileClick,
             )
 
             Text(
-                "Restore",
+                stringResource(R.string.share_section_restore),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
             )
             ShareOptionRow(
                 icon = Icons.Default.Download,
-                title = "Restore from File",
-                subtitle = "Import a backup — merge into or replace current data",
+                title = stringResource(R.string.share_restore_from_file_title),
+                subtitle = stringResource(R.string.share_restore_from_file_subtitle),
                 onClick = onImportClick,
             )
 
@@ -274,7 +276,10 @@ fun ShareContent(
                 ) {
                     CircularProgressIndicator(modifier = Modifier.size(24.dp))
                     Spacer(Modifier.width(12.dp))
-                    Text("Restoring…", style = MaterialTheme.typography.bodyMedium)
+                    Text(
+                        stringResource(R.string.share_restoring),
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
                 }
             }
         }

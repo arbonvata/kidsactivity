@@ -40,9 +40,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringArrayResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.arbonvata.kidstrackeractivity.R
 import com.arbonvata.kidstrackeractivity.data.DebugTestData
 import com.arbonvata.kidstrackeractivity.data.objectbox.Activity
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.KidDetailUiState
@@ -90,11 +93,14 @@ fun KidDetailScreen(
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
-            title = { Text("Delete kid?") },
+            title = { Text(stringResource(R.string.kid_detail_delete_dialog_title)) },
             text = {
                 Text(
-                    "All of ${uiState.kid?.name ?: "this kid"}'s activities and school-day " +
-                        "overrides will be removed too.",
+                    stringResource(
+                        R.string.kid_detail_delete_dialog_message,
+                        uiState.kid?.name
+                            ?: stringResource(R.string.kid_detail_delete_dialog_message_default_name),
+                    ),
                 )
             },
             confirmButton = {
@@ -103,10 +109,12 @@ fun KidDetailScreen(
                         showDeleteDialog = false
                         viewModel.deleteKid()
                     },
-                ) { Text("Delete") }
+                ) { Text(stringResource(R.string.kid_detail_delete_dialog_confirm)) }
             },
             dismissButton = {
-                TextButton(onClick = { showDeleteDialog = false }) { Text("Cancel") }
+                TextButton(onClick = { showDeleteDialog = false }) {
+                    Text(stringResource(R.string.kid_detail_delete_dialog_cancel))
+                }
             },
         )
     }
@@ -128,18 +136,32 @@ fun KidDetailContent(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(kid?.let { "${it.name}'s Activities" } ?: "Kid") },
+                title = {
+                    Text(
+                        kid?.let { stringResource(R.string.kid_detail_title, it.name) }
+                            ?: stringResource(R.string.kid_detail_title_default),
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.kid_detail_back_content_description),
+                        )
                     }
                 },
                 actions = {
                     IconButton(onClick = onEditKidClick) {
-                        Icon(Icons.Default.Edit, contentDescription = "Edit kid")
+                        Icon(
+                            Icons.Default.Edit,
+                            contentDescription = stringResource(R.string.kid_detail_edit_kid_content_description),
+                        )
                     }
                     IconButton(onClick = onDeleteKidClick) {
-                        Icon(Icons.Default.Delete, contentDescription = "Delete kid")
+                        Icon(
+                            Icons.Default.Delete,
+                            contentDescription = stringResource(R.string.kid_detail_delete_kid_content_description),
+                        )
                     }
                 },
             )
@@ -148,7 +170,7 @@ fun KidDetailContent(
             ExtendedFloatingActionButton(
                 onClick = onAddActivityClick,
                 icon = { Icon(Icons.Default.Add, contentDescription = null) },
-                text = { Text("Add New Activity") },
+                text = { Text(stringResource(R.string.kid_detail_add_new_activity)) },
             )
         },
     ) { padding ->
@@ -166,7 +188,7 @@ fun KidDetailContent(
                     modifier = Modifier.fillMaxSize().padding(padding),
                     contentAlignment = Alignment.Center,
                 ) {
-                    Text("This kid no longer exists.")
+                    Text(stringResource(R.string.kid_detail_kid_not_found))
                 }
 
             uiState.activities.isEmpty() ->
@@ -175,7 +197,7 @@ fun KidDetailContent(
                     contentAlignment = Alignment.Center,
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text("No activities yet.")
+                        Text(stringResource(R.string.kid_detail_no_activities))
                         Spacer(Modifier.height(16.dp))
                         DeleteAllActivitiesButton(
                             kidName = kid.name,
@@ -219,6 +241,11 @@ fun KidActivityRow(
     onClick: () -> Unit,
     onEnabledChange: (Boolean) -> Unit,
 ) {
+    val weekdayAbbreviations = stringArrayResource(R.array.weekday_abbreviations)
+    val weeklyLabel = stringResource(R.string.kid_detail_recurrence_weekly)
+    val onceLabel = stringResource(R.string.kid_detail_recurrence_once)
+    val schoolLabel = stringResource(R.string.kid_detail_marker_school)
+
     Card(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier =
@@ -241,8 +268,11 @@ fun KidActivityRow(
                 )
                 Text(
                     text =
-                        "${dayLabels(activity.daysOfWeek)} · ${activity.startTime} – ${activity.endTime}" +
-                            if (activity.isPeriodic) " · weekly" else " · once",
+                        listOfNotNull(
+                            "${dayLabels(activity.daysOfWeek, weekdayAbbreviations)} · ${activity.startTime} – ${activity.endTime}",
+                            if (activity.isPeriodic) weeklyLabel else onceLabel,
+                            if (activity.isSchoolActivity) schoolLabel else null,
+                        ).joinToString(" · "),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -260,9 +290,10 @@ fun KidActivityRow(
     }
 }
 
-private val DAY_LABELS = arrayOf("", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
-
-private fun dayLabels(days: IntArray): String = days.sorted().joinToString { DAY_LABELS[it] }
+private fun dayLabels(
+    days: IntArray,
+    labels: Array<String>,
+): String = days.sorted().joinToString { labels[it - 1] }
 
 @Preview(showBackground = true, name = "Detail — with activities (muted included)")
 @Composable

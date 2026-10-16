@@ -31,9 +31,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.arbonvata.kidstrackeractivity.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,7 +50,7 @@ fun MoreScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("More") },
+                title = { Text(stringResource(R.string.more_title)) },
             )
         },
     ) { padding ->
@@ -63,7 +65,7 @@ fun MoreScreen(
         ) {
             // Management Section
             Text(
-                "Management",
+                stringResource(R.string.more_section_management),
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary,
@@ -72,22 +74,22 @@ fun MoreScreen(
 
             MoreMenuItem(
                 icon = Icons.Default.People,
-                title = "Kids Management",
-                subtitle = "Add, edit, or remove kids",
+                title = stringResource(R.string.more_kids_management_title),
+                subtitle = stringResource(R.string.more_kids_management_subtitle),
                 onClick = onKidsClick,
             )
 
             MoreMenuItem(
                 icon = Icons.Default.Event,
-                title = "School Schedule Overrides",
-                subtitle = "Early release, holidays, custom days",
+                title = stringResource(R.string.more_school_overrides_title),
+                subtitle = stringResource(R.string.more_school_overrides_subtitle),
                 onClick = onSchoolOverridesClick,
             )
 
             MoreMenuItem(
                 icon = Icons.Default.ViewDay,
-                title = "Daily View (Filter by Kids)",
-                subtitle = "See specific kids' schedule for a day",
+                title = stringResource(R.string.more_daily_view_title),
+                subtitle = stringResource(R.string.more_daily_view_subtitle),
                 onClick = onKidSelectionClick,
             )
 
@@ -95,7 +97,7 @@ fun MoreScreen(
 
             // Tools Section
             Text(
-                "Tools",
+                stringResource(R.string.more_section_tools),
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary,
@@ -104,15 +106,15 @@ fun MoreScreen(
 
             MoreMenuItem(
                 icon = Icons.Default.Warning,
-                title = "Check Conflicts",
-                subtitle = "Find overlapping activities",
+                title = stringResource(R.string.more_check_conflicts_title),
+                subtitle = stringResource(R.string.more_check_conflicts_subtitle),
                 onClick = onConflictsClick,
             )
 
             MoreMenuItem(
                 icon = Icons.Default.Share,
-                title = "Share / Export",
-                subtitle = "Send schedule via WhatsApp, Email, PDF",
+                title = stringResource(R.string.more_share_export_title),
+                subtitle = stringResource(R.string.more_share_export_subtitle),
                 onClick = onShareClick,
             )
 
@@ -120,7 +122,7 @@ fun MoreScreen(
 
             // System Section
             Text(
-                "System",
+                stringResource(R.string.more_section_system),
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary,
@@ -129,8 +131,8 @@ fun MoreScreen(
 
             MoreMenuItem(
                 icon = Icons.Default.Settings,
-                title = "Settings",
-                subtitle = "Permissions, alarms, backup",
+                title = stringResource(R.string.more_settings_title),
+                subtitle = stringResource(R.string.more_settings_subtitle),
                 onClick = onSettingsClick,
             )
         }

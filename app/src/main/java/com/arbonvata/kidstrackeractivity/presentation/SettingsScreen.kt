@@ -54,6 +54,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -62,6 +63,7 @@ import androidx.core.net.toUri
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.arbonvata.kidstrackeractivity.R
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.SettingsViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -181,10 +183,10 @@ fun SettingsContent(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Settings") },
+                title = { Text(stringResource(R.string.settings_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.settings_back))
                     }
                 },
             )
@@ -200,64 +202,64 @@ fun SettingsContent(
             verticalArrangement = Arrangement.spacedBy(24.dp),
         ) {
             // Permissions Section
-            SettingsSection(title = "Permissions") {
+            SettingsSection(title = stringResource(R.string.settings_section_permissions)) {
                 PermissionRow(
                     icon = Icons.Default.Alarm,
-                    title = "Exact Alarms",
-                    subtitle = "Required for precise timing",
+                    title = stringResource(R.string.settings_exact_alarms_title),
+                    subtitle = stringResource(R.string.settings_exact_alarms_subtitle),
                     isGranted = state.exactAlarmGranted,
                     onClick = onRequestExactAlarm,
                 )
                 PermissionRow(
                     icon = Icons.Default.Notifications,
-                    title = "Notifications",
-                    subtitle = "Show reminders",
+                    title = stringResource(R.string.settings_notifications_title),
+                    subtitle = stringResource(R.string.settings_notifications_subtitle),
                     isGranted = state.notificationsGranted,
                     onClick = onRequestNotifications,
                 )
                 PermissionRow(
                     icon = Icons.Default.BatteryFull,
-                    title = "Battery Optimization",
-                    subtitle = "Disable to prevent delays",
+                    title = stringResource(R.string.settings_battery_optimization_title),
+                    subtitle = stringResource(R.string.settings_battery_optimization_subtitle),
                     isGranted = state.batteryOptimizationDisabled,
                     onClick = onDisableBatteryOpt,
                 )
             }
 
             // Alarm Timing Section
-            SettingsSection(title = "Alarm Timing") {
+            SettingsSection(title = stringResource(R.string.settings_section_alarm_timing)) {
                 SettingsSlider(
-                    title = "School end reminder",
+                    title = stringResource(R.string.settings_school_end_reminder_title),
                     value = state.schoolAlarmMinutes,
                     valueRange = 5..30,
-                    suffix = "min after",
+                    suffix = stringResource(R.string.settings_suffix_min_after),
                     onValueChange = onSchoolAlarmChange,
                     onValueChangeFinished = onSchoolAlarmChangeFinished,
                 )
                 HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
                 SettingsSlider(
-                    title = "Activity reminder",
+                    title = stringResource(R.string.settings_activity_reminder_title),
                     value = state.activityAlarmMinutes,
                     valueRange = 5..60,
-                    suffix = "min before",
+                    suffix = stringResource(R.string.settings_suffix_min_before),
                     onValueChange = onActivityAlarmChange,
                     onValueChangeFinished = onActivityAlarmChangeFinished,
                 )
             }
 
             // Data Section
-            SettingsSection(title = "Data") {
+            SettingsSection(title = stringResource(R.string.settings_section_data)) {
                 SettingsRow(
                     icon = Icons.Default.Upload,
-                    title = "Backup Data",
-                    subtitle = "Export to file",
+                    title = stringResource(R.string.settings_backup_data_title),
+                    subtitle = stringResource(R.string.settings_backup_data_subtitle),
                     onClick = onBackupClick,
                 )
                 HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
                 SettingsRow(
                     icon = Icons.Default.Download,
-                    title = "Restore Data",
-                    subtitle = "Import from backup",
+                    title = stringResource(R.string.settings_restore_data_title),
+                    subtitle = stringResource(R.string.settings_restore_data_subtitle),
                     onClick = onRestoreClick,
                 )
             }
@@ -303,9 +305,13 @@ fun PermissionRow(
             Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         if (isGranted) {
-            Icon(Icons.Default.CheckCircle, contentDescription = "Granted", tint = MaterialTheme.colorScheme.tertiary)
+            Icon(
+                Icons.Default.CheckCircle,
+                contentDescription = stringResource(R.string.settings_permission_granted),
+                tint = MaterialTheme.colorScheme.tertiary,
+            )
         } else {
-            TextButton(onClick = onClick) { Text("Grant") }
+            TextButton(onClick = onClick) { Text(stringResource(R.string.settings_permission_grant)) }
         }
     }
 }
@@ -348,7 +354,11 @@ fun SettingsSlider(
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             Text(title, style = MaterialTheme.typography.bodyLarge)
-            Text("$value $suffix", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary)
+            Text(
+                stringResource(R.string.settings_slider_value, value, suffix),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.primary,
+            )
         }
         Slider(
             value = value.toFloat(),

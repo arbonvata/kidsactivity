@@ -45,10 +45,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.arbonvata.kidstrackeractivity.R
 import com.arbonvata.kidstrackeractivity.data.objectbox.DailySchedule
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.SchoolOverridesViewModel
 import com.arbonvata.kidstrackeractivity.ui.theme.KidsTrackerActivityTheme
@@ -101,7 +104,7 @@ fun SchoolOverrideScreen(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center,
             ) {
-                Text("Add a kid to get started!")
+                Text(stringResource(R.string.school_override_empty_state))
             }
         }
 
@@ -147,7 +150,7 @@ fun SchoolOverrideScreen(
                                 if (it) customEnd = null
                             },
                         )
-                        Text("No school this day")
+                        Text(stringResource(R.string.school_override_no_school_label))
                     }
                     OutlinedButton(
                         onClick = { showTimePicker = true },
@@ -155,13 +158,17 @@ fun SchoolOverrideScreen(
                         modifier = Modifier.fillMaxWidth(),
                     ) {
                         Text(
-                            "School ends: ${customEnd?.format(DateTimeFormatter.ofPattern("HH:mm")) ?: "usual time"}",
+                            stringResource(
+                                R.string.school_override_school_ends,
+                                customEnd?.format(DateTimeFormatter.ofPattern("HH:mm"))
+                                    ?: stringResource(R.string.school_override_usual_time),
+                            ),
                         )
                     }
                     if (existing != null) {
                         Spacer(Modifier.height(8.dp))
                         Text(
-                            "Uncheck everything and save to remove the override.",
+                            stringResource(R.string.school_override_remove_hint),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -169,7 +176,7 @@ fun SchoolOverrideScreen(
                     if (date.dayOfWeek.value !in uiState.schoolWeekdays) {
                         Spacer(Modifier.height(8.dp))
                         Text(
-                            "No school activity on this weekday — the mark only takes effect once one is added.",
+                            stringResource(R.string.school_override_no_activity_weekday_hint),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.tertiary,
                         )
@@ -182,10 +189,10 @@ fun SchoolOverrideScreen(
                         viewModel.setDayOverride(date, if (noSchool) null else customEnd, noSchool)
                         editingDate = null
                     },
-                ) { Text("Save") }
+                ) { Text(stringResource(R.string.school_override_save)) }
             },
             dismissButton = {
-                TextButton(onClick = { editingDate = null }) { Text("Cancel") }
+                TextButton(onClick = { editingDate = null }) { Text(stringResource(R.string.school_override_cancel)) }
             },
         )
 
@@ -220,10 +227,10 @@ fun SchoolOverrideContent(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("$kidName's School Schedule") },
+                title = { Text(stringResource(R.string.school_override_title, kidName)) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.school_override_back))
                     }
                 },
             )
@@ -247,7 +254,7 @@ fun SchoolOverrideContent(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 IconButton(onClick = { currentMonth = currentMonth.minusMonths(1) }) {
-                    Icon(Icons.Default.ChevronLeft, contentDescription = "Previous")
+                    Icon(Icons.Default.ChevronLeft, contentDescription = stringResource(R.string.school_override_previous_month))
                 }
                 Text(
                     currentMonth.format(DateTimeFormatter.ofPattern("MMMM yyyy")),
@@ -255,7 +262,7 @@ fun SchoolOverrideContent(
                     fontWeight = FontWeight.Bold,
                 )
                 IconButton(onClick = { currentMonth = currentMonth.plusMonths(1) }) {
-                    Icon(Icons.Default.ChevronRight, contentDescription = "Next")
+                    Icon(Icons.Default.ChevronRight, contentDescription = stringResource(R.string.school_override_next_month))
                 }
             }
 
@@ -264,19 +271,27 @@ fun SchoolOverrideContent(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
             ) {
-                LegendItem(color = MaterialTheme.colorScheme.tertiary, label = "Early Release")
-                LegendItem(color = MaterialTheme.colorScheme.error, label = "No School")
-                LegendItem(color = MaterialTheme.colorScheme.secondary, label = "Custom")
+                LegendItem(color = MaterialTheme.colorScheme.tertiary, label = stringResource(R.string.school_override_type_early_release))
+                LegendItem(color = MaterialTheme.colorScheme.error, label = stringResource(R.string.school_override_type_no_school))
+                LegendItem(color = MaterialTheme.colorScheme.secondary, label = stringResource(R.string.school_override_type_custom))
             }
             Text(
-                "Dimmed marks: no school activity falls on that weekday (kept for planning).",
+                stringResource(R.string.school_override_dimmed_marks_hint),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
 
             // Weekday Headers
             Row(modifier = Modifier.fillMaxWidth()) {
-                listOf("M", "T", "W", "T", "F", "S", "S").forEach { day ->
+                listOf(
+                    stringResource(R.string.school_override_weekday_monday),
+                    stringResource(R.string.school_override_weekday_tuesday),
+                    stringResource(R.string.school_override_weekday_wednesday),
+                    stringResource(R.string.school_override_weekday_thursday),
+                    stringResource(R.string.school_override_weekday_friday),
+                    stringResource(R.string.school_override_weekday_saturday),
+                    stringResource(R.string.school_override_weekday_sunday),
+                ).forEach { day ->
                     Text(
                         text = day,
                         modifier = Modifier.weight(1f),
@@ -324,7 +339,7 @@ fun SchoolOverrideContent(
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        "This month: ${overrides.size} special days",
+                        pluralStringResource(R.plurals.school_override_month_summary, overrides.size, overrides.size),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
                     )
@@ -336,13 +351,19 @@ fun SchoolOverrideContent(
                             .forEach { (date, override) ->
                                 val detail =
                                     when (override.type) {
-                                        OverrideType.NO_SCHOOL -> "No School"
-                                        OverrideType.EARLY_RELEASE -> "Early Release"
+                                        OverrideType.NO_SCHOOL -> stringResource(R.string.school_override_type_no_school)
+                                        OverrideType.EARLY_RELEASE -> stringResource(R.string.school_override_type_early_release)
                                         OverrideType.CUSTOM_TIME ->
-                                            "Custom${override.customEndTime?.let { " · ends $it" } ?: ""}"
+                                            override.customEndTime?.let {
+                                                stringResource(R.string.school_override_type_custom_with_time, it)
+                                            } ?: stringResource(R.string.school_override_type_custom)
                                     }
                                 Text(
-                                    "${date.format(DateTimeFormatter.ofPattern("MMM d"))}: $detail",
+                                    stringResource(
+                                        R.string.school_override_summary_entry,
+                                        date.format(DateTimeFormatter.ofPattern("MMM d")),
+                                        detail,
+                                    ),
                                     style = MaterialTheme.typography.bodyMedium,
                                 )
                             }

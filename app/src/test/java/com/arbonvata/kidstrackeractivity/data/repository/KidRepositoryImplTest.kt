@@ -176,12 +176,4 @@ class KidRepositoryImplTest {
             verify { kidQueryBuilder.order(Kid_.name) }
             verify { kidSubscription.cancel() }
         }
-
-    @Test
-    fun clearAllRemovesEverythingFromTheBox() =
-        runTest {
-            repository.clearAll()
-
-            verify { kidBox.removeAll() }
-        }
 }

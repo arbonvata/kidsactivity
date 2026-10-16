@@ -34,8 +34,6 @@ interface KidRepository {
 
     /** Reactive: all kids ordered by name, now and on every kid-table change. */
     fun getAllKidsFlow(): Flow<List<Kid>>
-
-    suspend fun clearAll()
 }
 
 class KidRepositoryImpl(
@@ -96,8 +94,4 @@ class KidRepositoryImpl(
                 .order(Kid_.name)
                 .build()
         }
-
-    override suspend fun clearAll() {
-        withContext(ioDispatcher) { kidBox.removeAll() }
-    }
 }

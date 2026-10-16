@@ -5,6 +5,7 @@ import android.app.NotificationManager
 import android.content.Context
 import android.media.AudioAttributes
 import android.media.RingtoneManager
+import com.arbonvata.kidstrackeractivity.R
 
 object NotificationChannels {
     const val ACTIVITY_ALARMS = "activity_reminder_alarms"
@@ -25,10 +26,10 @@ object NotificationChannels {
         val channel =
             NotificationChannel(
                 ACTIVITY_ALARMS,
-                "Activity reminders",
+                context.getString(R.string.notification_channel_name),
                 NotificationManager.IMPORTANCE_HIGH,
             ).apply {
-                description = "Reminders before activities start and after school ends"
+                description = context.getString(R.string.notification_channel_description)
                 // The alarm stream keeps reminders audible even when the
                 // system default notification sound is "None" (common on
                 // MIUI) or the notification stream is muted.

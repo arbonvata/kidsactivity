@@ -144,36 +144,6 @@ class ActivityRepositoryImplTest {
         }
 
     @Test
-    fun getActivitiesForKidFiltersByKidIdAndOrdersByStartTime() =
-        runTest {
-            val expected = listOf(Activity(id = 1L, kidId = 3L, name = "Piano", startTime = "16:00"))
-            every { query.find() } returns expected
-
-            val result = repository.getActivitiesForKid(3L)
-
-            assertEquals(expected, result)
-            verify { queryBuilder.equal(Activity_.kidId, 3L) }
-            verify { queryBuilder.order(Activity_.startTime) }
-        }
-
-    @Test
-    fun getActivitiesForKidOnDayFiltersDaysInMemory() =
-        runTest {
-            val stored =
-                listOf(
-                    Activity(id = 1L, kidId = 3L, name = "Football", startTime = "17:00", daysOfWeek = intArrayOf(2, 4)),
-                    Activity(id = 2L, kidId = 3L, name = "Piano", startTime = "16:00", daysOfWeek = intArrayOf(1, 3)),
-                    Activity(id = 3L, kidId = 3L, name = "Swimming", startTime = "18:00", daysOfWeek = intArrayOf(2)),
-                )
-            every { query.find() } returns stored
-
-            val result = repository.getActivitiesForKidOnDay(3L, dayOfWeek = 2)
-
-            assertEquals(listOf(stored[0], stored[2]), result)
-            verify { queryBuilder.equal(Activity_.kidId, 3L) }
-        }
-
-    @Test
     fun getAllActivitiesFindsAll() =
         runTest {
             val expected = listOf(Activity(id = 1L), Activity(id = 2L))
@@ -191,14 +161,6 @@ class ActivityRepositoryImplTest {
 
             verify { queryBuilder.equal(Activity_.kidId, 3L) }
             verify { query.remove() }
-        }
-
-    @Test
-    fun clearAllRemovesEverythingFromTheBox() =
-        runTest {
-            repository.clearAll()
-
-            verify { activityBox.removeAll() }
         }
 
     @Test
@@ -229,6 +191,7 @@ class ActivityRepositoryImplTest {
 
             assertEquals(listOf(expected), emissions)
             verify { queryBuilder.equal(Activity_.kidId, 3L) }
+            verify { queryBuilder.order(Activity_.startTime) }
             verify { subscription.cancel() }
         }
 }

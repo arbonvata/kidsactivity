@@ -1,3 +1,22 @@
 <resources>
     <string name="app_name">Kids tracker activity</string>
+
+    <!-- Bottom navigation tabs -->
+    <string name="tab_today">Today</string>
+    <string name="tab_week">Week</string>
+    <string name="tab_month">Month</string>
+    <string name="tab_more">More</string>
+
+    <!-- Secondary screen titles (navigation registry) -->
+    <string name="screen_title_settings">Settings</string>
+    <string name="screen_title_add_activity">Add Activity</string>
+    <string name="screen_title_edit_activity">Edit Activity</string>
+    <string name="screen_title_kid_selection">Select Kids</string>
+    <string name="screen_title_add_kid">Add Kid</string>
+    <string name="screen_title_daily_schedule">Daily Schedule</string>
+    <string name="screen_title_kid_detail">Kid Detail</string>
+    <string name="screen_title_school_overrides">School Overrides</string>
+    <string name="screen_title_conflicts">Conflicts</string>
+    <string name="screen_title_share">Share</string>
+    <string name="screen_title_kids_management">Kids</string>
 </resources>

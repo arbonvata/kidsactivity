@@ -25,27 +25,13 @@ interface ActivityRepository {
 
     suspend fun deleteAllActivitiesForKid(kidId: Long)
 
-    /**
-     * ObjectBox cannot query "int array contains day", so day filtering happens
-     * in memory; see getActivitiesForKidOnDay.
-     */
-    suspend fun getActivitiesForKid(kidId: Long): List<Activity>
-
     /** Reactive: one kid's activities ordered by start time, now and on every change. */
     fun getActivitiesForKidFlow(kidId: Long): Flow<List<Activity>>
-
-    /** dayOfWeek follows java.time.DayOfWeek: 1 = Monday, 7 = Sunday. */
-    suspend fun getActivitiesForKidOnDay(
-        kidId: Long,
-        dayOfWeek: Int,
-    ): List<Activity>
 
     suspend fun getAllActivities(): List<Activity>
 
     /** Reactive: all activities, now and on every activity-table change. */
     fun getAllActivitiesFlow(): Flow<List<Activity>>
-
-    suspend fun clearAll()
 }
 
 class ActivityRepositoryImpl(
@@ -91,16 +77,6 @@ class ActivityRepositoryImpl(
         }
     }
 
-    override suspend fun getActivitiesForKid(kidId: Long): List<Activity> =
-        withContext(ioDispatcher) {
-            activityBox
-                .query()
-                .equal(Activity_.kidId, kidId)
-                .order(Activity_.startTime)
-                .build()
-                .find()
-        }
-
     override fun getActivitiesForKidFlow(kidId: Long): Flow<List<Activity>> =
         queryFlow {
             activityBox
@@ -109,11 +85,6 @@ class ActivityRepositoryImpl(
                 .order(Activity_.startTime)
                 .build()
         }
-
-    override suspend fun getActivitiesForKidOnDay(
-        kidId: Long,
-        dayOfWeek: Int,
-    ): List<Activity> = getActivitiesForKid(kidId).filter { it.daysOfWeek.contains(dayOfWeek) }
 
     override suspend fun getAllActivities(): List<Activity> =
         withContext(ioDispatcher) {
@@ -129,8 +100,4 @@ class ActivityRepositoryImpl(
                 .query()
                 .build()
         }
-
-    override suspend fun clearAll() {
-        withContext(ioDispatcher) { activityBox.removeAll() }
-    }
 }

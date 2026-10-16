@@ -33,9 +33,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.arbonvata.kidstrackeractivity.R
 import com.arbonvata.kidstrackeractivity.data.ActivityOccurence
 import com.arbonvata.kidstrackeractivity.data.DebugTestData
 import com.arbonvata.kidstrackeractivity.data.expandActivitiesForDateRange
@@ -94,23 +96,22 @@ fun WeeklyScheduleScreen(
     val weekEnd = weekStart.plusDays(6)
     val groupedByKid = occurrences.groupBy { it.activity.kidId }
 
-    val dateFormatter = DateTimeFormatter.ofPattern("EEE, MMM d")
     val rangeFormatter = DateTimeFormatter.ofPattern("MMM d")
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
-                    Text("${weekStart.format(rangeFormatter)} - ${weekEnd.format(rangeFormatter)}")
+                    Text(stringResource(R.string.week_range_title_format, weekStart.format(rangeFormatter), weekEnd.format(rangeFormatter)))
                 },
                 navigationIcon = {
                     IconButton(onClick = onPreviousWeekClick) {
-                        Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "Previous week")
+                        Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = stringResource(R.string.week_previous_week))
                     }
                 },
                 actions = {
                     IconButton(onClick = onNextWeekClick) {
-                        Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = "Next week")
+                        Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = stringResource(R.string.week_next_week))
                     }
                 },
             )
@@ -122,7 +123,7 @@ fun WeeklyScheduleScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             if (kids.isEmpty()) {
-                item { Text("Add a kid to get started!", modifier = Modifier.padding(16.dp)) }
+                item { Text(stringResource(R.string.week_add_kid_to_get_started), modifier = Modifier.padding(16.dp)) }
             }
 
             items(kids) { kid ->
@@ -145,7 +146,7 @@ fun WeeklyScheduleScreen(
 
                         if (kidOccurrences.isEmpty()) {
                             Text(
-                                "No activities this week",
+                                stringResource(R.string.week_no_activities_this_week),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f),
                             )
@@ -154,7 +155,6 @@ fun WeeklyScheduleScreen(
                             kidOccurrences.forEach { occurrence ->
                                 WeeklyActivityRow(
                                     occurrence = occurrence,
-                                    dateFormatter = dateFormatter,
                                     onClick = { onEditActivityClick(occurrence.activity) },
                                 )
                             }
@@ -169,7 +169,6 @@ fun WeeklyScheduleScreen(
 @Composable
 fun WeeklyActivityRow(
     occurrence: ActivityOccurence,
-    dateFormatter: DateTimeFormatter,
     onClick: () -> Unit,
 ) {
     val alarmsDisabled = !occurrence.activity.isEnabled
@@ -186,7 +185,7 @@ fun WeeklyActivityRow(
         ) {
             // Day and Date
             Text(
-                text = occurrence.date.format(dateFormatter),
+                text = occurrence.date.format(weekdayDateFormatter),
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.SemiBold,
                 color = if (alarmsDisabled) dimmed else MaterialTheme.colorScheme.onSurface,
@@ -195,7 +194,7 @@ fun WeeklyActivityRow(
 
             // Time
             Text(
-                text = occurrence.startTime.format(DateTimeFormatter.ofPattern("HH:mm")),
+                text = occurrence.startTime.format(shortTimeFormatter),
                 style = MaterialTheme.typography.bodyMedium,
                 color = if (alarmsDisabled) dimmed else MaterialTheme.colorScheme.primary,
                 modifier = Modifier.width(50.dp),
@@ -212,7 +211,7 @@ fun WeeklyActivityRow(
             if (alarmsDisabled) {
                 Icon(
                     Icons.Default.NotificationsOff,
-                    contentDescription = "Alarms disabled",
+                    contentDescription = stringResource(R.string.week_alarms_disabled),
                     tint = MaterialTheme.colorScheme.error,
                 )
             }

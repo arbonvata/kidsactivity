@@ -29,9 +29,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.arbonvata.kidstrackeractivity.R
 import com.arbonvata.kidstrackeractivity.data.ActivityOccurence
 import com.arbonvata.kidstrackeractivity.data.DebugTestData
 import com.arbonvata.kidstrackeractivity.data.expandActivitiesForDateRange
@@ -99,12 +101,15 @@ fun MonthlyAgendaScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = onPreviousMonthClick) {
-                        Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "Previous month")
+                        Icon(
+                            Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                            contentDescription = stringResource(R.string.month_previous_month),
+                        )
                     }
                 },
                 actions = {
                     IconButton(onClick = onNextMonthClick) {
-                        Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = "Next month")
+                        Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = stringResource(R.string.month_next_month))
                     }
                 },
             )
@@ -141,7 +146,7 @@ fun MonthlyAgendaScreen(
                 if (dayOccurrences.isEmpty()) {
                     item(key = "${dateKey}_empty") {
                         Text(
-                            "No activities",
+                            stringResource(R.string.month_no_activities),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
                             modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
@@ -188,7 +193,7 @@ fun MonthlyActivityRow(
 
             // Time
             Text(
-                text = occurrence.startTime.format(DateTimeFormatter.ofPattern("HH:mm")),
+                text = occurrence.startTime.format(shortTimeFormatter),
                 style = MaterialTheme.typography.bodyMedium,
                 color = if (alarmsDisabled) dimmed else MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.width(50.dp),
@@ -205,7 +210,7 @@ fun MonthlyActivityRow(
             if (alarmsDisabled) {
                 Icon(
                     Icons.Default.NotificationsOff,
-                    contentDescription = "Alarms disabled",
+                    contentDescription = stringResource(R.string.month_alarms_disabled),
                     tint = MaterialTheme.colorScheme.error,
                 )
                 Spacer(modifier = Modifier.width(8.dp))

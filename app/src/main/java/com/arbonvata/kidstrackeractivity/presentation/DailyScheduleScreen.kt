@@ -35,9 +35,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.arbonvata.kidstrackeractivity.R
 import com.arbonvata.kidstrackeractivity.data.ActivityOccurence
 import com.arbonvata.kidstrackeractivity.data.DebugTestData
 import com.arbonvata.kidstrackeractivity.data.expandActivitiesForDateRange
@@ -110,10 +112,10 @@ fun DailyScheduleContent(
                         modifier = Modifier.fillMaxWidth(),
                     ) {
                         IconButton(onClick = onBackClick) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.daily_back))
                         }
                         IconButton(onClick = onPreviousDayClick) {
-                            Icon(Icons.Default.ChevronLeft, contentDescription = "Previous day")
+                            Icon(Icons.Default.ChevronLeft, contentDescription = stringResource(R.string.daily_previous_day))
                         }
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
@@ -131,7 +133,7 @@ fun DailyScheduleContent(
                             )
                         }
                         IconButton(onClick = onNextDayClick) {
-                            Icon(Icons.Default.ChevronRight, contentDescription = "Next day")
+                            Icon(Icons.Default.ChevronRight, contentDescription = stringResource(R.string.daily_next_day))
                         }
                     }
                 },
@@ -144,7 +146,7 @@ fun DailyScheduleContent(
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
-                    text = "No activities scheduled for this day",
+                    text = stringResource(R.string.daily_no_activities_scheduled),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                 )
@@ -194,13 +196,13 @@ fun DailyActivityCard(
                 modifier = Modifier.width(70.dp),
             ) {
                 Text(
-                    text = occurrence.startTime.format(DateTimeFormatter.ofPattern("HH:mm")),
+                    text = occurrence.startTime.format(shortTimeFormatter),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     color = if (alarmsDisabled) dimmed else MaterialTheme.colorScheme.primary,
                 )
                 Text(
-                    text = occurrence.endTime.format(DateTimeFormatter.ofPattern("HH:mm")),
+                    text = occurrence.endTime.format(shortTimeFormatter),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -236,7 +238,7 @@ fun DailyActivityCard(
             if (alarmsDisabled) {
                 Icon(
                     Icons.Default.NotificationsOff,
-                    contentDescription = "Alarms disabled",
+                    contentDescription = stringResource(R.string.daily_alarms_disabled),
                     tint = MaterialTheme.colorScheme.error,
                 )
             }

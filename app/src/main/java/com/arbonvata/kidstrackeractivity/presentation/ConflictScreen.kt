@@ -36,9 +36,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.arbonvata.kidstrackeractivity.R
 import com.arbonvata.kidstrackeractivity.data.ActivityOccurence
 import com.arbonvata.kidstrackeractivity.data.Conflict
 import com.arbonvata.kidstrackeractivity.data.objectbox.Activity
@@ -46,7 +49,6 @@ import com.arbonvata.kidstrackeractivity.presentation.viewmodels.ConflictViewMod
 import org.koin.androidx.compose.koinViewModel
 import java.time.LocalDate
 import java.time.LocalTime
-import java.time.format.DateTimeFormatter
 
 /**
  * Stateful entry point of the Conflicts screen: owns the [ConflictViewModel]
@@ -90,10 +92,13 @@ fun ConflictContent(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Schedule Conflicts") },
+                title = { Text(stringResource(R.string.conflicts_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.conflicts_back_content_description),
+                        )
                     }
                 },
             )
@@ -113,12 +118,12 @@ fun ConflictContent(
                     )
                     Spacer(Modifier.height(16.dp))
                     Text(
-                        "No conflicts found!",
+                        stringResource(R.string.conflicts_none_found_title),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
                     )
                     Text(
-                        "All activities are properly scheduled",
+                        stringResource(R.string.conflicts_none_found_subtitle),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -149,7 +154,11 @@ fun ConflictContent(
                             )
                             Spacer(Modifier.width(12.dp))
                             Text(
-                                "${conflicts.size} conflict${if (conflicts.size > 1) "s" else ""} detected",
+                                pluralStringResource(
+                                    R.plurals.conflicts_detected_count,
+                                    conflicts.size,
+                                    conflicts.size,
+                                ),
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onErrorContainer,
@@ -184,7 +193,7 @@ fun ConflictCard(
                 )
                 Spacer(Modifier.width(8.dp))
                 Text(
-                    "${conflict.overlapMinutes} min overlap",
+                    stringResource(R.string.conflicts_min_overlap, conflict.overlapMinutes),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.error,
                     fontWeight = FontWeight.Bold,
@@ -205,7 +214,7 @@ fun ConflictCard(
             ) {
                 Icon(Icons.Default.Edit, contentDescription = null)
                 Spacer(Modifier.width(8.dp))
-                Text("Resolve Conflict")
+                Text(stringResource(R.string.conflicts_resolve))
             }
         }
     }
@@ -219,13 +228,13 @@ fun ConflictActivityRow(occurrence: ActivityOccurence) {
     ) {
         Column(modifier = Modifier.width(90.dp)) {
             Text(
-                occurrence.date.format(DateTimeFormatter.ofPattern("EEE, MMM d")),
+                occurrence.date.format(weekdayDateFormatter),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Text(
-                "${occurrence.startTime.format(DateTimeFormatter.ofPattern("HH:mm"))} - " +
-                    occurrence.endTime.format(DateTimeFormatter.ofPattern("HH:mm")),
+                "${occurrence.startTime.format(shortTimeFormatter)} - " +
+                    occurrence.endTime.format(shortTimeFormatter),
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.SemiBold,
             )

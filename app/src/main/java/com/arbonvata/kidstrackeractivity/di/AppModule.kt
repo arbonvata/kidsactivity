@@ -12,8 +12,6 @@ import com.arbonvata.kidstrackeractivity.data.repository.BackupRepository
 import com.arbonvata.kidstrackeractivity.data.repository.BackupRepositoryImpl
 import com.arbonvata.kidstrackeractivity.data.repository.KidRepository
 import com.arbonvata.kidstrackeractivity.data.repository.KidRepositoryImpl
-import com.arbonvata.kidstrackeractivity.data.repository.OccurrenceRepository
-import com.arbonvata.kidstrackeractivity.data.repository.OccurrenceRepositoryImpl
 import com.arbonvata.kidstrackeractivity.data.repository.ScheduleOverrideRepository
 import com.arbonvata.kidstrackeractivity.data.repository.ScheduleOverrideRepositoryImpl
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.AddActivityViewModel
@@ -25,7 +23,6 @@ import com.arbonvata.kidstrackeractivity.presentation.viewmodels.EditKidViewMode
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.KidDetailViewModel
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.KidsViewModel
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.MonthViewModel
-import com.arbonvata.kidstrackeractivity.presentation.viewmodels.ScheduleViewModel
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.SchoolOverridesViewModel
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.SettingsViewModel
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.ShareViewModel
@@ -51,13 +48,11 @@ val appModule =
         single<KidRepository> { KidRepositoryImpl(get()) }
         single<ActivityRepository> { ActivityRepositoryImpl(get()) }
         single<ScheduleOverrideRepository> { ScheduleOverrideRepositoryImpl(get()) }
-        single<OccurrenceRepository> { OccurrenceRepositoryImpl(get(), get()) }
         single<BackupRepository> { BackupRepositoryImpl(get()) }
         single<AlarmSettingsRepository> { AlarmSettingsRepositoryImpl(androidContext()) }
         single<CoroutineScope> { CoroutineScope(SupervisorJob() + Dispatchers.Default) }
         single<AlarmScheduler> { AlarmManagerAlarmScheduler(androidContext()) }
         single<AlarmSyncCoordinator> { AlarmSyncCoordinator(get(), get(), get(), get(), get(), get()) }
-        viewModel { ScheduleViewModel(get(), get(), get(), get()) }
         viewModel { KidsViewModel(get()) }
         viewModel { AddKidViewModel(get()) }
         viewModel { TodayViewModel(get(), get(), get()) }

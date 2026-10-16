@@ -28,22 +28,46 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.arbonvata.kidstrackeractivity.R
 import com.arbonvata.kidstrackeractivity.data.DebugTestData
 import com.arbonvata.kidstrackeractivity.data.objectbox.Kid
+import com.arbonvata.kidstrackeractivity.presentation.viewmodels.KidsViewModel
 import com.arbonvata.kidstrackeractivity.ui.theme.KidsTrackerActivityTheme
+import org.koin.androidx.compose.koinViewModel
+
+/**
+ * Stateful entry point of the Kid Selection screen: owns the [KidsViewModel]
+ * and delegates rendering to the stateless [KidSelectionContent].
+ */
+@Composable
+fun KidSelectionScreen(
+    viewModel: KidsViewModel = koinViewModel(),
+    onAddKidClick: () -> Unit,
+    onContinueClick: (Set<Long>) -> Unit,
+) {
+    val kids by viewModel.kids.collectAsState()
+
+    KidSelectionContent(
+        kids = kids,
+        onAddKidClick = onAddKidClick,
+        onContinueClick = onContinueClick,
+    )
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun KidSelectionScreen(
+fun KidSelectionContent(
     kids: List<Kid>,
     onAddKidClick: () -> Unit,
     onContinueClick: (Set<Long>) -> Unit,
@@ -53,17 +77,23 @@ fun KidSelectionScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Select Kids") },
+                title = { Text(stringResource(R.string.kid_selection_title)) },
                 actions = {
                     IconButton(onClick = onAddKidClick) {
-                        Icon(Icons.Default.Add, contentDescription = "Add Kid")
+                        Icon(Icons.Default.Add, contentDescription = stringResource(R.string.kid_selection_add_kid))
                     }
                     // Select All / Deselect All toggle
                     val allSelected = kids.isNotEmpty() && selectedKidIds.size == kids.size
                     TextButton(onClick = {
                         selectedKidIds = if (allSelected) emptySet() else kids.map { it.id }.toSet()
                     }) {
-                        Text(if (allSelected) "Deselect All" else "Select All")
+                        Text(
+                            if (allSelected) {
+                                stringResource(R.string.kid_selection_deselect_all)
+                            } else {
+                                stringResource(R.string.kid_selection_select_all)
+                            },
+                        )
                     }
                 },
             )
@@ -83,7 +113,7 @@ fun KidSelectionScreen(
                     enabled = selectedKidIds.isNotEmpty(),
                 ) {
                     Text(
-                        "View Schedule (${selectedKidIds.size} selected)",
+                        stringResource(R.string.kid_selection_view_schedule_format, selectedKidIds.size),
                     )
                 }
             }
@@ -95,12 +125,12 @@ fun KidSelectionScreen(
                 contentAlignment = Alignment.Center,
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("No kids added yet.")
+                    Text(stringResource(R.string.kid_selection_no_kids_added_yet))
                     Button(
                         onClick = onAddKidClick,
                         modifier = Modifier.padding(top = 16.dp),
                     ) {
-                        Text("Add Kid")
+                        Text(stringResource(R.string.kid_selection_add_kid))
                     }
                 }
             }
@@ -170,7 +200,7 @@ fun KidSelectionRow(
                     fontWeight = FontWeight.SemiBold,
                 )
                 Text(
-                    text = "School: ${kid.schoolName}",
+                    text = stringResource(R.string.kid_selection_school_format, kid.schoolName),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -181,9 +211,9 @@ fun KidSelectionRow(
 
 @Preview(showBackground = true)
 @Composable
-fun KidSelectionScreenPreview() {
+fun KidSelectionContentPreview() {
     KidsTrackerActivityTheme {
-        KidSelectionScreen(
+        KidSelectionContent(
             kids = DebugTestData.mockKids,
             onAddKidClick = {},
             onContinueClick = {},

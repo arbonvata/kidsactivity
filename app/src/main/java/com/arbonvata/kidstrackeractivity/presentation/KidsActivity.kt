@@ -42,8 +42,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringArrayResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.arbonvata.kidstrackeractivity.R
 import com.arbonvata.kidstrackeractivity.data.DebugTestData
 import com.arbonvata.kidstrackeractivity.data.objectbox.Kid
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.AddActivityUiState
@@ -53,7 +56,6 @@ import com.arbonvata.kidstrackeractivity.ui.theme.KidsTrackerActivityTheme
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 import java.time.LocalTime
-import java.time.format.DateTimeFormatter
 
 /**
  * Stateful entry point of the Add Activity screen: owns the
@@ -128,7 +130,7 @@ fun EditActivityScreen(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center,
             ) {
-                Text("Activity not found")
+                Text(stringResource(R.string.edit_activity_not_found))
             }
         }
 
@@ -155,7 +157,7 @@ fun EditActivityScreen(
                 onSchoolActivityChange = viewModel::onSchoolActivityChange,
                 onSaveClick = viewModel::saveActivity,
                 onNavigateBack = onNavigateBack,
-                screenTitle = "Edit Activity",
+                screenTitle = stringResource(R.string.edit_activity_title),
                 onDeleteClick = { showDeleteDialog = true },
             )
         }
@@ -164,18 +166,20 @@ fun EditActivityScreen(
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
-            title = { Text("Delete activity?") },
-            text = { Text("The activity and its reminders will be removed.") },
+            title = { Text(stringResource(R.string.edit_activity_delete_dialog_title)) },
+            text = { Text(stringResource(R.string.edit_activity_delete_dialog_message)) },
             confirmButton = {
                 TextButton(
                     onClick = {
                         showDeleteDialog = false
                         viewModel.deleteActivity()
                     },
-                ) { Text("Delete") }
+                ) { Text(stringResource(R.string.edit_activity_delete_dialog_confirm)) }
             },
             dismissButton = {
-                TextButton(onClick = { showDeleteDialog = false }) { Text("Cancel") }
+                TextButton(onClick = { showDeleteDialog = false }) {
+                    Text(stringResource(R.string.edit_activity_delete_dialog_cancel))
+                }
             },
         )
     }
@@ -196,23 +200,14 @@ fun AddActivityContent(
     onSchoolActivityChange: (Boolean) -> Unit,
     onSaveClick: () -> Unit,
     onNavigateBack: () -> Unit,
-    screenTitle: String = "Add Activity",
+    screenTitle: String = stringResource(R.string.add_activity_title),
     onDeleteClick: (() -> Unit)? = null,
 ) {
     var showStartTimePicker by remember { mutableStateOf(false) }
     var showEndTimePicker by remember { mutableStateOf(false) }
 
-    val daysOfWeek =
-        listOf(
-            "Mon" to 1,
-            "Tue" to 2,
-            "Wed" to 3,
-            "Thu" to 4,
-            "Fri" to 5,
-            "Sat" to 6,
-            "Sun" to 7,
-        )
-    val timeFormat = DateTimeFormatter.ofPattern("HH:mm")
+    val weekdayAbbreviations = stringArrayResource(R.array.weekday_abbreviations)
+    val daysOfWeek = weekdayAbbreviations.mapIndexed { index, label -> label to index + 1 }
 
     Scaffold(
         topBar = {
@@ -220,13 +215,19 @@ fun AddActivityContent(
                 title = { Text(screenTitle) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.add_activity_back_content_description),
+                        )
                     }
                 },
                 actions = {
                     onDeleteClick?.let { onDelete ->
                         IconButton(onClick = onDelete) {
-                            Icon(Icons.Default.Delete, contentDescription = "Delete")
+                            Icon(
+                                Icons.Default.Delete,
+                                contentDescription = stringResource(R.string.add_activity_delete_content_description),
+                            )
                         }
                     }
                 },
@@ -250,7 +251,7 @@ fun AddActivityContent(
             } else {
                 kids.firstOrNull { it.id == uiState.selectedKidId }?.let { kid ->
                     Text(
-                        "For ${kid.name}",
+                        stringResource(R.string.add_activity_for_kid, kid.name),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -260,18 +261,21 @@ fun AddActivityContent(
             OutlinedTextField(
                 value = uiState.name,
                 onValueChange = onNameChange,
-                label = { Text("Activity Name (e.g., Football)") },
+                label = { Text(stringResource(R.string.add_activity_name_label)) },
                 isError = uiState.nameError,
                 supportingText = {
                     if (uiState.nameError) {
-                        Text("Please enter an activity name")
+                        Text(stringResource(R.string.add_activity_name_error))
                     }
                 },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
             )
 
-            Text("Select Days:", style = MaterialTheme.typography.titleMedium)
+            Text(
+                stringResource(R.string.add_activity_select_days_label),
+                style = MaterialTheme.typography.titleMedium,
+            )
             FlowRow(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.fillMaxWidth(),
@@ -286,7 +290,7 @@ fun AddActivityContent(
             }
             if (uiState.daysError) {
                 Text(
-                    "Select at least one day",
+                    stringResource(R.string.add_activity_days_error),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.error,
                 )
@@ -304,7 +308,7 @@ fun AddActivityContent(
                         onCheckedChange = onPeriodicChange,
                     )
                     Text(
-                        text = "Periodic for the entire year",
+                        text = stringResource(R.string.add_activity_periodic_label),
                         style = MaterialTheme.typography.bodyLarge,
                         modifier = Modifier.padding(start = 8.dp),
                     )
@@ -321,11 +325,11 @@ fun AddActivityContent(
                 )
                 Column(modifier = Modifier.padding(start = 8.dp)) {
                     Text(
-                        text = "School Activity",
+                        text = stringResource(R.string.add_activity_school_label),
                         style = MaterialTheme.typography.bodyLarge,
                     )
                     Text(
-                        text = "Repeats weekly · reminds after it ends instead of before it starts",
+                        text = stringResource(R.string.add_activity_school_supporting_text),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -337,13 +341,23 @@ fun AddActivityContent(
                     onClick = { showStartTimePicker = true },
                     modifier = Modifier.weight(1f),
                 ) {
-                    Text("Start: ${uiState.startTime.format(timeFormat)}")
+                    Text(
+                        stringResource(
+                            R.string.add_activity_start_time,
+                            uiState.startTime.format(shortTimeFormatter),
+                        ),
+                    )
                 }
                 OutlinedButton(
                     onClick = { showEndTimePicker = true },
                     modifier = Modifier.weight(1f),
                 ) {
-                    Text("End: ${uiState.endTime.format(timeFormat)}")
+                    Text(
+                        stringResource(
+                            R.string.add_activity_end_time,
+                            uiState.endTime.format(shortTimeFormatter),
+                        ),
+                    )
                 }
             }
 
@@ -354,7 +368,7 @@ fun AddActivityContent(
                 modifier = Modifier.fillMaxWidth(),
                 enabled = uiState.selectedKidId != 0L && uiState.name.isNotBlank() && uiState.selectedDays.isNotEmpty(),
             ) {
-                Text("Save Activity")
+                Text(stringResource(R.string.add_activity_save))
             }
         }
     }
@@ -399,11 +413,11 @@ fun KidPickerField(
             value = selectedKid?.name ?: "",
             onValueChange = {},
             readOnly = true,
-            label = { Text("Kid") },
+            label = { Text(stringResource(R.string.add_activity_kid_label)) },
             supportingText =
                 if (kids.isEmpty()) {
                     {
-                        Text("No kids yet — add a kid first")
+                        Text(stringResource(R.string.add_activity_no_kids_yet))
                     }
                 } else {
                     null
@@ -448,11 +462,13 @@ fun TimePickerDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
             TextButton(onClick = { onConfirm(LocalTime.of(timePickerState.hour, timePickerState.minute)) }) {
-                Text("OK")
+                Text(stringResource(R.string.add_activity_time_picker_ok))
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel") }
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.add_activity_time_picker_cancel))
+            }
         },
         text = { TimePicker(state = timePickerState) },
     )
@@ -532,7 +548,7 @@ fun EditActivityContentPreview() {
             onSchoolActivityChange = {},
             onSaveClick = {},
             onNavigateBack = {},
-            screenTitle = "Edit Activity",
+            screenTitle = stringResource(R.string.edit_activity_title),
             onDeleteClick = {},
         )
     }

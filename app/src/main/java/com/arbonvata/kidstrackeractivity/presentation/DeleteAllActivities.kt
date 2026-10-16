@@ -17,9 +17,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
+import com.arbonvata.kidstrackeractivity.R
 import com.arbonvata.kidstrackeractivity.ui.theme.KidsTrackerActivityTheme
 
 @Composable
@@ -43,16 +45,16 @@ fun DeleteAllActivitiesButton(
             tint = MaterialTheme.colorScheme.error,
         )
         Spacer(modifier = Modifier.width(8.dp))
-        Text("Delete All Activities")
+        Text(stringResource(R.string.delete_all_activities_button))
     }
 
     // 2. The Confirmation Dialog
     if (showConfirmDialog) {
         AlertDialog(
             onDismissRequest = { showConfirmDialog = false },
-            title = { Text("Delete All Activities?") },
+            title = { Text(stringResource(R.string.delete_all_activities_dialog_title)) },
             text = {
-                Text("Are you sure you want to delete all activities and cancel all reminders for $kidName? This cannot be undone.")
+                Text(stringResource(R.string.delete_all_activities_dialog_message_format, kidName))
             },
             confirmButton = {
                 TextButton(
@@ -61,12 +63,12 @@ fun DeleteAllActivitiesButton(
                         showConfirmDialog = false
                     },
                 ) {
-                    Text("Delete", color = MaterialTheme.colorScheme.error)
+                    Text(stringResource(R.string.delete_all_activities_confirm), color = MaterialTheme.colorScheme.error)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showConfirmDialog = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.delete_all_activities_cancel))
                 }
             },
             properties = DialogProperties(dismissOnBackPress = true, dismissOnClickOutside = true),

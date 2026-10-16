@@ -24,8 +24,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.arbonvata.kidstrackeractivity.R
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.AddKidUiState
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.AddKidViewModel
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.EditKidViewModel
@@ -88,7 +90,7 @@ fun EditKidScreen(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center,
             ) {
-                Text("This kid no longer exists.")
+                Text(stringResource(R.string.edit_kid_not_found))
             }
         }
 
@@ -108,7 +110,7 @@ fun EditKidScreen(
                 onSchoolNameChange = viewModel::onSchoolNameChange,
                 onSaveClick = viewModel::saveKid,
                 onNavigateBack = onNavigateBack,
-                screenTitle = "Edit Kid",
+                screenTitle = stringResource(R.string.edit_kid_title),
             )
         }
     }
@@ -126,7 +128,7 @@ fun AddKidContent(
     onSchoolNameChange: (String) -> Unit,
     onSaveClick: () -> Unit,
     onNavigateBack: () -> Unit,
-    screenTitle: String = "Add Kid",
+    screenTitle: String = stringResource(R.string.add_kid_title),
 ) {
     Scaffold(
         topBar = {
@@ -134,7 +136,10 @@ fun AddKidContent(
                 title = { Text(screenTitle) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.add_kid_back_content_description),
+                        )
                     }
                 },
             )
@@ -151,13 +156,18 @@ fun AddKidContent(
             OutlinedTextField(
                 value = uiState.name,
                 onValueChange = onNameChange,
-                label = { Text("Kid's Name") },
+                label = { Text(stringResource(R.string.add_kid_name_label)) },
                 isError = uiState.nameError != null,
                 supportingText = {
                     when (val nameError = uiState.nameError) {
-                        KidNameError.Blank -> Text("Please enter the kid's name")
+                        KidNameError.Blank -> Text(stringResource(R.string.add_kid_name_error_blank))
                         is KidNameError.Duplicate ->
-                            Text("A kid named ${nameError.existingName} already exists")
+                            Text(
+                                stringResource(
+                                    R.string.add_kid_name_error_duplicate,
+                                    nameError.existingName,
+                                ),
+                            )
 
                         null -> Unit
                     }
@@ -169,11 +179,11 @@ fun AddKidContent(
             OutlinedTextField(
                 value = uiState.schoolName,
                 onValueChange = onSchoolNameChange,
-                label = { Text("School Name") },
+                label = { Text(stringResource(R.string.add_kid_school_name_label)) },
                 isError = uiState.schoolNameError,
                 supportingText = {
                     if (uiState.schoolNameError) {
-                        Text("Please enter the school name")
+                        Text(stringResource(R.string.add_kid_school_name_error))
                     }
                 },
                 singleLine = true,
@@ -187,7 +197,7 @@ fun AddKidContent(
                 modifier = Modifier.fillMaxWidth(),
                 enabled = !uiState.isSaving,
             ) {
-                Text("Save Kid")
+                Text(stringResource(R.string.add_kid_save))
             }
         }
     }
@@ -217,7 +227,7 @@ fun EditKidContentPreview() {
             onSchoolNameChange = {},
             onSaveClick = {},
             onNavigateBack = {},
-            screenTitle = "Edit Kid",
+            screenTitle = stringResource(R.string.edit_kid_title),
         )
     }
 }

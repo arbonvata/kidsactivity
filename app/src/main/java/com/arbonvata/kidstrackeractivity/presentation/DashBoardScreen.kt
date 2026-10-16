@@ -40,10 +40,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.arbonvata.kidstrackeractivity.R
 import com.arbonvata.kidstrackeractivity.data.ActivityOccurence
 import com.arbonvata.kidstrackeractivity.data.DebugTestData
 import com.arbonvata.kidstrackeractivity.data.objectbox.Activity
@@ -114,13 +117,13 @@ fun WelcomeNoKidsContent(onAddKidClick: () -> Unit) {
             )
             Spacer(Modifier.height(16.dp))
             Text(
-                "Welcome!",
+                stringResource(R.string.welcome_title),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
             )
             Spacer(Modifier.height(8.dp))
             Text(
-                "Add your first kid to start tracking their school and activities.",
+                stringResource(R.string.welcome_add_first_kid_message),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
@@ -129,7 +132,7 @@ fun WelcomeNoKidsContent(onAddKidClick: () -> Unit) {
             Button(onClick = onAddKidClick) {
                 Icon(Icons.Default.PersonAdd, contentDescription = null)
                 Spacer(Modifier.width(8.dp))
-                Text("Add Kid")
+                Text(stringResource(R.string.welcome_add_kid))
             }
         }
     }
@@ -154,17 +157,17 @@ fun DashboardScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Today") },
+                title = { Text(stringResource(R.string.dashboard_title)) },
                 actions = {
                     IconButton(onClick = onSettingsClick) {
-                        Icon(Icons.Default.Settings, contentDescription = "Settings")
+                        Icon(Icons.Default.Settings, contentDescription = stringResource(R.string.dashboard_settings))
                     }
                 },
             )
         },
         floatingActionButton = {
             FloatingActionButton(onClick = onAddActivityClick) {
-                Icon(Icons.Default.Add, contentDescription = "Add Activity")
+                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.dashboard_add_activity))
             }
         },
     ) { padding ->
@@ -198,7 +201,7 @@ fun DashboardScreen(
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                     Text(
-                        text = "${todayOccurrences.size} activities today",
+                        text = pluralStringResource(R.plurals.today_activities_count, todayOccurrences.size, todayOccurrences.size),
                         style = MaterialTheme.typography.bodyMedium,
                     )
                 }
@@ -227,12 +230,12 @@ fun DashboardScreen(
                         Spacer(modifier = Modifier.width(16.dp))
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                "Up next: ${nextActivity.activity.name}",
+                                stringResource(R.string.dashboard_up_next_format, nextActivity.activity.name),
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold,
                             )
                             Text(
-                                "For ${nextActivity.kidName} • in $minutesUntil min",
+                                stringResource(R.string.dashboard_up_next_details_format, nextActivity.kidName, minutesUntil),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.8f),
                             )
@@ -243,7 +246,7 @@ fun DashboardScreen(
 
             // Today's Activities
             Text(
-                "Today's Schedule",
+                stringResource(R.string.dashboard_today_schedule),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
             )
@@ -257,7 +260,7 @@ fun DashboardScreen(
                         ),
                 ) {
                     Text(
-                        "🎉 No activities today!",
+                        stringResource(R.string.today_no_activities),
                         modifier = Modifier.padding(24.dp).fillMaxWidth(),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -276,7 +279,7 @@ fun DashboardScreen(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Text(
-                                occurrence.startTime.format(DateTimeFormatter.ofPattern("HH:mm")),
+                                occurrence.startTime.format(shortTimeFormatter),
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold,
                                 color = if (alarmsDisabled) dimmed else MaterialTheme.colorScheme.primary,
@@ -298,7 +301,7 @@ fun DashboardScreen(
                             if (alarmsDisabled) {
                                 Icon(
                                     Icons.Default.NotificationsOff,
-                                    contentDescription = "Alarms disabled",
+                                    contentDescription = stringResource(R.string.dashboard_alarms_disabled),
                                     tint = MaterialTheme.colorScheme.error,
                                 )
                                 Spacer(Modifier.width(8.dp))
@@ -320,7 +323,7 @@ fun DashboardScreen(
             ) {
                 Icon(Icons.Default.DateRange, contentDescription = null)
                 Spacer(Modifier.width(8.dp))
-                Text("View Full Week")
+                Text(stringResource(R.string.dashboard_view_full_week))
             }
         }
     }

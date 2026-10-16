@@ -1,6 +1,7 @@
 package com.arbonvata.kidstrackeractivity.presentation.navigation
 
 import android.content.Intent
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -24,10 +25,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavType
@@ -37,6 +38,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
+import com.arbonvata.kidstrackeractivity.R
 import com.arbonvata.kidstrackeractivity.presentation.AddActivityScreen
 import com.arbonvata.kidstrackeractivity.presentation.AddKidScreen
 import com.arbonvata.kidstrackeractivity.presentation.ConflictScreen
@@ -53,57 +55,51 @@ import com.arbonvata.kidstrackeractivity.presentation.SettingsScreen
 import com.arbonvata.kidstrackeractivity.presentation.ShareScreen
 import com.arbonvata.kidstrackeractivity.presentation.TodayScreen
 import com.arbonvata.kidstrackeractivity.presentation.WeekScreen
-import com.arbonvata.kidstrackeractivity.presentation.viewmodels.KidsViewModel
-import com.arbonvata.kidstrackeractivity.presentation.viewmodels.ScheduleViewModel
-import org.koin.androidx.compose.koinViewModel
 
 // 1. Define all navigation destinations
 sealed class Screen(
     val route: String,
-    val title: String,
+    @StringRes val titleRes: Int,
     val icon: ImageVector,
 ) {
     // Bottom nav items (main tabs)
-    object Today : Screen("today", "Today", Icons.Default.Today)
+    object Today : Screen("today", R.string.tab_today, Icons.Default.Today)
 
-    object Week : Screen("week", "Week", Icons.Default.DateRange)
+    object Week : Screen("week", R.string.tab_week, Icons.Default.DateRange)
 
-    object Month : Screen("month", "Month", Icons.Default.CalendarMonth)
+    object Month : Screen("month", R.string.tab_month, Icons.Default.CalendarMonth)
 
-    object More : Screen("more", "More", Icons.Default.MoreHoriz)
+    object More : Screen("more", R.string.tab_more, Icons.Default.MoreHoriz)
 
     // Secondary screens (NOT in bottom nav)
-    object Settings : Screen("settings", "Settings", Icons.Default.Settings)
+    object Settings : Screen("settings", R.string.screen_title_settings, Icons.Default.Settings)
 
-    object AddActivity : Screen("add_activity?kidId={kidId}", "Add Activity", Icons.Default.Add)
+    object AddActivity : Screen("add_activity?kidId={kidId}", R.string.screen_title_add_activity, Icons.Default.Add)
 
-    object EditActivity : Screen("edit_activity/{activityId}", "Edit Activity", Icons.Default.Edit)
+    object EditActivity : Screen("edit_activity/{activityId}", R.string.screen_title_edit_activity, Icons.Default.Edit)
 
-    object KidSelection : Screen("kid_selection", "Select Kids", Icons.Default.People)
+    object KidSelection : Screen("kid_selection", R.string.screen_title_kid_selection, Icons.Default.People)
 
-    object AddKid : Screen("add_kid", "Add Kid", Icons.Default.PersonAdd)
+    object AddKid : Screen("add_kid", R.string.screen_title_add_kid, Icons.Default.PersonAdd)
 
-    object DailySchedule : Screen("daily_schedule/{kidIds}", "Daily Schedule", Icons.Default.ViewDay)
+    object DailySchedule : Screen("daily_schedule/{kidIds}", R.string.screen_title_daily_schedule, Icons.Default.ViewDay)
 
-    object KidDetail : Screen("kid_detail/{kidId}", "Kid Detail", Icons.Default.ViewDay)
+    object KidDetail : Screen("kid_detail/{kidId}", R.string.screen_title_kid_detail, Icons.Default.ViewDay)
 
-    object SchoolOverrides : Screen("school_overrides", "School Overrides", Icons.Default.Event)
+    object SchoolOverrides : Screen("school_overrides", R.string.screen_title_school_overrides, Icons.Default.Event)
 
-    object Conflicts : Screen("conflicts", "Conflicts", Icons.Default.Warning)
+    object Conflicts : Screen("conflicts", R.string.screen_title_conflicts, Icons.Default.Warning)
 
-    object Share : Screen("share", "Share", Icons.Default.Share)
+    object Share : Screen("share", R.string.screen_title_share, Icons.Default.Share)
 
-    object KidsManagement : Screen("kids_management", "Kids", Icons.Default.Person)
+    object KidsManagement : Screen("kids_management", R.string.screen_title_kids_management, Icons.Default.Person)
 }
 
 // List of bottom nav items only
 val bottomNavItems = listOf(Screen.Today, Screen.Week, Screen.Month, Screen.More)
 
 @Composable
-fun KidsScheduleApp(
-    viewModel: ScheduleViewModel,
-    deepLinkIntent: Intent? = null,
-) {
+fun KidsScheduleApp(deepLinkIntent: Intent? = null) {
     val navController = rememberNavController()
 
     // Notification deep links (kidstracker://edit_activity/{id}) arrive via
@@ -146,8 +142,8 @@ fun KidsScheduleApp(
                         val selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true
 
                         NavigationBarItem(
-                            icon = { Icon(screen.icon, contentDescription = screen.title) },
-                            label = { Text(screen.title) },
+                            icon = { Icon(screen.icon, contentDescription = stringResource(screen.titleRes)) },
+                            label = { Text(stringResource(screen.titleRes)) },
                             selected = selected,
                             onClick = { navigateToTab(screen) },
                         )
@@ -243,11 +239,7 @@ fun KidsScheduleApp(
             }
 
             composable(Screen.KidSelection.route) {
-                val kidsViewModel: KidsViewModel = koinViewModel()
-                val kids by kidsViewModel.kids.collectAsState()
-
                 KidSelectionScreen(
-                    kids = kids,
                     onAddKidClick = { navController.navigate(Screen.AddKid.route) },
                     onContinueClick = { selectedIds ->
                         val idsString = selectedIds.joinToString(",")

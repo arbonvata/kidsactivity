@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Settings screen -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_back">Back</string>
+    <string name="settings_section_permissions">Permissions</string>
+    <string name="settings_exact_alarms_title">Exact Alarms</string>
+    <string name="settings_exact_alarms_subtitle">Required for precise timing</string>
+    <string name="settings_notifications_title">Notifications</string>
+    <string name="settings_notifications_subtitle">Show reminders</string>
+    <string name="settings_battery_optimization_title">Battery Optimization</string>
+    <string name="settings_battery_optimization_subtitle">Disable to prevent delays</string>
+    <string name="settings_permission_granted">Granted</string>
+    <string name="settings_permission_grant">Grant</string>
+    <string name="settings_section_alarm_timing">Alarm Timing</string>
+    <string name="settings_school_end_reminder_title">School end reminder</string>
+    <string name="settings_suffix_min_after">min after</string>
+    <string name="settings_activity_reminder_title">Activity reminder</string>
+    <string name="settings_suffix_min_before">min before</string>
+    <string name="settings_slider_value">%1$d %2$s</string>
+    <string name="settings_section_data">Data</string>
+    <string name="settings_backup_data_title">Backup Data</string>
+    <string name="settings_backup_data_subtitle">Export to file</string>
+    <string name="settings_restore_data_title">Restore Data</string>
+    <string name="settings_restore_data_subtitle">Import from backup</string>
+
+    <!-- Backup and Share screen -->
+    <string name="share_title">Backup &amp; Share</string>
+    <string name="share_back">Back</string>
+    <string name="share_header_title">Back up your schedules</string>
+    <string name="share_header_subtitle">Save or share the whole database as a JSON file, and restore it on this or another device.</string>
+    <string name="share_section_backup">Backup</string>
+    <string name="share_save_to_file_title">Save to File</string>
+    <string name="share_save_to_file_subtitle">Pick where to store the JSON backup</string>
+    <string name="share_share_backup_title">Share Backup</string>
+    <string name="share_share_backup_subtitle">Send the JSON file via WhatsApp, Email, …</string>
+    <string name="share_section_restore">Restore</string>
+    <string name="share_restore_from_file_title">Restore from File</string>
+    <string name="share_restore_from_file_subtitle">Import a backup — merge into or replace current data</string>
+    <string name="share_restoring">Restoring…</string>
+    <string name="share_backup_subject">Kids Activity Tracker backup</string>
+    <string name="share_backup_chooser_title">Share backup</string>
+    <string name="share_restore_backup_title">Restore backup</string>
+    <string name="share_restore_backup_message">Merge adds the backup\'s kids and activities to this device. Replace wipes the current data first.</string>
+    <string name="share_replace">Replace</string>
+    <string name="share_merge">Merge</string>
+    <string name="share_restore_complete_title">Restore complete</string>
+    <string name="share_restore_failed_title">Restore failed</string>
+    <string name="share_restore_complete_message">Kids, activities and school-day overrides were restored.</string>
+    <string name="share_ok">OK</string>
+
+    <!-- School Overrides screen -->
+    <string name="school_override_back">Back</string>
+    <string name="school_override_empty_state">Add a kid to get started!</string>
+    <string name="school_override_title">%1$s\'s School Schedule</string>
+    <string name="school_override_no_school_label">No school this day</string>
+    <string name="school_override_school_ends">School ends: %1$s</string>
+    <string name="school_override_usual_time">usual time</string>
+    <string name="school_override_remove_hint">Uncheck everything and save to remove the override.</string>
+    <string name="school_override_no_activity_weekday_hint">No school activity on this weekday — the mark only takes effect once one is added.</string>
+    <string name="school_override_save">Save</string>
+    <string name="school_override_cancel">Cancel</string>
+    <string name="school_override_previous_month">Previous</string>
+    <string name="school_override_next_month">Next</string>
+    <string name="school_override_type_early_release">Early Release</string>
+    <string name="school_override_type_no_school">No School</string>
+    <string name="school_override_type_custom">Custom</string>
+    <string name="school_override_type_custom_with_time">Custom · ends %1$s</string>
+    <string name="school_override_dimmed_marks_hint">Dimmed marks: no school activity falls on that weekday (kept for planning).</string>
+    <string name="school_override_weekday_monday">M</string>
+    <string name="school_override_weekday_tuesday">T</string>
+    <string name="school_override_weekday_wednesday">W</string>
+    <string name="school_override_weekday_thursday">T</string>
+    <string name="school_override_weekday_friday">F</string>
+    <string name="school_override_weekday_saturday">S</string>
+    <string name="school_override_weekday_sunday">S</string>
+    <string name="school_override_summary_entry">%1$s: %2$s</string>
+    <plurals name="school_override_month_summary">
+        <item quantity="one">This month: %1$d special day</item>
+        <item quantity="other">This month: %1$d special days</item>
+    </plurals>
+
+    <!-- Notification channel -->
+    <string name="notification_channel_name">Activity reminders</string>
+    <string name="notification_channel_description">Reminders before activities start and after school ends</string>
+</resources>

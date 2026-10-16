@@ -7,8 +7,6 @@ import androidx.activity.compose.setContent
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.mutableStateOf
 import com.arbonvata.kidstrackeractivity.presentation.navigation.KidsScheduleApp
-import com.arbonvata.kidstrackeractivity.presentation.viewmodels.ScheduleViewModel
-import org.koin.androidx.compose.koinViewModel
 
 class MainActivity : ComponentActivity() {
     private val incomingIntent = mutableStateOf<Intent?>(null)
@@ -18,8 +16,7 @@ class MainActivity : ComponentActivity() {
         incomingIntent.value = intent?.takeIf { it.data != null }
         setContent {
             MaterialTheme {
-                val viewModel: ScheduleViewModel = koinViewModel()
-                KidsScheduleApp(viewModel = viewModel, deepLinkIntent = incomingIntent.value)
+                KidsScheduleApp(deepLinkIntent = incomingIntent.value)
             }
         }
     }

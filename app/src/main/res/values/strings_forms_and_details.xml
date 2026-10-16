@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Add / Edit Activity form (KidsActivity.kt) -->
+    <string name="add_activity_title">Add Activity</string>
+    <string name="add_activity_back_content_description">Back</string>
+    <string name="add_activity_delete_content_description">Delete</string>
+    <string name="add_activity_for_kid">For %1$s</string>
+    <string name="add_activity_name_label">Activity Name (e.g., Football)</string>
+    <string name="add_activity_name_error">Please enter an activity name</string>
+    <string name="add_activity_select_days_label">Select Days:</string>
+    <string name="add_activity_days_error">Select at least one day</string>
+    <string name="add_activity_periodic_label">Periodic for the entire year</string>
+    <string name="add_activity_school_label">School Activity</string>
+    <string name="add_activity_school_supporting_text">Repeats weekly · reminds after it ends instead of before it starts</string>
+    <string name="add_activity_start_time">Start: %1$s</string>
+    <string name="add_activity_end_time">End: %1$s</string>
+    <string name="add_activity_save">Save Activity</string>
+    <string name="add_activity_kid_label">Kid</string>
+    <string name="add_activity_no_kids_yet">No kids yet — add a kid first</string>
+    <string name="add_activity_time_picker_ok">OK</string>
+    <string name="add_activity_time_picker_cancel">Cancel</string>
+    <string name="edit_activity_title">Edit Activity</string>
+    <string name="edit_activity_not_found">Activity not found</string>
+    <string name="edit_activity_delete_dialog_title">Delete activity?</string>
+    <string name="edit_activity_delete_dialog_message">The activity and its reminders will be removed.</string>
+    <string name="edit_activity_delete_dialog_confirm">Delete</string>
+    <string name="edit_activity_delete_dialog_cancel">Cancel</string>
+
+    <!-- Add / Edit Kid form (AddKidScreen.kt) -->
+    <string name="add_kid_title">Add Kid</string>
+    <string name="add_kid_back_content_description">Back</string>
+    <string name="add_kid_name_label">Kid\'s Name</string>
+    <string name="add_kid_name_error_blank">Please enter the kid\'s name</string>
+    <string name="add_kid_name_error_duplicate">A kid named %1$s already exists</string>
+    <string name="add_kid_school_name_label">School Name</string>
+    <string name="add_kid_school_name_error">Please enter the school name</string>
+    <string name="add_kid_save">Save Kid</string>
+    <string name="edit_kid_title">Edit Kid</string>
+    <string name="edit_kid_not_found">This kid no longer exists.</string>
+
+    <!-- Kid detail (KidDetailScreen.kt) -->
+    <string name="kid_detail_title">%1$s\'s Activities</string>
+    <string name="kid_detail_title_default">Kid</string>
+    <string name="kid_detail_back_content_description">Back</string>
+    <string name="kid_detail_edit_kid_content_description">Edit kid</string>
+    <string name="kid_detail_delete_kid_content_description">Delete kid</string>
+    <string name="kid_detail_add_new_activity">Add New Activity</string>
+    <string name="kid_detail_kid_not_found">This kid no longer exists.</string>
+    <string name="kid_detail_no_activities">No activities yet.</string>
+    <string name="kid_detail_delete_dialog_title">Delete kid?</string>
+    <string name="kid_detail_delete_dialog_message">All of %1$s\'s activities and school-day overrides will be removed too.</string>
+    <string name="kid_detail_delete_dialog_message_default_name">this kid</string>
+    <string name="kid_detail_delete_dialog_confirm">Delete</string>
+    <string name="kid_detail_delete_dialog_cancel">Cancel</string>
+    <string name="kid_detail_recurrence_weekly">weekly</string>
+    <string name="kid_detail_recurrence_once">once</string>
+    <string name="kid_detail_marker_school">school</string>
+
+    <!-- More screen (MoreScreen.kt) -->
+    <string name="more_title">More</string>
+    <string name="more_section_management">Management</string>
+    <string name="more_kids_management_title">Kids Management</string>
+    <string name="more_kids_management_subtitle">Add, edit, or remove kids</string>
+    <string name="more_school_overrides_title">School Schedule Overrides</string>
+    <string name="more_school_overrides_subtitle">Early release, holidays, custom days</string>
+    <string name="more_daily_view_title">Daily View (Filter by Kids)</string>
+    <string name="more_daily_view_subtitle">See specific kids\' schedule for a day</string>
+    <string name="more_section_tools">Tools</string>
+    <string name="more_check_conflicts_title">Check Conflicts</string>
+    <string name="more_check_conflicts_subtitle">Find overlapping activities</string>
+    <string name="more_share_export_title">Share / Export</string>
+    <string name="more_share_export_subtitle">Send schedule via WhatsApp, Email, PDF</string>
+    <string name="more_section_system">System</string>
+    <string name="more_settings_title">Settings</string>
+    <string name="more_settings_subtitle">Permissions, alarms, backup</string>
+
+    <!-- Conflicts screen (ConflictScreen.kt) -->
+    <string name="conflicts_title">Schedule Conflicts</string>
+    <string name="conflicts_back_content_description">Back</string>
+    <string name="conflicts_none_found_title">No conflicts found!</string>
+    <string name="conflicts_none_found_subtitle">All activities are properly scheduled</string>
+    <string name="conflicts_min_overlap">%1$d min overlap</string>
+    <string name="conflicts_resolve">Resolve Conflict</string>
+    <plurals name="conflicts_detected_count">
+        <item quantity="one">%1$d conflict detected</item>
+        <item quantity="other">%1$d conflicts detected</item>
+    </plurals>
+
+    <!-- Shared weekday abbreviations (Mon = day 1 … Sun = day 7) -->
+    <string-array name="weekday_abbreviations">
+        <item>Mon</item>
+        <item>Tue</item>
+        <item>Wed</item>
+        <item>Thu</item>
+        <item>Fri</item>
+        <item>Sat</item>
+        <item>Sun</item>
+    </string-array>
+</resources>
