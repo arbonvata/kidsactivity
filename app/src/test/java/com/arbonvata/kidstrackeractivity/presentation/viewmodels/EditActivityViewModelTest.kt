@@ -113,6 +113,25 @@ class EditActivityViewModelTest {
         }
 
     @Test
+    fun turningOnSchoolActivityForcesPeriodicOnSave() =
+        runTest {
+            coEvery { activityRepository.getActivity(5L) } returns storedActivity()
+            val updated = slot<Activity>()
+            coEvery { activityRepository.updateActivity(capture(updated)) } returns Unit
+            val viewModel = EditActivityViewModel(5L, activityRepository, kidRepository)
+
+            viewModel.onSchoolActivityChange(true)
+
+            val form = viewModel.uiState.value.form
+            assertTrue(form?.isPeriodic == true)
+
+            viewModel.saveActivity()
+
+            assertTrue(updated.captured.isSchoolActivity)
+            assertTrue(updated.captured.isPeriodic)
+        }
+
+    @Test
     fun saveWithBlankNameFlagsErrorAndSkipsRepository() =
         runTest {
             coEvery { activityRepository.getActivity(5L) } returns storedActivity()

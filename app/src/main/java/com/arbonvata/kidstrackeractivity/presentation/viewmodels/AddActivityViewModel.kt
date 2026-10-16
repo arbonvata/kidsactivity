@@ -23,7 +23,9 @@ data class AddActivityUiState(
     val selectedDays: Set<Int> = emptySet(),
     val startTime: LocalTime = LocalTime.of(17, 0),
     val endTime: LocalTime = LocalTime.of(18, 30),
-    val isPeriodic: Boolean = false,
+    // Weekly is the common case for kids' schedules; one-off is the explicit
+    // opt-out. School activities are always weekly (see onSchoolActivityChange).
+    val isPeriodic: Boolean = true,
     val isSchoolActivity: Boolean = false,
     val nameError: Boolean = false,
     val daysError: Boolean = false,
@@ -88,7 +90,11 @@ class AddActivityViewModel(
     }
 
     fun onSchoolActivityChange(isSchoolActivity: Boolean) {
-        _uiState.update { it.copy(isSchoolActivity = isSchoolActivity) }
+        // School schedules repeat every week; a school activity can never be a
+        // one-off, so checking the box also locks the form to periodic.
+        _uiState.update {
+            it.copy(isSchoolActivity = isSchoolActivity, isPeriodic = it.isPeriodic || isSchoolActivity)
+        }
     }
 
     private fun isValidName(name: String) = name.isNotBlank()

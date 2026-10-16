@@ -87,7 +87,10 @@ private fun effectiveEndTime(
 /**
  * Periodic activities recur on their weekdays indefinitely; one-offs are
  * limited to the 7-day window starting at firstDate, so each selected weekday
- * occurs exactly once in the creation week. A null/blank firstDate is treated
+ * occurs exactly once in the creation week. School activities are inherently
+ * weekly, so they always recur regardless of the stored flag — without this,
+ * a school activity saved as a one-off anchored mid-week would hide its
+ * already-past weekdays of the current week. A null/blank firstDate is treated
  * as unbounded: rows written before the column existed read null from the
  * database and keep their old repeating behaviour.
  */
@@ -95,7 +98,7 @@ private fun isWithinActivePeriod(
     activity: Activity,
     date: LocalDate,
 ): Boolean {
-    if (activity.isPeriodic) return true
+    if (activity.isPeriodic || activity.isSchoolActivity) return true
     val anchor = activity.firstDate?.takeIf { it.isNotEmpty() }?.let(LocalDate::parse) ?: return true
     return !date.isBefore(anchor) && date.isBefore(anchor.plusDays(7))
 }

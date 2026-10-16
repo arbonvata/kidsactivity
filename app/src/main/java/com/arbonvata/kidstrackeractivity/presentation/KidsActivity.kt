@@ -292,19 +292,23 @@ fun AddActivityContent(
                 )
             }
 
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Checkbox(
-                    checked = uiState.isPeriodic,
-                    onCheckedChange = onPeriodicChange,
-                )
-                Text(
-                    text = "Periodic for the entire year",
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.padding(start = 8.dp),
-                )
+            // School activities are always weekly, so the periodic toggle is
+            // meaningless for them (checking School Activity forces it on).
+            if (!uiState.isSchoolActivity) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Checkbox(
+                        checked = uiState.isPeriodic,
+                        onCheckedChange = onPeriodicChange,
+                    )
+                    Text(
+                        text = "Periodic for the entire year",
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.padding(start = 8.dp),
+                    )
+                }
             }
 
             Row(
@@ -321,7 +325,7 @@ fun AddActivityContent(
                         style = MaterialTheme.typography.bodyLarge,
                     )
                     Text(
-                        text = "Remind after it ends instead of before it starts",
+                        text = "Repeats weekly · reminds after it ends instead of before it starts",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )

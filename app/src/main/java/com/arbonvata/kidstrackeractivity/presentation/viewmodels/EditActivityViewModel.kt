@@ -86,7 +86,12 @@ class EditActivityViewModel(
 
     fun onPeriodicChange(isPeriodic: Boolean) = updateForm { it.copy(isPeriodic = isPeriodic) }
 
-    fun onSchoolActivityChange(isSchoolActivity: Boolean) = updateForm { it.copy(isSchoolActivity = isSchoolActivity) }
+    fun onSchoolActivityChange(isSchoolActivity: Boolean) =
+        updateForm {
+            // School schedules repeat every week, so the school flag locks the
+            // form to periodic (one-off would hide past weekdays this week).
+            it.copy(isSchoolActivity = isSchoolActivity, isPeriodic = it.isPeriodic || isSchoolActivity)
+        }
 
     fun saveActivity() {
         val form = _uiState.value.form ?: return

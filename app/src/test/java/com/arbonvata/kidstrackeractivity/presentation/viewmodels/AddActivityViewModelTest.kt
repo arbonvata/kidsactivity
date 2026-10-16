@@ -55,7 +55,7 @@ class AddActivityViewModelTest {
             assertEquals(LocalTime.of(17, 0), state.startTime)
             assertEquals(LocalTime.of(18, 30), state.endTime)
             assertFalse(state.nameError)
-            assertFalse(state.isPeriodic)
+            assertTrue(state.isPeriodic)
             assertFalse(state.isSchoolActivity)
         }
 
@@ -174,7 +174,7 @@ class AddActivityViewModelTest {
             assertEquals("18:00", savedActivity.captured.startTime)
             assertEquals("19:30", savedActivity.captured.endTime)
             assertTrue(savedActivity.captured.isEnabled)
-            assertFalse(savedActivity.captured.isPeriodic)
+            assertTrue(savedActivity.captured.isPeriodic)
             assertFalse(savedActivity.captured.isSchoolActivity)
             assertEquals(LocalDate.now().format(DateTimeFormatter.ISO_DATE), savedActivity.captured.firstDate)
             val expectedDays = (setOf(todaysDayOfWeek) + extraDays).sorted().toIntArray()
@@ -184,18 +184,37 @@ class AddActivityViewModelTest {
         }
 
     @Test
-    fun saveActivityPersistsPeriodicFlagWhenChecked() =
+    fun saveActivityPersistsOneOffWhenPeriodicUnchecked() =
         runTest {
             val viewModel = AddActivityViewModel(kidId = 5L, activityRepository, kidRepository)
             val savedActivity = slot<Activity>()
             coEvery { activityRepository.addActivity(capture(savedActivity)) } returns Activity(id = 1L)
-            viewModel.onNameChange("Football")
-            viewModel.onPeriodicChange(true)
+            viewModel.onNameChange("Dentist")
+            viewModel.onPeriodicChange(false)
+            assertFalse(viewModel.uiState.value.isPeriodic)
+
+            viewModel.saveActivity()
+
+            coVerify { activityRepository.addActivity(any()) }
+            assertFalse(savedActivity.captured.isPeriodic)
+        }
+
+    @Test
+    fun checkingSchoolActivityLocksTheFormToPeriodic() =
+        runTest {
+            val viewModel = AddActivityViewModel(kidId = 5L, activityRepository, kidRepository)
+            val savedActivity = slot<Activity>()
+            coEvery { activityRepository.addActivity(capture(savedActivity)) } returns Activity(id = 1L)
+            viewModel.onNameChange("School")
+            viewModel.onPeriodicChange(false)
+            viewModel.onSchoolActivityChange(true)
+
             assertTrue(viewModel.uiState.value.isPeriodic)
 
             viewModel.saveActivity()
 
             coVerify { activityRepository.addActivity(any()) }
+            assertTrue(savedActivity.captured.isSchoolActivity)
             assertTrue(savedActivity.captured.isPeriodic)
         }
 

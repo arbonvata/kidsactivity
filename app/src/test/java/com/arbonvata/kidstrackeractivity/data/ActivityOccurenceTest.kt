@@ -68,6 +68,43 @@ class ActivityOccurenceTest {
     }
 
     @Test
+    fun schoolActivityRepeatsWeeklyEvenWhenStoredAsOneOff() {
+        // A school activity saved mid-week (Thursday Oct 22) with Mon/Tue/Thu
+        // must still show on that week's Monday and Tuesday — and every
+        // following week — instead of being clipped to the one-off window.
+        val school =
+            activity(
+                intArrayOf(DayOfWeek.MONDAY.value, DayOfWeek.TUESDAY.value, DayOfWeek.THURSDAY.value),
+                isPeriodic = false,
+                firstDate = "2026-10-22",
+            ).copy(isSchoolActivity = true)
+
+        val occurrences = expandActivitiesForDateRange(kids, listOf(school), LocalDate.of(2026, 10, 1), LocalDate.of(2026, 11, 8))
+
+        assertEquals(
+            listOf(
+                "2026-10-01",
+                "2026-10-05",
+                "2026-10-06",
+                "2026-10-08",
+                "2026-10-12",
+                "2026-10-13",
+                "2026-10-15",
+                "2026-10-19",
+                "2026-10-20",
+                "2026-10-22",
+                "2026-10-26",
+                "2026-10-27",
+                "2026-10-29",
+                "2026-11-02",
+                "2026-11-03",
+                "2026-11-05",
+            ),
+            occurrences.map { it.date.toString() },
+        )
+    }
+
+    @Test
     fun oneOffActivityWithMissingFirstDateIsUnboundedForLegacyRows() {
         // Rows written before the column existed read firstDate as null from
         // the DB; old backups import it as blank. Both keep old behaviour.
