@@ -18,8 +18,10 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.NotificationsOff
+import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -39,6 +41,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.arbonvata.kidstrackeractivity.data.ActivityOccurence
@@ -62,6 +65,7 @@ fun TodayScreen(
     onAddActivityClick: () -> Unit,
     onViewWeekClick: () -> Unit,
     onSettingsClick: () -> Unit,
+    onAddKidClick: () -> Unit,
     onActivityClick: (Activity) -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -76,6 +80,12 @@ fun TodayScreen(
             }
         }
 
+        // First-run state: every activity belongs to a kid, so until one is
+        // added the dashboard is replaced by an add-kid prompt.
+        uiState.kids.isEmpty() -> {
+            WelcomeNoKidsContent(onAddKidClick = onAddKidClick)
+        }
+
         else -> {
             DashboardScreen(
                 kids = uiState.kids,
@@ -85,6 +95,42 @@ fun TodayScreen(
                 onSettingsClick = onSettingsClick,
                 onActivityClick = onActivityClick,
             )
+        }
+    }
+}
+
+@Composable
+fun WelcomeNoKidsContent(onAddKidClick: () -> Unit) {
+    Box(
+        modifier = Modifier.fillMaxSize().padding(32.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Icon(
+                Icons.Default.PersonAdd,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(64.dp),
+            )
+            Spacer(Modifier.height(16.dp))
+            Text(
+                "Welcome!",
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
+            )
+            Spacer(Modifier.height(8.dp))
+            Text(
+                "Add your first kid to start tracking their school and activities.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
+            )
+            Spacer(Modifier.height(24.dp))
+            Button(onClick = onAddKidClick) {
+                Icon(Icons.Default.PersonAdd, contentDescription = null)
+                Spacer(Modifier.width(8.dp))
+                Text("Add Kid")
+            }
         }
     }
 }
@@ -277,6 +323,14 @@ fun DashboardScreen(
                 Text("View Full Week")
             }
         }
+    }
+}
+
+@Preview(showBackground = true, name = "Today — no kids yet (welcome prompt)")
+@Composable
+fun WelcomeNoKidsContentPreview() {
+    MaterialTheme {
+        WelcomeNoKidsContent(onAddKidClick = {})
     }
 }
 

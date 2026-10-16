@@ -166,6 +166,7 @@ fun KidsScheduleApp(
                     onAddActivityClick = { navController.navigate("add_activity") },
                     onViewWeekClick = { navigateToTab(Screen.Week) },
                     onSettingsClick = { navController.navigate(Screen.Settings.route) },
+                    onAddKidClick = { navController.navigate(Screen.AddKid.route) },
                     onActivityClick = { activity ->
                         navController.navigate("edit_activity/${activity.id}")
                     },
