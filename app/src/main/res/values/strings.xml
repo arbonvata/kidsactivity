@@ -19,4 +19,16 @@
     <string name="screen_title_conflicts">Conflicts</string>
     <string name="screen_title_share">Share</string>
     <string name="screen_title_kids_management">Kids</string>
+    <string name="screen_title_about">About</string>
+
+    <!-- About screen -->
+    <string name="about_back">Back</string>
+    <string name="about_version_format">Version %1$s</string>
+    <string name="about_tagline">School and activity schedules with pickup reminders, for all your kids in one place.</string>
+    <string name="about_section_highlights">Highlights</string>
+    <string name="about_feature_views">Today, Week, Month and per-day schedule views</string>
+    <string name="about_feature_school">School activities remind you after school ends — pickup time</string>
+    <string name="about_feature_overrides">No-school days and custom school end times</string>
+    <string name="about_feature_conflicts">Overlap detection across the next 30 days</string>
+    <string name="about_feature_backup">JSON backup, restore and sharing</string>
 </resources>

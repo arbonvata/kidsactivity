@@ -15,6 +15,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Event
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Share
@@ -46,6 +47,7 @@ fun MoreScreen(
     onShareClick: () -> Unit,
     onSettingsClick: () -> Unit,
     onKidSelectionClick: () -> Unit,
+    onAboutClick: () -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -135,6 +137,13 @@ fun MoreScreen(
                 subtitle = stringResource(R.string.more_settings_subtitle),
                 onClick = onSettingsClick,
             )
+
+            MoreMenuItem(
+                icon = Icons.Default.Info,
+                title = stringResource(R.string.more_about_title),
+                subtitle = stringResource(R.string.more_about_subtitle),
+                onClick = onAboutClick,
+            )
         }
     }
 }
@@ -198,6 +207,7 @@ fun MoreScreenPreview() {
             onShareClick = {},
             onSettingsClick = {},
             onKidSelectionClick = {},
+            onAboutClick = {},
         )
     }
 }

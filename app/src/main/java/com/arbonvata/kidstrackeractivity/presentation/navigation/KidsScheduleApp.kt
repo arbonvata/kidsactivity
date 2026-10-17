@@ -9,6 +9,7 @@ import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Event
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Person
@@ -39,6 +40,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
 import com.arbonvata.kidstrackeractivity.R
+import com.arbonvata.kidstrackeractivity.presentation.AboutScreen
 import com.arbonvata.kidstrackeractivity.presentation.AddActivityScreen
 import com.arbonvata.kidstrackeractivity.presentation.AddKidScreen
 import com.arbonvata.kidstrackeractivity.presentation.ConflictScreen
@@ -93,6 +95,8 @@ sealed class Screen(
     object Share : Screen("share", R.string.screen_title_share, Icons.Default.Share)
 
     object KidsManagement : Screen("kids_management", R.string.screen_title_kids_management, Icons.Default.Person)
+
+    object About : Screen("about", R.string.screen_title_about, Icons.Default.Info)
 }
 
 // List of bottom nav items only
@@ -194,6 +198,7 @@ fun KidsScheduleApp(deepLinkIntent: Intent? = null) {
                     onShareClick = { navController.navigate(Screen.Share.route) },
                     onSettingsClick = { navController.navigate(Screen.Settings.route) },
                     onKidSelectionClick = { navController.navigate(Screen.KidSelection.route) },
+                    onAboutClick = { navController.navigate(Screen.About.route) },
                 )
             }
 
@@ -290,6 +295,10 @@ fun KidsScheduleApp(deepLinkIntent: Intent? = null) {
 
             composable(Screen.Share.route) {
                 ShareScreen(onBackClick = { navController.popBackStack() })
+            }
+
+            composable(Screen.About.route) {
+                AboutScreen(onBackClick = { navController.popBackStack() })
             }
 
             composable(Screen.KidsManagement.route) {

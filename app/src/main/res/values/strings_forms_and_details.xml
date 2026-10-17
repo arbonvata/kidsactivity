@@ -73,6 +73,8 @@
     <string name="more_section_system">System</string>
     <string name="more_settings_title">Settings</string>
     <string name="more_settings_subtitle">Permissions, alarms, backup</string>
+    <string name="more_about_title">About the app</string>
+    <string name="more_about_subtitle">What this app does</string>
 
     <!-- Conflicts screen (ConflictScreen.kt) -->
     <string name="conflicts_title">Schedule Conflicts</string>
