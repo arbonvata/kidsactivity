@@ -3,6 +3,17 @@
 The app version lives in `versionName` in `app/build.gradle.kts` (shown on the
 in-app About screen); this file records what each release shipped.
 
+## Unreleased
+
+- **Reminders**: a Today-dashboard banner appears while the required reminder
+  permissions (exact alarms, notifications) are missing; a one-time dialog
+  walks through every permission reminders need — notifications, exact alarms
+  and battery optimization — in one guided chain of system surfaces, so no
+  trip through Settings is required; Settings additionally routes to the
+  system notification settings when the permission dialog was permanently
+  denied, and states plainly that reminders won't fire until the required
+  permissions are granted.
+
 ## 1.0 — 2026-10-22
 
 First release.

@@ -16,11 +16,13 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.NotificationsOff
 import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -34,10 +36,14 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.pluralStringResource
@@ -72,6 +78,32 @@ fun TodayScreen(
     onActivityClick: (Activity) -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val reminderPromptShown by viewModel.reminderPromptShown.collectAsState()
+    val permissions = rememberReminderPermissions()
+
+    // One-time prompt: fires the first time there is someone to be reminded
+    // about. Both buttons — and dismissing by tapping outside — persist the
+    // flag, so the prompt never returns. Continue walks through every missing
+    // permission in one guided chain (notifications dialog, exact-alarm
+    // screen, battery-optimization dialog); the state refreshes on the
+    // ON_RESUME that follows each system surface.
+    val permissionRequests = rememberReminderPermissionRequests()
+    val showReminderPrompt =
+        uiState.kids.isNotEmpty() &&
+            !reminderPromptShown &&
+            permissions.remindersBlocked
+    if (showReminderPrompt) {
+        ReminderPermissionDialog(
+            onContinue = {
+                viewModel.onReminderPromptDismissed()
+                permissionRequests.requestAllMissing()
+            },
+            onDismiss = viewModel::onReminderPromptDismissed,
+        )
+    }
+
+    // Session-only: a dismissed banner stays hidden until the next app launch.
+    var bannerDismissed by remember { mutableStateOf(false) }
 
     when {
         uiState.isLoading -> {
@@ -93,11 +125,82 @@ fun TodayScreen(
             DashboardScreen(
                 kids = uiState.kids,
                 todayOccurrences = uiState.todayOccurrences,
+                showPermissionsBanner = permissions.remindersBlocked && !bannerDismissed,
+                onBannerDismiss = { bannerDismissed = true },
                 onAddActivityClick = onAddActivityClick,
                 onViewWeekClick = onViewWeekClick,
                 onSettingsClick = onSettingsClick,
                 onActivityClick = onActivityClick,
             )
+        }
+    }
+}
+
+@Composable
+fun ReminderPermissionDialog(
+    onContinue: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        icon = { Icon(Icons.Default.NotificationsOff, contentDescription = null) },
+        title = { Text(stringResource(R.string.reminder_prompt_title)) },
+        text = { Text(stringResource(R.string.reminder_prompt_message)) },
+        confirmButton = {
+            TextButton(onClick = onContinue) { Text(stringResource(R.string.reminder_prompt_continue)) }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.reminder_prompt_not_now)) }
+        },
+    )
+}
+
+@Composable
+fun PermissionsBanner(
+    onOpenSettings: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    Card(
+        onClick = onOpenSettings,
+        modifier = Modifier.fillMaxWidth(),
+        colors =
+            CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.errorContainer,
+            ),
+    ) {
+        Row(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(start = 16.dp, top = 16.dp, bottom = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                Icons.Default.NotificationsOff,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onErrorContainer,
+            )
+            Spacer(Modifier.width(16.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = stringResource(R.string.dashboard_permissions_banner_title),
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onErrorContainer,
+                )
+                Text(
+                    text = stringResource(R.string.dashboard_permissions_banner_message),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.8f),
+                )
+            }
+            IconButton(onClick = onDismiss) {
+                Icon(
+                    Icons.Default.Close,
+                    contentDescription = stringResource(R.string.dashboard_permissions_banner_dismiss),
+                    tint = MaterialTheme.colorScheme.onErrorContainer,
+                )
+            }
         }
     }
 }
@@ -143,6 +246,8 @@ fun WelcomeNoKidsContent(onAddKidClick: () -> Unit) {
 fun DashboardScreen(
     kids: List<Kid>,
     todayOccurrences: List<ActivityOccurence>,
+    showPermissionsBanner: Boolean,
+    onBannerDismiss: () -> Unit,
     onAddActivityClick: () -> Unit,
     onViewWeekClick: () -> Unit,
     onSettingsClick: () -> Unit,
@@ -180,6 +285,15 @@ fun DashboardScreen(
                     .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
+            // Permissions warning: reminders cannot fire at all without exact
+            // alarms and notifications; one tap leads to Settings.
+            if (showPermissionsBanner) {
+                PermissionsBanner(
+                    onOpenSettings = onSettingsClick,
+                    onDismiss = onBannerDismiss,
+                )
+            }
+
             // Date Header
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -352,6 +466,8 @@ fun DashboardScreenPreview() {
         DashboardScreen(
             kids = DebugTestData.mockKids,
             todayOccurrences = todayOccurrences,
+            showPermissionsBanner = false,
+            onBannerDismiss = {},
             onAddActivityClick = {},
             onViewWeekClick = {},
             onSettingsClick = {},
@@ -367,6 +483,25 @@ fun DashboardScreenEmptyPreview() {
         DashboardScreen(
             kids = DebugTestData.mockKids,
             todayOccurrences = emptyList(),
+            showPermissionsBanner = false,
+            onBannerDismiss = {},
+            onAddActivityClick = {},
+            onViewWeekClick = {},
+            onSettingsClick = {},
+            onActivityClick = {},
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Today — permissions banner shown")
+@Composable
+fun DashboardScreenBannerPreview() {
+    MaterialTheme {
+        DashboardScreen(
+            kids = DebugTestData.mockKids,
+            todayOccurrences = emptyList(),
+            showPermissionsBanner = true,
+            onBannerDismiss = {},
             onAddActivityClick = {},
             onViewWeekClick = {},
             onSettingsClick = {},

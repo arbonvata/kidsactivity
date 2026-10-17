@@ -1,12 +1,8 @@
 package com.arbonvata.kidstrackeractivity.presentation
 
 import android.Manifest
-import android.app.AlarmManager
-import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Build
-import android.os.PowerManager
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -58,8 +54,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
-import androidx.core.net.toUri
+import androidx.core.app.ActivityCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -70,10 +65,14 @@ import org.koin.androidx.compose.koinViewModel
 data class SettingsState(
     val schoolAlarmMinutes: Int = 10,
     val activityAlarmMinutes: Int = 15,
-    val exactAlarmGranted: Boolean = true,
-    val notificationsGranted: Boolean = true,
+    // Pessimistic until the real system state is read, so the rows never
+    // claim "Granted" before the first refresh.
+    val exactAlarmGranted: Boolean = false,
+    val notificationsGranted: Boolean = false,
     val batteryOptimizationDisabled: Boolean = false,
-)
+) {
+    val remindersBlocked: Boolean get() = !exactAlarmGranted || !notificationsGranted
+}
 
 /**
  * Stateful entry point of the Settings screen: exposes the persisted alarm
@@ -100,18 +99,30 @@ fun SettingsScreen(
     LaunchedEffect(activityMinutes) { state = state.copy(activityAlarmMinutes = activityMinutes) }
 
     fun refreshPermissions() {
-        val alarmManager = context.getSystemService(AlarmManager::class.java)
-        val powerManager = context.getSystemService(PowerManager::class.java)
+        val permissions = context.checkReminderPermissions()
         state =
             state.copy(
-                exactAlarmGranted = alarmManager.canScheduleExactAlarms(),
-                notificationsGranted = areNotificationsGranted(context),
-                batteryOptimizationDisabled = powerManager.isIgnoringBatteryOptimizations(context.packageName),
+                exactAlarmGranted = permissions.exactAlarmGranted,
+                notificationsGranted = permissions.notificationsGranted,
+                batteryOptimizationDisabled = permissions.batteryOptimizationDisabled,
             )
     }
 
+    // After the system stops showing the permission dialog (repeated or
+    // permanent denial) a plain request would silently do nothing, so "Grant"
+    // routes to the app's notification settings instead from then on.
+    var notificationsPermanentlyDenied by remember { mutableStateOf(false) }
+
     val requestNotifications =
-        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
+        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            val activity = context.findActivity()
+            notificationsPermanentlyDenied =
+                !granted &&
+                activity != null &&
+                !ActivityCompat.shouldShowRequestPermissionRationale(
+                    activity,
+                    Manifest.permission.POST_NOTIFICATIONS,
+                )
             refreshPermissions()
         }
     val requestExactAlarm =
@@ -140,30 +151,28 @@ fun SettingsScreen(
         onActivityAlarmChange = { state = state.copy(activityAlarmMinutes = it) },
         onActivityAlarmChangeFinished = { viewModel.onActivityAlarmChange(state.activityAlarmMinutes) },
         onRequestExactAlarm = {
-            requestExactAlarm.launch(
-                Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, "package:${context.packageName}".toUri()),
-            )
+            requestExactAlarm.launch(exactAlarmRequestIntent(context))
         },
         onRequestNotifications = {
-            // Below Android 13 notifications need no runtime permission.
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                requestNotifications.launch(Manifest.permission.POST_NOTIFICATIONS)
+            when {
+                notificationsPermanentlyDenied ->
+                    context.startActivity(
+                        Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+                            .putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName),
+                    )
+                // Below Android 13 notifications need no runtime permission.
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU ->
+                    requestNotifications.launch(Manifest.permission.POST_NOTIFICATIONS)
             }
         },
         onDisableBatteryOpt = {
-            requestIgnoreBatteryOpt.launch(
-                Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, "package:${context.packageName}".toUri()),
-            )
+            requestIgnoreBatteryOpt.launch(batteryOptimizationRequestIntent(context))
         },
         onBackupClick = onBackupClick,
         onRestoreClick = onRestoreClick,
         onBackClick = onBackClick,
     )
 }
-
-private fun areNotificationsGranted(context: Context): Boolean =
-    Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
-        ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -203,6 +212,14 @@ fun SettingsContent(
         ) {
             // Permissions Section
             SettingsSection(title = stringResource(R.string.settings_section_permissions)) {
+                if (state.remindersBlocked) {
+                    Text(
+                        text = stringResource(R.string.settings_permissions_blocked_summary),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.padding(bottom = 8.dp),
+                    )
+                }
                 PermissionRow(
                     icon = Icons.Default.Alarm,
                     title = stringResource(R.string.settings_exact_alarms_title),
@@ -380,8 +397,8 @@ fun SettingsContentPreview() {
                     schoolAlarmMinutes = 10,
                     activityAlarmMinutes = 15,
                     exactAlarmGranted = true,
-                    notificationsGranted = true,
-                    batteryOptimizationDisabled = false,
+                    notificationsGranted = false,
+                    batteryOptimizationDisabled = true,
                 ),
             onSchoolAlarmChange = {},
             onSchoolAlarmChangeFinished = {},

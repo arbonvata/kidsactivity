@@ -12,6 +12,7 @@
     <string name="settings_battery_optimization_subtitle">Disable to prevent delays</string>
     <string name="settings_permission_granted">Granted</string>
     <string name="settings_permission_grant">Grant</string>
+    <string name="settings_permissions_blocked_summary">Reminders won\'t fire until the required permissions are granted.</string>
     <string name="settings_section_alarm_timing">Alarm Timing</string>
     <string name="settings_school_end_reminder_title">School end reminder</string>
     <string name="settings_suffix_min_after">min after</string>

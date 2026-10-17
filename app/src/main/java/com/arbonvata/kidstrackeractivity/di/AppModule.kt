@@ -55,7 +55,7 @@ val appModule =
         single<AlarmSyncCoordinator> { AlarmSyncCoordinator(get(), get(), get(), get(), get(), get()) }
         viewModel { KidsViewModel(get()) }
         viewModel { AddKidViewModel(get()) }
-        viewModel { TodayViewModel(get(), get(), get()) }
+        viewModel { TodayViewModel(get(), get(), get(), get()) }
         viewModel { WeekViewModel(get(), get(), get()) }
         viewModel { MonthViewModel(get(), get(), get()) }
         viewModel { SettingsViewModel(get()) }

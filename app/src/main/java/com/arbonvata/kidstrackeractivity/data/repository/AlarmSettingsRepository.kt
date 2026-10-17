@@ -1,6 +1,7 @@
 package com.arbonvata.kidstrackeractivity.data.repository
 
 import android.content.Context
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -16,9 +17,14 @@ interface AlarmSettingsRepository {
     /** Minutes before an activity starts that the reminder fires. */
     val activityAlarmMinutes: Flow<Int>
 
+    /** Whether the one-time reminder permission prompt was already shown. */
+    val reminderPromptShown: Flow<Boolean>
+
     suspend fun setSchoolAlarmMinutes(minutes: Int)
 
     suspend fun setActivityAlarmMinutes(minutes: Int)
+
+    suspend fun setReminderPromptShown()
 }
 
 /**
@@ -45,6 +51,10 @@ class AlarmSettingsRepositoryImpl(
                     ?: DEFAULT_ACTIVITY_MINUTES
             }
 
+    override val reminderPromptShown: Flow<Boolean> =
+        context.alarmSettingsDataStore.data
+            .map { preferences -> preferences[REMINDER_PROMPT_SHOWN] ?: false }
+
     override suspend fun setSchoolAlarmMinutes(minutes: Int) {
         context.alarmSettingsDataStore.edit { preferences ->
             preferences[SCHOOL_ALARM_MINUTES] = minutes.coerceIn(MIN_SCHOOL_MINUTES, MAX_SCHOOL_MINUTES)
@@ -57,9 +67,16 @@ class AlarmSettingsRepositoryImpl(
         }
     }
 
+    override suspend fun setReminderPromptShown() {
+        context.alarmSettingsDataStore.edit { preferences ->
+            preferences[REMINDER_PROMPT_SHOWN] = true
+        }
+    }
+
     private companion object {
         val SCHOOL_ALARM_MINUTES = intPreferencesKey("school_alarm_minutes")
         val ACTIVITY_ALARM_MINUTES = intPreferencesKey("activity_alarm_minutes")
+        val REMINDER_PROMPT_SHOWN = booleanPreferencesKey("reminder_prompt_shown")
         const val MIN_SCHOOL_MINUTES = 5
         const val MAX_SCHOOL_MINUTES = 30
         const val DEFAULT_SCHOOL_MINUTES = 10

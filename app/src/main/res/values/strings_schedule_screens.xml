@@ -13,6 +13,13 @@
     <string name="today_no_activities">🎉 No activities today!</string>
     <string name="dashboard_alarms_disabled">Alarms disabled</string>
     <string name="dashboard_view_full_week">View Full Week</string>
+    <string name="dashboard_permissions_banner_title">Reminders are off</string>
+    <string name="dashboard_permissions_banner_message">Required permissions are missing — tap to grant them</string>
+    <string name="dashboard_permissions_banner_dismiss">Dismiss reminders warning</string>
+    <string name="reminder_prompt_title">Allow reminders?</string>
+    <string name="reminder_prompt_message">Kids Activity Tracker reminds you before activities start and after school ends. Continue to grant the permissions reminders need — notifications, exact alarms and battery optimization — one after another.</string>
+    <string name="reminder_prompt_continue">Continue</string>
+    <string name="reminder_prompt_not_now">Not now</string>
     <plurals name="today_activities_count">
         <item quantity="one">%1$d activity today</item>
         <item quantity="other">%1$d activities today</item>
