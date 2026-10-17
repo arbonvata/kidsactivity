@@ -184,6 +184,24 @@ class AddActivityViewModelTest {
         }
 
     @Test
+    fun oneOffSavesThePickedWeeksMondayAsAnchor() =
+        runTest {
+            val viewModel = AddActivityViewModel(kidId = 5L, activityRepository, kidRepository)
+            val savedActivity = slot<Activity>()
+            coEvery { activityRepository.addActivity(capture(savedActivity)) } returns Activity(id = 1L)
+            viewModel.onNameChange("Dentist")
+            viewModel.onPeriodicChange(false)
+            // Saturday 2026-10-24 snaps to its week's Monday, 2026-10-19.
+            viewModel.onFirstDateChange(LocalDate.of(2026, 10, 24))
+
+            viewModel.saveActivity()
+
+            coVerify { activityRepository.addActivity(any()) }
+            assertFalse(savedActivity.captured.isPeriodic)
+            assertEquals("2026-10-19", savedActivity.captured.firstDate)
+        }
+
+    @Test
     fun saveActivityPersistsOneOffWhenPeriodicUnchecked() =
         runTest {
             val viewModel = AddActivityViewModel(kidId = 5L, activityRepository, kidRepository)

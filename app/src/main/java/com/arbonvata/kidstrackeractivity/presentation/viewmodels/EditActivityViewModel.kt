@@ -13,7 +13,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 
 data class EditActivityUiState(
     /** The loaded form; null while loading. */
@@ -27,8 +29,9 @@ data class EditActivityUiState(
 /**
  * Edit form for one existing activity. The form fields reuse
  * [AddActivityUiState] so the Add screen's composable renders this too;
- * the stored id, kidId, isEnabled and firstDate anchor are preserved on
- * save (editing a one-off does not re-anchor it).
+ * the stored id, kidId and isEnabled are preserved on save. The one-off
+ * anchor loads into the form's week picker (snapped to its Monday — legacy
+ * rows anchored mid-week shift to their calendar week) and can be re-picked.
  */
 class EditActivityViewModel(
     private val activityId: Long,
@@ -63,6 +66,13 @@ class EditActivityViewModel(
                                 endTime = LocalTime.parse(activity.endTime),
                                 isPeriodic = activity.isPeriodic,
                                 isSchoolActivity = activity.isSchoolActivity,
+                                firstDate =
+                                    AddActivityViewModel.weekStartOf(
+                                        activity.firstDate
+                                            ?.takeIf { it.isNotBlank() }
+                                            ?.let(LocalDate::parse)
+                                            ?: LocalDate.now(),
+                                    ),
                             ),
                     )
                 }
@@ -85,6 +95,8 @@ class EditActivityViewModel(
     fun onEndTimeChange(time: LocalTime) = updateForm { it.copy(endTime = time) }
 
     fun onPeriodicChange(isPeriodic: Boolean) = updateForm { it.copy(isPeriodic = isPeriodic) }
+
+    fun onFirstDateChange(date: LocalDate) = updateForm { it.copy(firstDate = AddActivityViewModel.weekStartOf(date)) }
 
     fun onSchoolActivityChange(isSchoolActivity: Boolean) =
         updateForm {
@@ -118,7 +130,7 @@ class EditActivityViewModel(
                     daysOfWeek = form.selectedDays.sorted().toIntArray(),
                     isPeriodic = form.isPeriodic,
                     isSchoolActivity = form.isSchoolActivity,
-                    firstDate = original.firstDate,
+                    firstDate = form.firstDate.format(DateTimeFormatter.ISO_DATE),
                 ),
             )
             _uiState.update { it.copy(isSaved = true, isSaving = false) }

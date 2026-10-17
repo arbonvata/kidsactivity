@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
+import java.time.LocalDate
 import java.time.LocalTime
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -66,6 +67,9 @@ class EditActivityViewModelTest {
             assertEquals(LocalTime.of(18, 30), form?.endTime)
             assertFalse(form?.isPeriodic == true)
             assertFalse(form?.isSchoolActivity == true)
+            // The stored anchor 2026-10-20 is a Tuesday; the form shows the
+            // Monday of its calendar week.
+            assertEquals(LocalDate.of(2026, 10, 19), form?.firstDate)
             assertFalse(viewModel.uiState.value.isNotFound)
             coVerify { activityRepository.getActivity(5L) }
         }
@@ -107,9 +111,26 @@ class EditActivityViewModelTest {
             assertTrue(updated.captured.isPeriodic)
             assertTrue(updated.captured.isSchoolActivity)
             assertFalse(updated.captured.isEnabled)
-            assertEquals("2026-10-20", updated.captured.firstDate)
+            // Untouched, the loaded (snapped) anchor saves back unchanged.
+            assertEquals("2026-10-19", updated.captured.firstDate)
             assertTrue(viewModel.uiState.value.isSaved)
             assertFalse(viewModel.uiState.value.isSaving)
+        }
+
+    @Test
+    fun editingAOneOffsWeekReAnchorsIt() =
+        runTest {
+            coEvery { activityRepository.getActivity(5L) } returns storedActivity()
+            val updated = slot<Activity>()
+            coEvery { activityRepository.updateActivity(capture(updated)) } returns Unit
+            val viewModel = EditActivityViewModel(5L, activityRepository, kidRepository)
+
+            // Wednesday 2026-11-04 snaps to its Monday, 2026-11-02.
+            viewModel.onFirstDateChange(LocalDate.of(2026, 11, 4))
+
+            viewModel.saveActivity()
+
+            assertEquals("2026-11-02", updated.captured.firstDate)
         }
 
     @Test

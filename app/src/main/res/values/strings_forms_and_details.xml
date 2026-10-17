@@ -9,7 +9,7 @@
     <string name="add_activity_name_error">Please enter an activity name</string>
     <string name="add_activity_select_days_label">Select Days:</string>
     <string name="add_activity_days_error">Select at least one day</string>
-    <string name="add_activity_periodic_label">Periodic for the entire year</string>
+    <string name="add_activity_periodic_label">Repeats weekly</string>
     <string name="add_activity_school_label">School Activity</string>
     <string name="add_activity_school_supporting_text">Repeats weekly · reminds after it ends instead of before it starts</string>
     <string name="add_activity_start_time">Start: %1$s</string>
@@ -96,4 +96,10 @@
         <item>Sat</item>
         <item>Sun</item>
     </string-array>
+
+    <!-- One-off week picker (Add/Edit Activity, only when not periodic) -->
+    <string name="add_activity_week_of_format">Week of: %1$s</string>
+    <string name="add_activity_one_off_hint">Occurs once, on the selected weekdays of this week</string>
+    <string name="add_activity_date_picker_ok">OK</string>
+    <string name="add_activity_date_picker_cancel">Cancel</string>
 </resources>

@@ -13,9 +13,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+import java.time.temporal.TemporalAdjusters
 
 data class AddActivityUiState(
     val name: String = "",
@@ -27,6 +29,8 @@ data class AddActivityUiState(
     // opt-out. School activities are always weekly (see onSchoolActivityChange).
     val isPeriodic: Boolean = true,
     val isSchoolActivity: Boolean = false,
+    // Monday of the calendar week a one-off belongs to (see [weekStartOf]).
+    val firstDate: LocalDate = LocalDate.now(),
     val nameError: Boolean = false,
     val daysError: Boolean = false,
     val isSaving: Boolean = false,
@@ -97,6 +101,10 @@ class AddActivityViewModel(
         }
     }
 
+    fun onFirstDateChange(date: LocalDate) {
+        _uiState.update { it.copy(firstDate = weekStartOf(date)) }
+    }
+
     private fun isValidName(name: String) = name.isNotBlank()
 
     fun saveActivity() {
@@ -121,7 +129,7 @@ class AddActivityViewModel(
                     daysOfWeek = state.selectedDays.sorted().toIntArray(),
                     isPeriodic = state.isPeriodic,
                     isSchoolActivity = state.isSchoolActivity,
-                    firstDate = LocalDate.now().format(DateTimeFormatter.ISO_DATE),
+                    firstDate = state.firstDate.format(DateTimeFormatter.ISO_DATE),
                 ),
             )
             _uiState.update { it.copy(isSaved = true, isSaving = false) }
@@ -135,5 +143,13 @@ class AddActivityViewModel(
 
     companion object {
         val TIME_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+
+        /**
+         * A one-off occupies the calendar week of the chosen date — each
+         * selected weekday occurs exactly once in it. Snapping to the week's
+         * Monday makes the stored anchor match what the form's "Week of"
+         * button shows, whatever day inside the week the user picked.
+         */
+        fun weekStartOf(date: LocalDate): LocalDate = date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
     }
 }

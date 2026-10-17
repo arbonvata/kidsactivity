@@ -16,6 +16,8 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
@@ -32,6 +34,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -55,7 +58,10 @@ import com.arbonvata.kidstrackeractivity.presentation.viewmodels.EditActivityVie
 import com.arbonvata.kidstrackeractivity.ui.theme.KidsTrackerActivityTheme
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
+import java.time.Instant
+import java.time.LocalDate
 import java.time.LocalTime
+import java.time.ZoneOffset
 
 /**
  * Stateful entry point of the Add Activity screen: owns the
@@ -89,6 +95,7 @@ fun AddActivityScreen(
         onEndTimeChange = viewModel::onEndTimeChange,
         onPeriodicChange = viewModel::onPeriodicChange,
         onSchoolActivityChange = viewModel::onSchoolActivityChange,
+        onFirstDateChange = viewModel::onFirstDateChange,
         onSaveClick = viewModel::saveActivity,
         onNavigateBack = onNavigateBack,
     )
@@ -155,6 +162,7 @@ fun EditActivityScreen(
                 onEndTimeChange = viewModel::onEndTimeChange,
                 onPeriodicChange = viewModel::onPeriodicChange,
                 onSchoolActivityChange = viewModel::onSchoolActivityChange,
+                onFirstDateChange = viewModel::onFirstDateChange,
                 onSaveClick = viewModel::saveActivity,
                 onNavigateBack = onNavigateBack,
                 screenTitle = stringResource(R.string.edit_activity_title),
@@ -198,6 +206,7 @@ fun AddActivityContent(
     onEndTimeChange: (LocalTime) -> Unit,
     onPeriodicChange: (Boolean) -> Unit,
     onSchoolActivityChange: (Boolean) -> Unit,
+    onFirstDateChange: (LocalDate) -> Unit,
     onSaveClick: () -> Unit,
     onNavigateBack: () -> Unit,
     screenTitle: String = stringResource(R.string.add_activity_title),
@@ -205,6 +214,7 @@ fun AddActivityContent(
 ) {
     var showStartTimePicker by remember { mutableStateOf(false) }
     var showEndTimePicker by remember { mutableStateOf(false) }
+    var showDatePicker by remember { mutableStateOf(false) }
 
     val weekdayAbbreviations = stringArrayResource(R.array.weekday_abbreviations)
     val daysOfWeek = weekdayAbbreviations.mapIndexed { index, label -> label to index + 1 }
@@ -336,6 +346,28 @@ fun AddActivityContent(
                 }
             }
 
+            // One-offs belong to a single calendar week, chosen with the
+            // date picker; school activities are always weekly and never
+            // reach here (their periodic flag stays on).
+            if (!uiState.isPeriodic) {
+                OutlinedButton(
+                    onClick = { showDatePicker = true },
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text(
+                        stringResource(
+                            R.string.add_activity_week_of_format,
+                            uiState.firstDate.format(weekdayDateFormatter),
+                        ),
+                    )
+                }
+                Text(
+                    text = stringResource(R.string.add_activity_one_off_hint),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 OutlinedButton(
                     onClick = { showStartTimePicker = true },
@@ -391,6 +423,16 @@ fun AddActivityContent(
                 showEndTimePicker = false
             },
             onDismiss = { showEndTimePicker = false },
+        )
+    }
+    if (showDatePicker) {
+        WeekPickerDialog(
+            initialDate = uiState.firstDate,
+            onConfirm = {
+                onFirstDateChange(it)
+                showDatePicker = false
+            },
+            onDismiss = { showDatePicker = false },
         )
     }
 }
@@ -474,6 +516,43 @@ fun TimePickerDialog(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun WeekPickerDialog(
+    initialDate: LocalDate,
+    onConfirm: (LocalDate) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    // Material3 date pickers work in UTC epoch millis at midnight; converting
+    // through ZoneOffset.UTC keeps the picked calendar day intact.
+    val datePickerState =
+        rememberDatePickerState(
+            initialSelectedDateMillis = initialDate.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli(),
+        )
+    DatePickerDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    datePickerState.selectedDateMillis
+                        ?.let { Instant.ofEpochMilli(it).atZone(ZoneOffset.UTC).toLocalDate() }
+                        ?.let(onConfirm)
+                    onDismiss()
+                },
+            ) {
+                Text(stringResource(R.string.add_activity_date_picker_ok))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.add_activity_date_picker_cancel))
+            }
+        },
+    ) {
+        DatePicker(state = datePickerState)
+    }
+}
+
 @Preview(showBackground = true, name = "Add — empty form")
 @Composable
 fun AddActivityContentPreview() {
@@ -489,6 +568,35 @@ fun AddActivityContentPreview() {
             onEndTimeChange = {},
             onPeriodicChange = {},
             onSchoolActivityChange = {},
+            onFirstDateChange = {},
+            onSaveClick = {},
+            onNavigateBack = {},
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Add — one-off with week picker")
+@Composable
+fun AddActivityContentOneOffPreview() {
+    KidsTrackerActivityTheme {
+        AddActivityContent(
+            uiState =
+                AddActivityUiState(
+                    name = "Dentist",
+                    selectedDays = setOf(4),
+                    isPeriodic = false,
+                    firstDate = LocalDate.of(2026, 10, 19),
+                ),
+            kids = DebugTestData.mockKids,
+            isKidPickerEnabled = true,
+            onKidSelected = {},
+            onNameChange = {},
+            onToggleDay = {},
+            onStartTimeChange = {},
+            onEndTimeChange = {},
+            onPeriodicChange = {},
+            onSchoolActivityChange = {},
+            onFirstDateChange = {},
             onSaveClick = {},
             onNavigateBack = {},
         )
@@ -516,6 +624,7 @@ fun AddActivityContentCheckedPreview() {
             onEndTimeChange = {},
             onPeriodicChange = {},
             onSchoolActivityChange = {},
+            onFirstDateChange = {},
             onSaveClick = {},
             onNavigateBack = {},
         )
@@ -546,6 +655,7 @@ fun EditActivityContentPreview() {
             onEndTimeChange = {},
             onPeriodicChange = {},
             onSchoolActivityChange = {},
+            onFirstDateChange = {},
             onSaveClick = {},
             onNavigateBack = {},
             screenTitle = stringResource(R.string.edit_activity_title),
