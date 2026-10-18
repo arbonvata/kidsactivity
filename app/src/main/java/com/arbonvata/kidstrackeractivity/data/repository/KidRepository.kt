@@ -22,9 +22,8 @@ interface KidRepository {
 
     /**
      * Deletes the kid together with all their activities and school-day
-     * overrides in a single transaction (spec 8.4 cascade). Once the alarm
-     * scheduler exists, its alarms for this kid must be cancelled before
-     * calling this.
+     * overrides in a single transaction (spec 8.4 cascade). The alarm sync
+     * coordinator observes the change and cancels the kid's alarms.
      */
     suspend fun deleteKid(kidId: Long)
 

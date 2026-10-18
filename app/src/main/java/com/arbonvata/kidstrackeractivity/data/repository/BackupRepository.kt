@@ -113,7 +113,7 @@ class BackupRepositoryImpl(
                             endTime = activityJson.optString("endTime"),
                             isEnabled = activityJson.optBoolean("isEnabled", true),
                             daysOfWeek = days?.let { IntArray(days.length()) { days.optInt(it) } } ?: intArrayOf(),
-                            isPeriodic = activityJson.optBoolean("isPeriodic"),
+                            isPeriodic = activityJson.optBoolean("isPeriodic", true),
                             isSchoolActivity = activityJson.optBoolean("isSchoolActivity"),
                             firstDate = activityJson.optString("firstDate"),
                         ),
