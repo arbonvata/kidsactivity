@@ -3,6 +3,13 @@
 The app version lives in `versionName` in `app/build.gradle.kts` (shown on the
 in-app About screen); this file records what each release shipped.
 
+## Unreleased
+
+- **Fixed**: the Save button on the Add/Edit Activity screen no longer falls
+  off the bottom on small screens (or with large font sizes) when a one-off
+  non-school activity is being edited — the form scrolls and Save stays
+  pinned above it.
+
 ## 1.0 — 2026-09-27
 
 First release.
