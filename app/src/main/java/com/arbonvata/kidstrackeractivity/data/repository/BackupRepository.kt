@@ -8,6 +8,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
+import org.json.JSONException
 import org.json.JSONObject
 
 /**
@@ -23,7 +24,10 @@ interface BackupRepository {
      * Restores from a document produced by exportAll. With [replaceExisting]
      * the database is wiped first; either way the whole import runs in one
      * transaction and takes effect completely or not at all. Throws
-     * JSONException on malformed input.
+     * JSONException on malformed input, including documents missing the
+     * kids/activities/overrides arrays, an array of the wrong type, or a
+     * version newer than this app understands — all before any data is
+     * touched, so an incomplete document cannot wipe the database.
      */
     suspend fun importAll(
         json: String,
@@ -65,9 +69,16 @@ class BackupRepositoryImpl(
     ) {
         withContext(ioDispatcher) {
             val root = JSONObject(json)
-            val kids = root.optJSONArray("kids") ?: JSONArray()
-            val activities = root.optJSONArray("activities") ?: JSONArray()
-            val overrides = root.optJSONArray("overrides") ?: JSONArray()
+            // The arrays are required, not optional: a document without them
+            // is malformed, and treating them as empty would let a stray
+            // partial file wipe the database on a replace import.
+            val kids = root.getJSONArray("kids")
+            val activities = root.getJSONArray("activities")
+            val overrides = root.getJSONArray("overrides")
+            val version = root.optInt("version", FORMAT_VERSION)
+            if (version > FORMAT_VERSION) {
+                throw JSONException("Unsupported backup version $version (this app understands $FORMAT_VERSION)")
+            }
 
             store.runInTx {
                 if (replaceExisting) {

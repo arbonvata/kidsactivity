@@ -65,6 +65,9 @@ dependencies {
     implementation(libs.koin.androidx.compose)
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.mockk)
+    // Real org.json on the JVM test classpath; the android.jar stub throws
+    // "not mocked" for JSONObject/JSONArray parsing in unit tests.
+    testImplementation(libs.org.json)
     testImplementation(libs.kotlinx.coroutines.test)
     testRuntimeOnly(libs.junit.platform.launcher)
     androidTestImplementation(platform(libs.androidx.compose.bom))

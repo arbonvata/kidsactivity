@@ -3,6 +3,7 @@ package com.arbonvata.kidstrackeractivity.di
 import com.arbonvata.kidstrackeractivity.alarms.AlarmManagerAlarmScheduler
 import com.arbonvata.kidstrackeractivity.alarms.AlarmScheduler
 import com.arbonvata.kidstrackeractivity.alarms.AlarmSyncCoordinator
+import com.arbonvata.kidstrackeractivity.alarms.ScheduledAlarmCodesStore
 import com.arbonvata.kidstrackeractivity.data.objectbox.MyObjectBox
 import com.arbonvata.kidstrackeractivity.data.repository.ActivityRepository
 import com.arbonvata.kidstrackeractivity.data.repository.ActivityRepositoryImpl
@@ -51,7 +52,8 @@ val appModule =
         single<BackupRepository> { BackupRepositoryImpl(get()) }
         single<AlarmSettingsRepository> { AlarmSettingsRepositoryImpl(androidContext()) }
         single<CoroutineScope> { CoroutineScope(SupervisorJob() + Dispatchers.Default) }
-        single<AlarmScheduler> { AlarmManagerAlarmScheduler(androidContext()) }
+        single { ScheduledAlarmCodesStore(androidContext()) }
+        single<AlarmScheduler> { AlarmManagerAlarmScheduler(androidContext(), get()) }
         single<AlarmSyncCoordinator> { AlarmSyncCoordinator(get(), get(), get(), get(), get(), get()) }
         viewModel { KidsViewModel(get()) }
         viewModel { AddKidViewModel(get()) }
