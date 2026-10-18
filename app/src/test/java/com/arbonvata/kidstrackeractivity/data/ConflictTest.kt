@@ -8,7 +8,7 @@ import java.time.LocalDate
 import java.time.LocalTime
 
 /**
- * Tests the neighbour-overlap detection of [findConflicts]. Fixed October
+ * Tests the pairwise overlap detection of [findConflicts]. Fixed October
  * 2026 dates so weekday arithmetic is stable; Oct 19 and 26 are Mondays.
  */
 class ConflictTest {
@@ -93,21 +93,24 @@ class ConflictTest {
     }
 
     @Test
-    fun threeWayClashReportsAdjacentPairsOnly() {
-        // Football 17:00–19:00 contains Piano 17:30–18:00 and overlaps
-        // Swimming 18:30–19:00; the neighbour scan surfaces the clash via the
-        // adjacent Football–Piano pair (any non-adjacent overlap implies an
-        // adjacent one).
+    fun threeWayClashReportsEveryOverlappingPair() {
+        // Football 17:00–19:00 contains Piano 17:30–18:00 and also overlaps
+        // Swimming 18:30–19:00 — all three pairs must be listed, otherwise
+        // resolving the reported pair leaves the Football–Swimming clash on
+        // the same day.
         val football = occurrence(1, start = LocalTime.of(17, 0), end = LocalTime.of(19, 0))
         val piano = occurrence(2, start = LocalTime.of(17, 30), end = LocalTime.of(18, 0))
         val swimming = occurrence(3, start = LocalTime.of(18, 30), end = LocalTime.of(19, 0))
 
         val conflicts = findConflicts(listOf(football, piano, swimming))
 
-        assertEquals(1, conflicts.size)
-        assertEquals(football, conflicts.single().activity1)
-        assertEquals(piano, conflicts.single().activity2)
-        assertEquals(30L, conflicts.single().overlapMinutes)
+        val pairs = conflicts.map { it.activity1 to it.activity2 }
+        assertEquals(
+            listOf(football to piano, football to swimming),
+            pairs,
+        )
+        assertEquals(30L, conflicts[0].overlapMinutes)
+        assertEquals(30L, conflicts[1].overlapMinutes)
     }
 
     @Test
