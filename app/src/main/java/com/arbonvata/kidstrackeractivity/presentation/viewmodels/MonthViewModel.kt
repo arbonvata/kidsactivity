@@ -2,7 +2,7 @@ package com.arbonvata.kidstrackeractivity.presentation.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.arbonvata.kidstrackeractivity.data.ActivityOccurence
+import com.arbonvata.kidstrackeractivity.data.ActivityOccurrence
 import com.arbonvata.kidstrackeractivity.data.expandActivitiesForDateRange
 import com.arbonvata.kidstrackeractivity.data.objectbox.Kid
 import com.arbonvata.kidstrackeractivity.data.repository.ActivityRepository
@@ -19,7 +19,7 @@ import java.time.YearMonth
 data class MonthUiState(
     val isLoading: Boolean = true,
     val kids: List<Kid> = emptyList(),
-    val monthOccurrences: List<ActivityOccurence> = emptyList(),
+    val monthOccurrences: List<ActivityOccurrence> = emptyList(),
     val selectedMonth: YearMonth = YearMonth.now(),
 )
 

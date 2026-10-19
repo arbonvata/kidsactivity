@@ -4,8 +4,8 @@ import java.time.Duration
 
 /** Two of the same kid's occurrences that overlap on the same date (spec 8.2). */
 data class Conflict(
-    val activity1: ActivityOccurence,
-    val activity2: ActivityOccurence,
+    val activity1: ActivityOccurrence,
+    val activity2: ActivityOccurrence,
     val overlapMinutes: Long,
 )
 
@@ -19,7 +19,7 @@ data class Conflict(
  * ending at or before their start (overnight ranges are not representable)
  * are ignored, and touching ranges (end == start) do not conflict.
  */
-fun findConflicts(occurrences: List<ActivityOccurence>): List<Conflict> {
+fun findConflicts(occurrences: List<ActivityOccurrence>): List<Conflict> {
     val conflicts =
         occurrences
             .filter { it.endTime.isAfter(it.startTime) }

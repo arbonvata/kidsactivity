@@ -38,7 +38,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.arbonvata.kidstrackeractivity.R
-import com.arbonvata.kidstrackeractivity.data.ActivityOccurence
+import com.arbonvata.kidstrackeractivity.data.ActivityOccurrence
 import com.arbonvata.kidstrackeractivity.data.DebugTestData
 import com.arbonvata.kidstrackeractivity.data.expandActivitiesForDateRange
 import com.arbonvata.kidstrackeractivity.data.objectbox.Activity
@@ -88,7 +88,7 @@ fun WeekScreen(
 fun WeeklyScheduleScreen(
     kids: List<Kid>,
     weekStart: LocalDate,
-    occurrences: List<ActivityOccurence>,
+    occurrences: List<ActivityOccurrence>,
     onPreviousWeekClick: () -> Unit,
     onNextWeekClick: () -> Unit,
     onEditActivityClick: (Activity) -> Unit,
@@ -168,7 +168,7 @@ fun WeeklyScheduleScreen(
 
 @Composable
 fun WeeklyActivityRow(
-    occurrence: ActivityOccurence,
+    occurrence: ActivityOccurrence,
     onClick: () -> Unit,
 ) {
     val alarmsDisabled = !occurrence.activity.isEnabled

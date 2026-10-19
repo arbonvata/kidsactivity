@@ -7,7 +7,7 @@ import java.time.LocalDate
 import java.time.LocalTime
 
 // Represents a single, concrete instance of an activity
-data class ActivityOccurence(
+data class ActivityOccurrence(
     val activity: Activity,
     val kidName: String,
     val date: LocalDate,
@@ -34,10 +34,10 @@ fun expandActivitiesForDateRange(
     endDate: LocalDate,
     includeDisabled: Boolean = false,
     overrides: List<DailySchedule> = emptyList(),
-): List<ActivityOccurence> {
+): List<ActivityOccurrence> {
     val kidMap = kids.associateBy { it.id }
     val overrideMap = overrides.associateBy { "${it.kidId}|${it.date}" }
-    val occurrences = mutableListOf<ActivityOccurence>()
+    val occurrences = mutableListOf<ActivityOccurrence>()
 
     var currentDate = startDate
     while (!currentDate.isAfter(endDate)) {
@@ -59,7 +59,7 @@ fun expandActivitiesForDateRange(
                 val endTime = parseTimeOrNull(effectiveEndTime(activity, override)) ?: continue
                 if (kid != null) {
                     occurrences.add(
-                        ActivityOccurence(
+                        ActivityOccurrence(
                             activity = activity,
                             kidName = kid.name,
                             date = currentDate,

@@ -9,13 +9,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-/** Outcome of a restore, shown once and consumed via [ShareViewModel.onResultHandled]. */
+/** Outcome of a restore, shown once and consumed via [ShareViewModel.onResultHandled]; the screen maps each variant to its localized message. */
 sealed interface BackupResult {
     data object Success : BackupResult
 
-    data class Error(
-        val message: String,
-    ) : BackupResult
+    data object Error : BackupResult
 }
 
 data class ShareUiState(
@@ -48,7 +46,7 @@ class ShareViewModel(
                     backupRepository.importAll(json, replaceExisting)
                     it.copy(isWorking = false, result = BackupResult.Success)
                 } catch (e: Exception) {
-                    it.copy(isWorking = false, result = BackupResult.Error("Restore failed — is this a valid backup file?"))
+                    it.copy(isWorking = false, result = BackupResult.Error)
                 }
             }
         }

@@ -53,7 +53,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.arbonvata.kidstrackeractivity.R
-import com.arbonvata.kidstrackeractivity.data.ActivityOccurence
+import com.arbonvata.kidstrackeractivity.data.ActivityOccurrence
 import com.arbonvata.kidstrackeractivity.data.DebugTestData
 import com.arbonvata.kidstrackeractivity.data.objectbox.Activity
 import com.arbonvata.kidstrackeractivity.data.objectbox.Kid
@@ -125,6 +125,8 @@ fun TodayScreen(
             DashboardScreen(
                 kids = uiState.kids,
                 todayOccurrences = uiState.todayOccurrences,
+                today = uiState.today,
+                now = uiState.now,
                 showPermissionsBanner = permissions.remindersBlocked && !bannerDismissed,
                 onBannerDismiss = { bannerDismissed = true },
                 onAddActivityClick = onAddActivityClick,
@@ -245,7 +247,9 @@ fun WelcomeNoKidsContent(onAddKidClick: () -> Unit) {
 @Composable
 fun DashboardScreen(
     kids: List<Kid>,
-    todayOccurrences: List<ActivityOccurence>,
+    todayOccurrences: List<ActivityOccurrence>,
+    today: LocalDate,
+    now: LocalTime,
     showPermissionsBanner: Boolean,
     onBannerDismiss: () -> Unit,
     onAddActivityClick: () -> Unit,
@@ -253,7 +257,6 @@ fun DashboardScreen(
     onSettingsClick: () -> Unit,
     onActivityClick: (Activity) -> Unit,
 ) {
-    val now = LocalTime.now()
     val nextActivity =
         todayOccurrences
             .filter { it.startTime.isAfter(now) }
@@ -304,12 +307,12 @@ fun DashboardScreen(
             ) {
                 Column(modifier = Modifier.padding(20.dp)) {
                     Text(
-                        text = LocalDate.now().format(DateTimeFormatter.ofPattern("EEEE")),
+                        text = today.format(DateTimeFormatter.ofPattern("EEEE")),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
                     )
                     Text(
-                        text = LocalDate.now().format(DateTimeFormatter.ofPattern("MMMM d, yyyy")),
+                        text = today.format(DateTimeFormatter.ofPattern("MMMM d, yyyy")),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f),
                     )
@@ -460,12 +463,14 @@ fun DashboardScreenPreview() {
         // the real weekday.
         val todayOccurrences =
             listOf(
-                ActivityOccurence(DebugTestData.mockActivities[0], "Leo", today, LocalTime.of(17, 0), LocalTime.of(18, 30)),
-                ActivityOccurence(DebugTestData.mockActivities[2], "Leo", today, LocalTime.of(15, 0), LocalTime.of(16, 0)),
+                ActivityOccurrence(DebugTestData.mockActivities[0], "Leo", today, LocalTime.of(17, 0), LocalTime.of(18, 30)),
+                ActivityOccurrence(DebugTestData.mockActivities[2], "Leo", today, LocalTime.of(15, 0), LocalTime.of(16, 0)),
             )
         DashboardScreen(
             kids = DebugTestData.mockKids,
             todayOccurrences = todayOccurrences,
+            today = today,
+            now = LocalTime.of(14, 0),
             showPermissionsBanner = false,
             onBannerDismiss = {},
             onAddActivityClick = {},
@@ -483,6 +488,8 @@ fun DashboardScreenEmptyPreview() {
         DashboardScreen(
             kids = DebugTestData.mockKids,
             todayOccurrences = emptyList(),
+            today = LocalDate.of(2026, 10, 19),
+            now = LocalTime.of(14, 0),
             showPermissionsBanner = false,
             onBannerDismiss = {},
             onAddActivityClick = {},
@@ -500,6 +507,8 @@ fun DashboardScreenBannerPreview() {
         DashboardScreen(
             kids = DebugTestData.mockKids,
             todayOccurrences = emptyList(),
+            today = LocalDate.of(2026, 10, 19),
+            now = LocalTime.of(14, 0),
             showPermissionsBanner = true,
             onBannerDismiss = {},
             onAddActivityClick = {},

@@ -90,4 +90,7 @@
     <string name="notification_alarm_school_text_format">%1$s: %2$s ended %3$d min ago</string>
     <string name="notification_alarm_activity_title">Activity reminder</string>
     <string name="notification_alarm_activity_text_format">%1$s: %2$s starts in %3$d min</string>
+
+    <!-- Restore result -->
+    <string name="share_restore_failed_message">Restore failed — is this a valid backup file?</string>
 </resources>

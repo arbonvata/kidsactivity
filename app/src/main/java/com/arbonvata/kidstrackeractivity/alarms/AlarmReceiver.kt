@@ -15,6 +15,7 @@ import com.arbonvata.kidstrackeractivity.MainActivity
 import com.arbonvata.kidstrackeractivity.R
 import com.arbonvata.kidstrackeractivity.data.objectbox.Activity
 import com.arbonvata.kidstrackeractivity.data.objectbox.Kid
+import com.arbonvata.kidstrackeractivity.presentation.navigation.Screen
 import io.objectbox.BoxStore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -95,7 +96,7 @@ class AlarmReceiver : BroadcastReceiver() {
                 // MainActivity hands this to navController.handleDeepLink.
                 Intent(
                     Intent.ACTION_VIEW,
-                    "kidstracker://edit_activity/$activityId".toUri(),
+                    Screen.EditActivity.deepLink(activityId).toUri(),
                     context,
                     MainActivity::class.java,
                 ),

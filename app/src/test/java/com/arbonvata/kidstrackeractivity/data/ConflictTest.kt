@@ -21,8 +21,8 @@ class ConflictTest {
         date: LocalDate = monday,
         start: LocalTime,
         end: LocalTime,
-    ): ActivityOccurence =
-        ActivityOccurence(
+    ): ActivityOccurrence =
+        ActivityOccurrence(
             activity =
                 Activity(
                     id = activityId,

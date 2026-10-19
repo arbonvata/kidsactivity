@@ -177,7 +177,7 @@ fun ShareScreen(
                     when (result) {
                         is BackupResult.Success ->
                             stringResource(R.string.share_restore_complete_message)
-                        is BackupResult.Error -> result.message
+                        is BackupResult.Error -> stringResource(R.string.share_restore_failed_message)
                     },
                 )
             },

@@ -2,7 +2,7 @@ package com.arbonvata.kidstrackeractivity.presentation.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.arbonvata.kidstrackeractivity.data.ActivityOccurence
+import com.arbonvata.kidstrackeractivity.data.ActivityOccurrence
 import com.arbonvata.kidstrackeractivity.data.expandActivitiesForDateRange
 import com.arbonvata.kidstrackeractivity.data.objectbox.Kid
 import com.arbonvata.kidstrackeractivity.data.repository.ActivityRepository
@@ -21,7 +21,7 @@ import java.time.temporal.TemporalAdjusters
 data class WeekUiState(
     val isLoading: Boolean = true,
     val kids: List<Kid> = emptyList(),
-    val weekOccurrences: List<ActivityOccurence> = emptyList(),
+    val weekOccurrences: List<ActivityOccurrence> = emptyList(),
     val weekStart: LocalDate = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)),
 )
 

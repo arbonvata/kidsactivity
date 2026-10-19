@@ -16,7 +16,7 @@ import java.time.LocalTime
  * weekday arithmetic is stable: Oct 19/26 are Mondays, Oct 20/27 Tuesdays,
  * Oct 21/28 Wednesdays, Oct 22/29 Thursdays.
  */
-class ActivityOccurenceTest {
+class ActivityOccurrenceTest {
     private val kids = listOf(Kid(id = 1L, name = "Leo"))
 
     private fun activity(

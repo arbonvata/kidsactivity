@@ -42,7 +42,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.arbonvata.kidstrackeractivity.R
-import com.arbonvata.kidstrackeractivity.data.ActivityOccurence
+import com.arbonvata.kidstrackeractivity.data.ActivityOccurrence
 import com.arbonvata.kidstrackeractivity.data.Conflict
 import com.arbonvata.kidstrackeractivity.data.objectbox.Activity
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.ConflictViewModel
@@ -221,7 +221,7 @@ fun ConflictCard(
 }
 
 @Composable
-fun ConflictActivityRow(occurrence: ActivityOccurence) {
+fun ConflictActivityRow(occurrence: ActivityOccurrence) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
@@ -258,8 +258,8 @@ fun ConflictContentPreview() {
         val conflicts =
             listOf(
                 Conflict(
-                    ActivityOccurence(football, "Leo", monday, LocalTime.of(17, 0), LocalTime.of(18, 30)),
-                    ActivityOccurence(piano, "Leo", monday, LocalTime.of(17, 30), LocalTime.of(18, 30)),
+                    ActivityOccurrence(football, "Leo", monday, LocalTime.of(17, 0), LocalTime.of(18, 30)),
+                    ActivityOccurrence(piano, "Leo", monday, LocalTime.of(17, 30), LocalTime.of(18, 30)),
                     overlapMinutes = 60L,
                 ),
             )

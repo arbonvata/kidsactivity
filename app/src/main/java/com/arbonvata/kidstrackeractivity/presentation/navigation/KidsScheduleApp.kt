@@ -76,17 +76,35 @@ sealed class Screen(
     // Secondary screens (NOT in bottom nav)
     object Settings : Screen("settings", R.string.screen_title_settings, Icons.Default.Settings)
 
-    object AddActivity : Screen("add_activity?kidId={kidId}", R.string.screen_title_add_activity, Icons.Default.Add)
+    object AddActivity : Screen("add_activity?kidId={kidId}", R.string.screen_title_add_activity, Icons.Default.Add) {
+        /** Navigates with the kid preselected; the default shows the kid picker. */
+        fun route(kidId: Long = 0L): String = "add_activity?kidId=$kidId"
+    }
 
-    object EditActivity : Screen("edit_activity/{activityId}", R.string.screen_title_edit_activity, Icons.Default.Edit)
+    object EditActivity : Screen("edit_activity/{activityId}", R.string.screen_title_edit_activity, Icons.Default.Edit) {
+        fun route(activityId: Long): String = "edit_activity/$activityId"
+
+        /** The deep link notification taps land on; AlarmReceiver builds it. */
+        fun deepLink(activityId: Long): String = "kidstracker://edit_activity/$activityId"
+
+        const val DEEP_LINK_PATTERN = "kidstracker://edit_activity/{activityId}"
+    }
 
     object KidSelection : Screen("kid_selection", R.string.screen_title_kid_selection, Icons.Default.People)
 
     object AddKid : Screen("add_kid", R.string.screen_title_add_kid, Icons.Default.PersonAdd)
 
-    object DailySchedule : Screen("daily_schedule/{kidIds}", R.string.screen_title_daily_schedule, Icons.Default.ViewDay)
+    object DailySchedule : Screen("daily_schedule/{kidIds}", R.string.screen_title_daily_schedule, Icons.Default.ViewDay) {
+        fun route(kidIds: Collection<Long>): String = "daily_schedule/${kidIds.joinToString(",")}"
+    }
 
-    object KidDetail : Screen("kid_detail/{kidId}", R.string.screen_title_kid_detail, Icons.Default.ViewDay)
+    object KidDetail : Screen("kid_detail/{kidId}", R.string.screen_title_kid_detail, Icons.Default.ViewDay) {
+        fun route(kidId: Long): String = "kid_detail/$kidId"
+    }
+
+    object EditKid : Screen("edit_kid/{kidId}", R.string.edit_kid_title, Icons.Default.Edit) {
+        fun route(kidId: Long): String = "edit_kid/$kidId"
+    }
 
     object SchoolOverrides : Screen("school_overrides", R.string.screen_title_school_overrides, Icons.Default.Event)
 
@@ -164,12 +182,12 @@ fun KidsScheduleApp(deepLinkIntent: Intent? = null) {
             // --- MAIN TABS ---
             composable(Screen.Today.route) {
                 TodayScreen(
-                    onAddActivityClick = { navController.navigate("add_activity") },
+                    onAddActivityClick = { navController.navigate(Screen.AddActivity.route()) },
                     onViewWeekClick = { navigateToTab(Screen.Week) },
                     onSettingsClick = { navController.navigate(Screen.Settings.route) },
                     onAddKidClick = { navController.navigate(Screen.AddKid.route) },
                     onActivityClick = { activity ->
-                        navController.navigate("edit_activity/${activity.id}")
+                        navController.navigate(Screen.EditActivity.route(activity.id))
                     },
                 )
             }
@@ -177,7 +195,7 @@ fun KidsScheduleApp(deepLinkIntent: Intent? = null) {
             composable(Screen.Week.route) {
                 WeekScreen(
                     onEditActivityClick = { activity ->
-                        navController.navigate("edit_activity/${activity.id}")
+                        navController.navigate(Screen.EditActivity.route(activity.id))
                     },
                 )
             }
@@ -185,7 +203,7 @@ fun KidsScheduleApp(deepLinkIntent: Intent? = null) {
             composable(Screen.Month.route) {
                 MonthScreen(
                     onEditActivityClick = { activity ->
-                        navController.navigate("edit_activity/${activity.id}")
+                        navController.navigate(Screen.EditActivity.route(activity.id))
                     },
                 )
             }
@@ -229,11 +247,11 @@ fun KidsScheduleApp(deepLinkIntent: Intent? = null) {
             }
 
             composable(
-                route = "edit_activity/{activityId}",
+                route = Screen.EditActivity.route,
                 arguments = listOf(navArgument("activityId") { type = NavType.LongType }),
                 deepLinks =
                     listOf(
-                        navDeepLink { uriPattern = "kidstracker://edit_activity/{activityId}" },
+                        navDeepLink { uriPattern = Screen.EditActivity.DEEP_LINK_PATTERN },
                     ),
             ) { backStackEntry ->
                 val activityId = backStackEntry.arguments?.getLong("activityId") ?: return@composable
@@ -247,8 +265,7 @@ fun KidsScheduleApp(deepLinkIntent: Intent? = null) {
                 KidSelectionScreen(
                     onAddKidClick = { navController.navigate(Screen.AddKid.route) },
                     onContinueClick = { selectedIds ->
-                        val idsString = selectedIds.joinToString(",")
-                        navController.navigate("daily_schedule/$idsString")
+                        navController.navigate(Screen.DailySchedule.route(selectedIds))
                     },
                 )
             }
@@ -258,7 +275,7 @@ fun KidsScheduleApp(deepLinkIntent: Intent? = null) {
             }
 
             composable(
-                route = "daily_schedule/{kidIds}",
+                route = Screen.DailySchedule.route,
                 arguments = listOf(navArgument("kidIds") { type = NavType.StringType }),
             ) { backStackEntry ->
                 val idsString = backStackEntry.arguments?.getString("kidIds") ?: ""
@@ -272,7 +289,7 @@ fun KidsScheduleApp(deepLinkIntent: Intent? = null) {
                 DailyScheduleScreen(
                     selectedKidIds = selectedIds,
                     onEditActivityClick = { activity ->
-                        navController.navigate("edit_activity/${activity.id}")
+                        navController.navigate(Screen.EditActivity.route(activity.id))
                     },
                     onBackClick = { navController.popBackStack() },
                 )
@@ -287,7 +304,7 @@ fun KidsScheduleApp(deepLinkIntent: Intent? = null) {
                     // Resolve by editing the earlier of the two activities;
                     // shifting its times there clears the overlap.
                     onResolveClick = { conflict ->
-                        navController.navigate("edit_activity/${conflict.activity1.activity.id}")
+                        navController.navigate(Screen.EditActivity.route(conflict.activity1.activity.id))
                     },
                     onBackClick = { navController.popBackStack() },
                 )
@@ -304,7 +321,7 @@ fun KidsScheduleApp(deepLinkIntent: Intent? = null) {
             composable(Screen.KidsManagement.route) {
                 KidsManagementScreen(
                     onAddKidClick = { navController.navigate(Screen.AddKid.route) },
-                    onKidClick = { kid -> navController.navigate("kid_detail/${kid.id}") },
+                    onKidClick = { kid -> navController.navigate(Screen.KidDetail.route(kid.id)) },
                     onBackClick = { navController.popBackStack() },
                 )
             }
@@ -317,16 +334,16 @@ fun KidsScheduleApp(deepLinkIntent: Intent? = null) {
                 KidDetailScreen(
                     kidId = kidId,
                     onNavigateBack = { navController.popBackStack() },
-                    onEditKidClick = { navController.navigate("edit_kid/$kidId") },
+                    onEditKidClick = { navController.navigate(Screen.EditKid.route(kidId)) },
                     onActivityClick = { activityId ->
-                        navController.navigate("edit_activity/$activityId")
+                        navController.navigate(Screen.EditActivity.route(activityId))
                     },
-                    onAddActivityClick = { navController.navigate("add_activity?kidId=$kidId") },
+                    onAddActivityClick = { navController.navigate(Screen.AddActivity.route(kidId)) },
                 )
             }
 
             composable(
-                route = "edit_kid/{kidId}",
+                route = Screen.EditKid.route,
                 arguments = listOf(navArgument("kidId") { type = NavType.LongType }),
             ) { backStackEntry ->
                 val kidId = backStackEntry.arguments?.getLong("kidId") ?: return@composable
