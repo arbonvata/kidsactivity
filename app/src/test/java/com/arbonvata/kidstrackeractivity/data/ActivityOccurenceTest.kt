@@ -50,6 +50,34 @@ class ActivityOccurenceTest {
     }
 
     @Test
+    fun corruptTimeRowIsSkippedInsteadOfCrashingTheExpansion() {
+        // A hand-edited backup written before import validation existed can
+        // hold unparseable times; the row is skipped, the schedule survives.
+        val corrupt =
+            activity(intArrayOf(DayOfWeek.MONDAY.value), isPeriodic = true, firstDate = "2026-10-19")
+                .copy(startTime = "9:00")
+        val healthy =
+            activity(intArrayOf(DayOfWeek.MONDAY.value), isPeriodic = true, firstDate = "2026-10-19")
+                .copy(id = 2L, name = "Piano")
+
+        val occurrences =
+            expandActivitiesForDateRange(kids, listOf(corrupt, healthy), LocalDate.of(2026, 10, 19), LocalDate.of(2026, 10, 19))
+
+        assertEquals(listOf("Piano"), occurrences.map { it.activity.name })
+    }
+
+    @Test
+    fun corruptFirstDateHidesTheOneOffInsteadOfCrashing() {
+        // The one-off's week is unknowable, so the activity is hidden rather
+        // than every expanding screen crashing on the parse.
+        val corrupt = activity(intArrayOf(DayOfWeek.MONDAY.value), isPeriodic = false, firstDate = "not-a-date")
+
+        val occurrences = expandActivitiesForDateRange(kids, listOf(corrupt), LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 31))
+
+        assertTrue(occurrences.isEmpty())
+    }
+
+    @Test
     fun oneOffActivityOccursOnlyDuringItsCreationWeek() {
         val activity = activity(intArrayOf(DayOfWeek.MONDAY.value), isPeriodic = false, firstDate = "2026-10-19")
 

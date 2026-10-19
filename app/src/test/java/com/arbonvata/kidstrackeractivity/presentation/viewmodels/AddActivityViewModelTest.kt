@@ -153,6 +153,36 @@ class AddActivityViewModelTest {
         }
 
     @Test
+    fun saveActivityWithEndBeforeStartFlagsErrorAndSkipsRepository() =
+        runTest {
+            val viewModel = AddActivityViewModel(kidId = 5L, activityRepository, kidRepository)
+            viewModel.onNameChange("Football")
+            viewModel.onStartTimeChange(LocalTime.of(19, 0))
+            viewModel.onEndTimeChange(LocalTime.of(18, 0))
+
+            viewModel.saveActivity()
+
+            assertTrue(viewModel.uiState.value.timeError)
+            assertFalse(viewModel.uiState.value.isSaved)
+            coVerify(exactly = 0) { activityRepository.addActivity(any()) }
+        }
+
+    @Test
+    fun changingEitherTimeClearsTheTimeError() =
+        runTest {
+            val viewModel = AddActivityViewModel(kidId = 5L, activityRepository, kidRepository)
+            viewModel.onNameChange("Football")
+            viewModel.onStartTimeChange(LocalTime.of(19, 0))
+            viewModel.onEndTimeChange(LocalTime.of(18, 0))
+            viewModel.saveActivity()
+            assertTrue(viewModel.uiState.value.timeError)
+
+            viewModel.onEndTimeChange(LocalTime.of(20, 0))
+
+            assertFalse(viewModel.uiState.value.timeError)
+        }
+
+    @Test
     fun saveActivityInsertsFormattedActivityWithSortedDaysAndSignalsSaved() =
         runTest {
             val viewModel = AddActivityViewModel(kidId = 5L, activityRepository, kidRepository)

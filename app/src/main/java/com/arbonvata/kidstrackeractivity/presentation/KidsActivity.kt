@@ -412,6 +412,13 @@ fun AddActivityContent(
                     )
                 }
             }
+            if (uiState.timeError) {
+                Text(
+                    stringResource(R.string.add_activity_end_before_start_error),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
+                )
+            }
         }
     }
 

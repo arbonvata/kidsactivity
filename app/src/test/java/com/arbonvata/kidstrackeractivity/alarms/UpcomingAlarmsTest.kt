@@ -124,6 +124,26 @@ class UpcomingAlarmsTest {
     }
 
     @Test
+    fun invertedRangesProduceNoAlarms() {
+        // End at or before start (not representable — the form rejects it)
+        // must not produce a nonsense pickup or start reminder.
+        val invertedSchool = schoolActivity().copy(startTime = "15:00", endTime = "08:00")
+        val invertedFootball = footballActivity().copy(startTime = "18:30", endTime = "17:00")
+        val now = LocalDateTime.of(2026, 10, 19, 7, 0)
+
+        val alarms =
+            computeUpcomingAlarms(
+                kids,
+                listOf(invertedSchool, invertedFootball),
+                schoolAlarmMinutes = 10,
+                activityAlarmMinutes = 15,
+                now = now,
+            )
+
+        assertTrue(alarms.isEmpty())
+    }
+
+    @Test
     fun requestCodesAreStablePerAlarmAndUniquePerActivityAndDay() {
         val monday =
             ScheduledAlarm(

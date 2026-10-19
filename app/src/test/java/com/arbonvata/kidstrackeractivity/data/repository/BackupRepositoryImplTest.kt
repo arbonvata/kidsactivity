@@ -94,6 +94,35 @@ class BackupRepositoryImplTest {
         }
 
     @Test
+    fun importAllThrowsOnInvalidTimeStringBeforeOpeningTheTransaction() =
+        runTest {
+            // "9:00" is not ISO HH:mm; accepted here, it would crash every
+            // schedule expansion after the import "succeeded".
+            val json = validBackupJson.replace("\"startTime\": \"15:00\"", "\"startTime\": \"9:00\"")
+
+            assertInstanceOf(JSONException::class.java, assertImportThrows(json))
+            verify(exactly = 0) { store.runInTx(any()) }
+        }
+
+    @Test
+    fun importAllThrowsOnInvalidFirstDateBeforeOpeningTheTransaction() =
+        runTest {
+            val json = validBackupJson.replace("\"firstDate\": \"\"", "\"firstDate\": \"Oct 26\"")
+
+            assertInstanceOf(JSONException::class.java, assertImportThrows(json))
+            verify(exactly = 0) { store.runInTx(any()) }
+        }
+
+    @Test
+    fun importAllThrowsOnInvalidOverrideDateBeforeOpeningTheTransaction() =
+        runTest {
+            val json = validBackupJson.replace("\"date\": \"2026-10-26\"", "\"date\": \"26.10.2026\"")
+
+            assertInstanceOf(JSONException::class.java, assertImportThrows(json))
+            verify(exactly = 0) { store.runInTx(any()) }
+        }
+
+    @Test
     fun importAllReplacesEverythingAndRemapsKidIds() =
         runTest {
             val kidSlot = slot<Kid>()

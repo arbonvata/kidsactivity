@@ -11,7 +11,10 @@ import java.time.LocalDateTime
  * per occurrence: school activities remind [schoolAlarmMinutes] AFTER they
  * end (pickup; a school-day override shifts the effective end or removes the
  * day entirely), everything else [activityAlarmMinutes] BEFORE it starts.
- * Triggers already in the past are dropped. Pure function — unit tested.
+ * Triggers already in the past are dropped, as are inverted ranges
+ * (end <= start — overnight activities are not representable and the form
+ * now rejects them; this covers corrupt pre-existing rows). Pure function —
+ * unit tested.
  */
 fun computeUpcomingAlarms(
     kids: List<Kid>,
@@ -31,6 +34,7 @@ fun computeUpcomingAlarms(
             overrides = overrides,
         )
     return occurrences
+        .filter { it.endTime.isAfter(it.startTime) }
         .map { occurrence ->
             val activity = occurrence.activity
             if (activity.isSchoolActivity) {

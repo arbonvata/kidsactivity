@@ -52,14 +52,19 @@ fun expandActivitiesForDateRange(
             val active = activity.isEnabled || includeDisabled
             if (active && matchesDay && isWithinActivePeriod(activity, currentDate)) {
                 val kid = kidMap[activity.kidId]
+                // Corrupt time strings (a hand-edited backup, a row written
+                // before import validation existed) are skipped rather than
+                // crashing every screen that expands the schedule.
+                val startTime = parseTimeOrNull(activity.startTime) ?: continue
+                val endTime = parseTimeOrNull(effectiveEndTime(activity, override)) ?: continue
                 if (kid != null) {
                     occurrences.add(
                         ActivityOccurence(
                             activity = activity,
                             kidName = kid.name,
                             date = currentDate,
-                            startTime = LocalTime.parse(activity.startTime),
-                            endTime = effectiveEndTime(activity, override),
+                            startTime = startTime,
+                            endTime = endTime,
                         ),
                     )
                 }
@@ -72,17 +77,14 @@ fun expandActivitiesForDateRange(
     return occurrences.sortedWith(compareBy({ it.date }, { it.startTime }))
 }
 
+/** The override's end time replaces a school activity's stored one. */
 private fun effectiveEndTime(
     activity: Activity,
     override: DailySchedule?,
-): LocalTime {
-    val overriddenEnd =
-        override
-            ?.endTime
-            ?.takeIf { it.isNotEmpty() && activity.isSchoolActivity }
-            ?.let(LocalTime::parse)
-    return overriddenEnd ?: LocalTime.parse(activity.endTime)
-}
+): String = override?.endTime?.takeIf { it.isNotEmpty() && activity.isSchoolActivity } ?: activity.endTime
+
+/** Null when the stored string does not parse — see the skip in the loop above. */
+private fun parseTimeOrNull(value: String): LocalTime? = runCatching { LocalTime.parse(value) }.getOrNull()
 
 /**
  * Periodic activities recur on their weekdays indefinitely; one-offs are
@@ -99,6 +101,9 @@ private fun isWithinActivePeriod(
     date: LocalDate,
 ): Boolean {
     if (activity.isPeriodic || activity.isSchoolActivity) return true
-    val anchor = activity.firstDate?.takeIf { it.isNotEmpty() }?.let(LocalDate::parse) ?: return true
+    val anchorString = activity.firstDate?.takeIf { it.isNotEmpty() } ?: return true
+    // A corrupt anchor hides the one-off (its week is unknowable) instead of
+    // crashing; blank is the legacy unbounded case.
+    val anchor = runCatching { LocalDate.parse(anchorString) }.getOrNull() ?: return false
     return !date.isBefore(anchor) && date.isBefore(anchor.plusDays(7))
 }

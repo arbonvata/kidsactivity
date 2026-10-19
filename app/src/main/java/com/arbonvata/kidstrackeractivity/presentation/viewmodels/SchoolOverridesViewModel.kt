@@ -69,9 +69,13 @@ class SchoolOverridesViewModel(
                     if (effectiveId == null) {
                         emptyMap()
                     } else {
+                        // A corrupt stored date (e.g. a hand-edited backup)
+                        // is skipped rather than crashing the screen.
                         overrides
                             .filter { it.kidId == effectiveId }
-                            .associateBy { LocalDate.parse(it.date) }
+                            .mapNotNull { override ->
+                                runCatching { LocalDate.parse(override.date) }.getOrNull()?.let { it to override }
+                            }.toMap()
                     },
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), SchoolOverridesUiState())

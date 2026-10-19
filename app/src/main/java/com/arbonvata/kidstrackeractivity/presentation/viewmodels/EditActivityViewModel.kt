@@ -52,30 +52,15 @@ class EditActivityViewModel(
         viewModelScope.launch {
             val activity = activityRepository.getActivity(activityId)
             original = activity
-            if (activity == null) {
+            val form = activity?.let(::toForm)
+            if (activity == null || form == null) {
+                // Also reached for a corrupt row (unparseable time/date
+                // strings, e.g. from a hand-edited backup): the form cannot
+                // be filled, so it is treated like a missing activity — the
+                // row itself stays listed in Kid Detail for deletion.
                 _uiState.update { it.copy(isNotFound = true) }
             } else {
-                _uiState.update {
-                    it.copy(
-                        form =
-                            AddActivityUiState(
-                                selectedKidId = activity.kidId,
-                                name = activity.name,
-                                selectedDays = activity.daysOfWeek.toSet(),
-                                startTime = LocalTime.parse(activity.startTime),
-                                endTime = LocalTime.parse(activity.endTime),
-                                isPeriodic = activity.isPeriodic,
-                                isSchoolActivity = activity.isSchoolActivity,
-                                firstDate =
-                                    AddActivityViewModel.weekStartOf(
-                                        activity.firstDate
-                                            ?.takeIf { it.isNotBlank() }
-                                            ?.let(LocalDate::parse)
-                                            ?: LocalDate.now(),
-                                    ),
-                            ),
-                    )
-                }
+                _uiState.update { it.copy(form = form) }
             }
         }
     }
@@ -90,9 +75,9 @@ class EditActivityViewModel(
             )
         }
 
-    fun onStartTimeChange(time: LocalTime) = updateForm { it.copy(startTime = time) }
+    fun onStartTimeChange(time: LocalTime) = updateForm { it.copy(startTime = time, timeError = false) }
 
-    fun onEndTimeChange(time: LocalTime) = updateForm { it.copy(endTime = time) }
+    fun onEndTimeChange(time: LocalTime) = updateForm { it.copy(endTime = time, timeError = false) }
 
     fun onPeriodicChange(isPeriodic: Boolean) = updateForm { it.copy(isPeriodic = isPeriodic) }
 
@@ -110,9 +95,10 @@ class EditActivityViewModel(
         val original = original ?: return
         val nameError = form.name.isBlank()
         val daysError = form.selectedDays.isEmpty()
-        if (nameError || daysError) {
+        val timeError = form.hasInvertedTimeRange
+        if (nameError || daysError || timeError) {
             _uiState.update { state ->
-                state.copy(form = form.copy(nameError = nameError, daysError = daysError))
+                state.copy(form = form.copy(nameError = nameError, daysError = daysError, timeError = timeError))
             }
             return
         }
@@ -157,4 +143,25 @@ class EditActivityViewModel(
     private fun updateForm(transform: (AddActivityUiState) -> AddActivityUiState) {
         _uiState.update { state -> state.form?.let { state.copy(form = transform(it)) } ?: state }
     }
+
+    /** Null when the stored time/date strings do not parse (corrupt row). */
+    private fun toForm(activity: Activity): AddActivityUiState? =
+        runCatching {
+            AddActivityUiState(
+                selectedKidId = activity.kidId,
+                name = activity.name,
+                selectedDays = activity.daysOfWeek.toSet(),
+                startTime = LocalTime.parse(activity.startTime),
+                endTime = LocalTime.parse(activity.endTime),
+                isPeriodic = activity.isPeriodic,
+                isSchoolActivity = activity.isSchoolActivity,
+                firstDate =
+                    AddActivityViewModel.weekStartOf(
+                        activity.firstDate
+                            ?.takeIf { it.isNotBlank() }
+                            ?.let(LocalDate::parse)
+                            ?: LocalDate.now(),
+                    ),
+            )
+        }.getOrNull()
 }

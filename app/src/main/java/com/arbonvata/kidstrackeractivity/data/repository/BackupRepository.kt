@@ -10,6 +10,8 @@ import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
+import java.time.LocalDate
+import java.time.LocalTime
 
 /**
  * Exports the whole database to a JSON document and restores it (spec 2.4).
@@ -25,9 +27,11 @@ interface BackupRepository {
      * the database is wiped first; either way the whole import runs in one
      * transaction and takes effect completely or not at all. Throws
      * JSONException on malformed input, including documents missing the
-     * kids/activities/overrides arrays, an array of the wrong type, or a
-     * version newer than this app understands — all before any data is
-     * touched, so an incomplete document cannot wipe the database.
+     * kids/activities/overrides arrays, an array of the wrong type, a
+     * version newer than this app understands, or a row with an invalid
+     * time/date string — all before any data is touched, so an incomplete or
+     * corrupt document cannot wipe the database (or crash every schedule
+     * expansion after a "successful" import).
      */
     suspend fun importAll(
         json: String,
@@ -80,6 +84,17 @@ class BackupRepositoryImpl(
                 throw JSONException("Unsupported backup version $version (this app understands $FORMAT_VERSION)")
             }
 
+            // Every row is parsed and validated BEFORE the transaction opens:
+            // times and dates are stored as strings, and a malformed one
+            // must be rejected here rather than crashing every screen that
+            // expands the schedule after the import "succeeded".
+            val parsedKids = (0 until kids.length()).map { parseKid(kids.getJSONObject(it)) }
+            val parsedActivities = (0 until activities.length()).map { parseActivity(activities.getJSONObject(it)) }
+            val parsedOverrides =
+                (0 until overrides.length())
+                    .map { parseOverride(overrides.getJSONObject(it)) }
+                    .filterNotNull()
+
             store.runInTx {
                 if (replaceExisting) {
                     scheduleBox.removeAll()
@@ -88,58 +103,141 @@ class BackupRepositoryImpl(
                 }
 
                 val kidIdMap = mutableMapOf<Long, Long>()
-                for (i in 0 until kids.length()) {
-                    val kidJson = kids.getJSONObject(i)
-                    val oldId = kidJson.optLong("id")
+                parsedKids.forEach { parsed ->
                     val newId =
                         kidBox.put(
                             Kid(
-                                name = kidJson.optString("name"),
-                                schoolName = kidJson.optString("schoolName"),
+                                name = parsed.name,
+                                schoolName = parsed.schoolName,
                             ),
                         )
-                    if (oldId != 0L) kidIdMap[oldId] = newId
+                    if (parsed.oldId != 0L) kidIdMap[parsed.oldId] = newId
                 }
 
-                for (i in 0 until activities.length()) {
-                    val activityJson = activities.getJSONObject(i)
-                    val kidId = kidIdMap[activityJson.optLong("kidId")] ?: continue
-                    val days = activityJson.optJSONArray("daysOfWeek")
+                parsedActivities.forEach { parsed ->
+                    val kidId = kidIdMap[parsed.kidId] ?: return@forEach
                     activityBox.put(
                         Activity(
                             kidId = kidId,
-                            name = activityJson.optString("name"),
-                            startTime = activityJson.optString("startTime"),
-                            endTime = activityJson.optString("endTime"),
-                            isEnabled = activityJson.optBoolean("isEnabled", true),
-                            daysOfWeek = days?.let { IntArray(days.length()) { days.optInt(it) } } ?: intArrayOf(),
-                            isPeriodic = activityJson.optBoolean("isPeriodic", true),
-                            isSchoolActivity = activityJson.optBoolean("isSchoolActivity"),
-                            firstDate = activityJson.optString("firstDate"),
+                            name = parsed.name,
+                            startTime = parsed.startTime,
+                            endTime = parsed.endTime,
+                            isEnabled = parsed.isEnabled,
+                            daysOfWeek = parsed.daysOfWeek,
+                            isPeriodic = parsed.isPeriodic,
+                            isSchoolActivity = parsed.isSchoolActivity,
+                            firstDate = parsed.firstDate,
                         ),
                     )
                 }
 
-                for (i in 0 until overrides.length()) {
-                    val overrideJson = overrides.getJSONObject(i)
-                    val kidId = kidIdMap[overrideJson.optLong("kidId")] ?: continue
-                    val endTime = overrideJson.optString("endTime").ifEmpty { null }
-                    val isNoSchool = overrideJson.optBoolean("isNoSchool")
-                    // Meaningless overrides are skipped, matching
-                    // ScheduleOverrideRepository.setOverride.
-                    if (endTime == null && !isNoSchool) continue
+                parsedOverrides.forEach { parsed ->
+                    val kidId = kidIdMap[parsed.kidId] ?: return@forEach
                     scheduleBox.put(
                         DailySchedule(
                             kidId = kidId,
-                            date = overrideJson.optString("date"),
-                            endTime = endTime ?: "",
-                            isNoSchool = isNoSchool,
+                            date = parsed.date,
+                            endTime = parsed.endTime ?: "",
+                            isNoSchool = parsed.isNoSchool,
                         ),
                     )
                 }
             }
         }
     }
+
+    private data class ParsedKid(
+        val oldId: Long,
+        val name: String,
+        val schoolName: String,
+    )
+
+    private data class ParsedActivity(
+        val kidId: Long,
+        val name: String,
+        val startTime: String,
+        val endTime: String,
+        val isEnabled: Boolean,
+        val daysOfWeek: IntArray,
+        val isPeriodic: Boolean,
+        val isSchoolActivity: Boolean,
+        val firstDate: String,
+    )
+
+    private data class ParsedOverride(
+        val kidId: Long,
+        val date: String,
+        /** Null when blank — the override then only matters for isNoSchool. */
+        val endTime: String?,
+        val isNoSchool: Boolean,
+    )
+
+    private fun parseKid(json: JSONObject): ParsedKid =
+        ParsedKid(
+            oldId = json.optLong("id"),
+            name = json.optString("name"),
+            schoolName = json.optString("schoolName"),
+        )
+
+    private fun parseActivity(json: JSONObject): ParsedActivity =
+        ParsedActivity(
+            kidId = json.optLong("kidId"),
+            name = json.optString("name"),
+            startTime = requireTime(json.optString("startTime"), "activity startTime"),
+            endTime = requireTime(json.optString("endTime"), "activity endTime"),
+            isEnabled = json.optBoolean("isEnabled", true),
+            daysOfWeek =
+                json.optJSONArray("daysOfWeek")?.let { days ->
+                    IntArray(days.length()) { days.optInt(it) }
+                } ?: intArrayOf(),
+            isPeriodic = json.optBoolean("isPeriodic", true),
+            isSchoolActivity = json.optBoolean("isSchoolActivity"),
+            firstDate = requireOptionalDate(json.optString("firstDate"), "activity firstDate"),
+        )
+
+    /**
+     * Null for a meaningless override (neither a custom end nor No School),
+     * matching ScheduleOverrideRepository.setOverride's delete.
+     */
+    private fun parseOverride(json: JSONObject): ParsedOverride? {
+        val endTime =
+            json.optString("endTime").ifEmpty { null }?.let {
+                requireTime(it, "override endTime")
+            }
+        val isNoSchool = json.optBoolean("isNoSchool")
+        if (endTime == null && !isNoSchool) return null
+        return ParsedOverride(
+            kidId = json.optLong("kidId"),
+            date = requireDate(json.optString("date"), "override date"),
+            endTime = endTime,
+            isNoSchool = isNoSchool,
+        )
+    }
+
+    private fun requireTime(
+        value: String,
+        field: String,
+    ): String {
+        runCatching { LocalTime.parse(value) }.getOrElse {
+            throw JSONException("Invalid $field: \"$value\" (expected HH:mm)")
+        }
+        return value
+    }
+
+    private fun requireDate(
+        value: String,
+        field: String,
+    ): String {
+        runCatching { LocalDate.parse(value) }.getOrElse {
+            throw JSONException("Invalid $field: \"$value\" (expected ISO date)")
+        }
+        return value
+    }
+
+    private fun requireOptionalDate(
+        value: String,
+        field: String,
+    ): String = if (value.isEmpty()) value else requireDate(value, field)
 
     private fun kidToJson(kid: Kid): JSONObject =
         JSONObject()

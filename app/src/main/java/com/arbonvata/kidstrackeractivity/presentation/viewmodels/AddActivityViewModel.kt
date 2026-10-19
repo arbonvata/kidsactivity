@@ -33,9 +33,13 @@ data class AddActivityUiState(
     val firstDate: LocalDate = LocalDate.now(),
     val nameError: Boolean = false,
     val daysError: Boolean = false,
+    val timeError: Boolean = false,
     val isSaving: Boolean = false,
     val isSaved: Boolean = false,
-)
+) {
+    /** Inverted or zero-length ranges are not representable (no overnight activities). */
+    val hasInvertedTimeRange: Boolean get() = !endTime.isAfter(startTime)
+}
 
 /**
  * Form state and validation for the "Add Activity" screen. When opened with
@@ -82,11 +86,11 @@ class AddActivityViewModel(
     }
 
     fun onStartTimeChange(time: LocalTime) {
-        _uiState.update { it.copy(startTime = time) }
+        _uiState.update { it.copy(startTime = time, timeError = false) }
     }
 
     fun onEndTimeChange(time: LocalTime) {
-        _uiState.update { it.copy(endTime = time) }
+        _uiState.update { it.copy(endTime = time, timeError = false) }
     }
 
     fun onPeriodicChange(isPeriodic: Boolean) {
@@ -112,8 +116,9 @@ class AddActivityViewModel(
         val trimmedName = state.name.trim()
         val nameError = !isValidName(state.name)
         val daysError = state.selectedDays.isEmpty()
-        if (nameError || daysError || state.selectedKidId == 0L) {
-            _uiState.update { it.copy(nameError = nameError, daysError = daysError) }
+        val timeError = state.hasInvertedTimeRange
+        if (nameError || daysError || timeError || state.selectedKidId == 0L) {
+            _uiState.update { it.copy(nameError = nameError, daysError = daysError, timeError = timeError) }
             return
         }
 

@@ -75,6 +75,36 @@ class EditActivityViewModelTest {
         }
 
     @Test
+    fun saveActivityWithEndBeforeStartFlagsErrorAndSkipsRepository() =
+        runTest {
+            coEvery { activityRepository.getActivity(5L) } returns storedActivity()
+            val viewModel = EditActivityViewModel(5L, activityRepository, kidRepository)
+            viewModel.onStartTimeChange(LocalTime.of(19, 0))
+            viewModel.onEndTimeChange(LocalTime.of(18, 0))
+
+            viewModel.saveActivity()
+
+            assertTrue(
+                viewModel.uiState.value.form
+                    ?.timeError == true,
+            )
+            assertFalse(viewModel.uiState.value.isSaved)
+            coVerify(exactly = 0) { activityRepository.updateActivity(any()) }
+        }
+
+    @Test
+    fun corruptStoredTimesLoadAsNotFound() =
+        runTest {
+            // "9:00" does not parse; the form cannot be filled, so the row is
+            // treated like a missing activity (it stays listed for deletion).
+            coEvery { activityRepository.getActivity(5L) } returns storedActivity().copy(startTime = "9:00")
+
+            val viewModel = EditActivityViewModel(5L, activityRepository, kidRepository)
+
+            assertTrue(viewModel.uiState.value.isNotFound)
+        }
+
+    @Test
     fun missingActivitySetsNotFound() =
         runTest {
             coEvery { activityRepository.getActivity(9L) } returns null
