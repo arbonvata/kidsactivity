@@ -22,7 +22,6 @@ fun computeUpcomingAlarms(
     horizonDays: Int = 7,
     overrides: List<DailySchedule> = emptyList(),
 ): List<ScheduledAlarm> {
-    val kidNames = kids.associate { it.id to it.name }
     val occurrences =
         expandActivitiesForDateRange(
             kids,
@@ -32,24 +31,23 @@ fun computeUpcomingAlarms(
             overrides = overrides,
         )
     return occurrences
-        .mapNotNull { occurrence ->
+        .map { occurrence ->
             val activity = occurrence.activity
-            val kidName = kidNames[activity.kidId] ?: return@mapNotNull null
             if (activity.isSchoolActivity) {
                 ScheduledAlarm(
                     activityId = activity.id,
                     kidId = activity.kidId,
                     triggerAt = occurrence.date.atTime(occurrence.endTime).plusMinutes(schoolAlarmMinutes.toLong()),
-                    title = "School pickup",
-                    text = "$kidName: ${activity.name} ended $schoolAlarmMinutes min ago",
+                    isSchoolActivity = true,
+                    offsetMinutes = schoolAlarmMinutes,
                 )
             } else {
                 ScheduledAlarm(
                     activityId = activity.id,
                     kidId = activity.kidId,
                     triggerAt = occurrence.date.atTime(occurrence.startTime).minusMinutes(activityAlarmMinutes.toLong()),
-                    title = "Activity reminder",
-                    text = "$kidName: ${activity.name} starts in $activityAlarmMinutes min",
+                    isSchoolActivity = false,
+                    offsetMinutes = activityAlarmMinutes,
                 )
             }
         }.filter { it.triggerAt.isAfter(now) }

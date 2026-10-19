@@ -43,8 +43,8 @@ class UpcomingAlarmsTest {
         val alarms = computeUpcomingAlarms(kids, listOf(schoolActivity()), schoolAlarmMinutes = 10, activityAlarmMinutes = 15, now = now)
 
         assertEquals(listOf(LocalDateTime.of(2026, 10, 19, 14, 10)), alarms.map { it.triggerAt })
-        assertEquals("School pickup", alarms.single().title)
-        assertEquals("Leo: School ended 10 min ago", alarms.single().text)
+        assertTrue(alarms.single().isSchoolActivity)
+        assertEquals(10, alarms.single().offsetMinutes)
     }
 
     @Test
@@ -54,8 +54,8 @@ class UpcomingAlarmsTest {
         val alarms = computeUpcomingAlarms(kids, listOf(footballActivity()), schoolAlarmMinutes = 10, activityAlarmMinutes = 15, now = now)
 
         assertEquals(listOf(LocalDateTime.of(2026, 10, 19, 16, 45)), alarms.map { it.triggerAt })
-        assertEquals("Activity reminder", alarms.single().title)
-        assertEquals("Leo: Football starts in 15 min", alarms.single().text)
+        assertTrue(!alarms.single().isSchoolActivity)
+        assertEquals(15, alarms.single().offsetMinutes)
     }
 
     @Test
@@ -126,11 +126,17 @@ class UpcomingAlarmsTest {
     @Test
     fun requestCodesAreStablePerAlarmAndUniquePerActivityAndDay() {
         val monday =
-            ScheduledAlarm(activityId = 5L, kidId = 1L, triggerAt = LocalDateTime.of(2026, 10, 19, 14, 10), title = "t", text = "x")
+            ScheduledAlarm(
+                activityId = 5L,
+                kidId = 1L,
+                triggerAt = LocalDateTime.of(2026, 10, 19, 14, 10),
+                isSchoolActivity = true,
+                offsetMinutes = 10,
+            )
         val nextMonday = monday.copy(triggerAt = LocalDateTime.of(2026, 10, 26, 14, 10))
         val otherActivity = monday.copy(activityId = 6L)
 
-        assertEquals(monday.requestCode, monday.copy(title = "changed").requestCode)
+        assertEquals(monday.requestCode, monday.copy(offsetMinutes = 20).requestCode)
         assertEquals(3, setOf(monday.requestCode, nextMonday.requestCode, otherActivity.requestCode).size)
     }
 

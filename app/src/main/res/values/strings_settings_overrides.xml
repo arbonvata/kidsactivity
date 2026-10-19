@@ -84,4 +84,10 @@
     <!-- Notification channel -->
     <string name="notification_channel_name">Activity reminders</string>
     <string name="notification_channel_description">Reminders before activities start and after school ends</string>
+
+    <!-- Reminder notifications, formatted at fire time (AlarmReceiver) -->
+    <string name="notification_alarm_school_title">School pickup</string>
+    <string name="notification_alarm_school_text_format">%1$s: %2$s ended %3$d min ago</string>
+    <string name="notification_alarm_activity_title">Activity reminder</string>
+    <string name="notification_alarm_activity_text_format">%1$s: %2$s starts in %3$d min</string>
 </resources>
