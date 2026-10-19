@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Application name displayed on the launcher home screen and app management settings -->
+    <string name="app_name">Actividad del localizador para niños</string>
+    <!-- Navigation Bar: Bottom tab label for the Today / Dashboard view -->
+    <string name="tab_today">Hoy</string>
+    <!-- Navigation Bar: Bottom tab label for the Week schedule view -->
+    <string name="tab_week">Semana</string>
+    <!-- Navigation Bar: Bottom tab label for the Month schedule view -->
+    <string name="tab_month">Mes</string>
+    <!-- Navigation Bar: Bottom tab label for the More / Settings / Tools view -->
+    <string name="tab_more">Más</string>
+    <!-- Top App Bar Title: Settings screen -->
+    <string name="screen_title_settings">Configuración</string>
+    <!-- Top App Bar Title: Form to add a new activity -->
+    <string name="screen_title_add_activity">Añadir actividad</string>
+    <!-- Top App Bar Title: Form to edit an existing activity -->
+    <string name="screen_title_edit_activity">Editar actividad</string>
+    <!-- Top App Bar Title: Screen to pick kids for multi-kid filtering or daily schedule -->
+    <string name="screen_title_kid_selection">Seleccionar «Niños»</string>
+    <!-- Top App Bar Title: Form to register a new kid -->
+    <string name="screen_title_add_kid">Añadir un niño</string>
+    <!-- Top App Bar Title: Single-day schedule view for selected kids -->
+    <string name="screen_title_daily_schedule">Horario diario</string>
+    <!-- Top App Bar Title: Overview and activity list for a specific kid -->
+    <string name="screen_title_kid_detail">Datos del niño</string>
+    <!-- Top App Bar Title: Screen to manage school holidays and early release times -->
+    <string name="screen_title_school_overrides">Excepciones escolares</string>
+    <!-- Top App Bar Title: Screen showing detected activity schedule overlaps -->
+    <string name="screen_title_conflicts">Conflictos</string>
+    <!-- Top App Bar Title: Data backup, restore, and sharing screen -->
+    <string name="screen_title_share">Compartir</string>
+    <!-- Top App Bar Title: List of registered kids -->
+    <string name="screen_title_kids_management">Niños</string>
+    <!-- Top App Bar Title: About / app information screen -->
+    <string name="screen_title_about">Acerca de</string>
+    <!-- About Screen: Navigation bar back button accessibility label -->
+    <string name="about_back">Atrás</string>
+    <!-- About Screen: App version label. %1$s = version name (e.g. "1.0") -->
+    <string name="about_version_format">Versión %1$s</string>
+    <!-- About Screen: Short slogan explaining the core purpose of the app -->
+    <string name="about_tagline">Horarios escolares y de actividades con recordatorios para ir a recoger a tus hijos, todo en un solo sitio.</string>
+    <!-- About Screen: Section header for key app feature highlights -->
+    <string name="about_section_highlights">Aspectos destacados</string>
+    <!-- About Screen: Bullet point describing the schedule view options -->
+    <string name="about_feature_views">Vistas del calendario de hoy, de la semana, del mes y por días</string>
+    <!-- About Screen: Bullet point describing the school pickup reminder feature -->
+    <string name="about_feature_school">Las actividades escolares te avisan cuando termina la jornada escolar: hora de recogida</string>
+    <!-- About Screen: Bullet point describing custom school end times and holidays -->
+    <string name="about_feature_overrides">Días sin clase y horarios de salida escolares personalizados</string>
+    <!-- About Screen: Bullet point describing schedule overlap / conflict detection -->
+    <string name="about_feature_conflicts">Detección de solapamientos durante los próximos 30 días</string>
+    <!-- About Screen: Bullet point describing data export / backup capabilities -->
+    <string name="about_feature_backup">Copia de seguridad, restauración y uso compartido de archivos JSON</string>
+</resources>

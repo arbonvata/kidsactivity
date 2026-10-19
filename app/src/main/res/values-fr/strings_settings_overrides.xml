@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Settings Screen: Screen header title -->
+    <string name="settings_title">Paramètres</string>
+    <!-- Settings Screen: Navigation back button label -->
+    <string name="settings_back">Retour</string>
+    <!-- Settings Screen: Section title for system permissions -->
+    <string name="settings_section_permissions">Autorisations</string>
+    <!-- Settings Screen: Permission row title for exact alarm authorization -->
+    <string name="settings_exact_alarms_title">Alarmes Exact</string>
+    <!-- Settings Screen: Permission row description explaining why exact alarms are needed -->
+    <string name="settings_exact_alarms_subtitle">Indispensable pour une synchronisation précise</string>
+    <!-- Settings Screen: Permission row title for notification authorization -->
+    <string name="settings_notifications_title">Notifications</string>
+    <!-- Settings Screen: Permission row description explaining notification alerts -->
+    <string name="settings_notifications_subtitle">Afficher les rappels</string>
+    <!-- Settings Screen: Permission row title for battery optimization exemption -->
+    <string name="settings_battery_optimization_title">Optimisation de la batterie</string>
+    <!-- Settings Screen: Permission row description explaining battery optimization delays -->
+    <string name="settings_battery_optimization_subtitle">Désactiver pour éviter les retards</string>
+    <!-- Settings Screen: Status badge indicating a permission is active -->
+    <string name="settings_permission_granted">D\'accord</string>
+    <!-- Settings Screen: Action button text to prompt user to grant permission -->
+    <string name="settings_permission_grant">Subvention</string>
+    <!-- Settings Screen: Warning banner summary shown when permissions are missing -->
+    <string name="settings_permissions_blocked_summary">Les rappels ne se déclencheront pas tant que les autorisations requises n\'auront pas été accordées.</string>
+    <!-- Settings Screen: Section header for reminder trigger timing sliders -->
+    <string name="settings_section_alarm_timing">Durée de l\'alarme</string>
+    <!-- Settings Screen: Title of slider adjusting post-school pickup alarm offset -->
+    <string name="settings_school_end_reminder_title">Rappel concernant la fin de l\'année scolaire</string>
+    <!-- Settings Screen: Unit suffix for school end slider (e.g. "10 min after") -->
+    <string name="settings_suffix_min_after">min après</string>
+    <!-- Settings Screen: Title of slider adjusting pre-activity reminder offset -->
+    <string name="settings_activity_reminder_title">Rappel d\'activité</string>
+    <!-- Settings Screen: Unit suffix for activity reminder slider (e.g. "15 min before") -->
+    <string name="settings_suffix_min_before">min avant</string>
+    <!-- Settings Screen: Readout showing slider numerical value and suffix. %1$d = minute value, %2$s = suffix text -->
+    <string name="settings_slider_value">%1$d %2$s</string>
+    <!-- Settings Screen: Section header for data management options -->
+    <string name="settings_section_data">Données</string>
+    <!-- Settings Screen: Option title to export database backup -->
+    <string name="settings_backup_data_title">Sauvegarde des données</string>
+    <!-- Settings Screen: Option subtitle describing JSON backup export -->
+    <string name="settings_backup_data_subtitle">Exporter vers un fichier</string>
+    <!-- Settings Screen: Option title to import database backup -->
+    <string name="settings_restore_data_title">Restaurer les données</string>
+    <!-- Settings Screen: Option subtitle describing JSON backup import -->
+    <string name="settings_restore_data_subtitle">Importer à partir d\'une sauvegarde</string>
+    <!-- Backup & Share Screen: Header title for screen -->
+    <string name="share_title">Sauvegarder et partager</string>
+    <!-- Backup & Share Screen: Navigation back button label -->
+    <string name="share_back">Retour</string>
+    <!-- Backup & Share Screen: Section card main title -->
+    <string name="share_header_title">Sauvegardez vos plannings</string>
+    <!-- Backup & Share Screen: Section card explanatory description -->
+    <string name="share_header_subtitle">Enregistrez ou partagez l\'intégralité de la base de données sous forme de fichier JSON, puis restaurez-la sur cet appareil ou sur un autre.</string>
+    <!-- Backup & Share Screen: Section header for backup operations -->
+    <string name="share_section_backup">Sauvegarde</string>
+    <!-- Backup & Share Screen: Button title to save backup to storage -->
+    <string name="share_save_to_file_title">Enregistrer dans un fichier</string>
+    <!-- Backup & Share Screen: Subtitle for file saving action -->
+    <string name="share_save_to_file_subtitle">Choisissez l\'emplacement où enregistrer la sauvegarde JSON</string>
+    <!-- Backup & Share Screen: Button title to send backup file via system share sheet -->
+    <string name="share_share_backup_title">Partager la sauvegarde</string>
+    <!-- Backup & Share Screen: Subtitle for sharing action -->
+    <string name="share_share_backup_subtitle">Envoyez le fichier JSON via WhatsApp, par e-mail, etc.</string>
+    <!-- Backup & Share Screen: Section header for restore operations -->
+    <string name="share_section_restore">Restaurer</string>
+    <!-- Backup & Share Screen: Button title to import a JSON backup file -->
+    <string name="share_restore_from_file_title">Restaurer à partir d\'un fichier</string>
+    <!-- Backup & Share Screen: Subtitle explaining merge vs replace restore modes -->
+    <string name="share_restore_from_file_subtitle">Importer une sauvegarde — fusionner avec les données actuelles ou les remplacer</string>
+    <!-- Backup & Share Screen: Loading message displayed while importing backup -->
+    <string name="share_restoring">Restauration en cours…</string>
+    <!-- Backup & Share Screen: Default subject text when sharing backup file via email -->
+    <string name="share_backup_subject">Sauvegarde de l\'application « Kids Activity Tracker »</string>
+    <!-- Backup & Share Screen: System share sheet chooser title -->
+    <string name="share_backup_chooser_title">Partager la sauvegarde</string>
+    <!-- Restore Dialog: Title asking user to choose import strategy -->
+    <string name="share_restore_backup_title">Restaurer la sauvegarde</string>
+    <!-- Restore Dialog: Message explaining Merge (append) vs Replace (wipe and reload) -->
+    <string name="share_restore_backup_message">L\'option « Fusionner » ajoute les enfants et les activités de la sauvegarde à cet appareil. L\'option « Remplacer » efface d\'abord les données actuelles.</string>
+    <!-- Restore Dialog: Button action to wipe existing data and import backup -->
+    <string name="share_replace">Remplacer</string>
+    <!-- Restore Dialog: Button action to append backup entries to existing data -->
+    <string name="share_merge">Fusionner</string>
+    <!-- Restore Result Dialog: Title when import succeeds -->
+    <string name="share_restore_complete_title">Restauration terminée</string>
+    <!-- Restore Result Dialog: Title when import fails -->
+    <string name="share_restore_failed_title">Échec de la restauration</string>
+    <string name="share_restore_failed_message">Échec de la restauration — ce fichier de sauvegarde est-il valide ?</string>
+    <!-- Restore Result Dialog: Success message confirming data import -->
+    <string name="share_restore_complete_message">Les dérogations concernant les enfants, les activités et les jours d\'école ont été rétablies.</string>
+    <!-- Restore Result Dialog: Acknowledgment button -->
+    <string name="share_ok">OK</string>
+    <!-- School Overrides Screen: Navigation back button label -->
+    <string name="school_override_back">Retour</string>
+    <!-- School Overrides Screen: Empty state text when no kids exist in database -->
+    <string name="school_override_empty_state">Ajoutez un enfant pour commencer !</string>
+    <!-- School Overrides Screen: Header showing selected kid\'s name. %1$s = kid\'s name -->
+    <string name="school_override_title">Emploi du temps scolaire de %1$s</string>
+    <!-- School Overrides Editor: Checkbox label designating a holiday / no-school day -->
+    <string name="school_override_no_school_label">Il n\'y a pas d\'école ce jour-là</string>
+    <!-- School Overrides Editor: Time selector button label. %1$s = formatted custom end time -->
+    <string name="school_override_school_ends">Fin des cours : %1$s</string>
+    <!-- School Overrides Editor: Label indicating standard school end time -->
+    <string name="school_override_usual_time">à l\'heure habituelle</string>
+    <!-- School Overrides Editor: Instruction text on how to clear an override -->
+    <string name="school_override_remove_hint">Décochez toutes les cases et enregistrez pour supprimer la modification.</string>
+    <!-- School Overrides Editor: Warning text when override date falls on a weekday without school activities -->
+    <string name="school_override_no_activity_weekday_hint">Il n\'y a pas d\'activité scolaire ce jour-là — la mention ne s\'affiche qu\'une fois qu\'une activité a été ajoutée.</string>
+    <!-- School Overrides Editor: Save button text -->
+    <string name="school_override_save">Enregistrer</string>
+    <!-- School Overrides Editor: Cancel button text -->
+    <string name="school_override_cancel">Annuler</string>
+    <!-- School Overrides Calendar: Month navigation previous button label -->
+    <string name="school_override_previous_month">Précédent</string>
+    <!-- School Overrides Calendar: Month navigation next button label -->
+    <string name="school_override_next_month">Suivant</string>
+    <!-- School Overrides Legend: Badge label for early release school day -->
+    <string name="school_override_type_early_release">Sortie anticipée</string>
+    <!-- School Overrides Legend: Badge label for holiday / no-school day -->
+    <string name="school_override_type_no_school">Pas d\'école</string>
+    <!-- School Overrides Legend: Badge label for custom schedule -->
+    <string name="school_override_type_custom">Personnalisé</string>
+    <!-- School Overrides Row: Subtitle format for custom end time. %1$s = time (e.g. "12:30") -->
+    <string name="school_override_type_custom_with_time">Personnalisé · se termine par %1$s</string>
+    <!-- School Overrides Calendar: Explanatory note for dimmed calendar markings -->
+    <string name="school_override_dimmed_marks_hint">Marques en gris : aucune activité scolaire n\'est prévue ce jour-là (à conserver à des fins de planification).</string>
+    <!-- Calendar Header: Single letter abbreviation for Monday -->
+    <string name="school_override_weekday_monday">M</string>
+    <!-- Calendar Header: Single letter abbreviation for Tuesday -->
+    <string name="school_override_weekday_tuesday">T</string>
+    <!-- Calendar Header: Single letter abbreviation for Wednesday -->
+    <string name="school_override_weekday_wednesday">W</string>
+    <!-- Calendar Header: Single letter abbreviation for Thursday -->
+    <string name="school_override_weekday_thursday">T</string>
+    <!-- Calendar Header: Single letter abbreviation for Friday -->
+    <string name="school_override_weekday_friday">F</string>
+    <!-- Calendar Header: Single letter abbreviation for Saturday -->
+    <string name="school_override_weekday_saturday">S</string>
+    <!-- Calendar Header: Single letter abbreviation for Sunday -->
+    <string name="school_override_weekday_sunday">S</string>
+    <!-- School Overrides List: Row entry format. %1$s = date, %2$s = override type -->
+    <string name="school_override_summary_entry">%1$s : %2$s</string>
+    <!-- School Overrides Summary: Monthly count of special school days. %1$d = count -->
+    <plurals name="school_override_month_summary">
+        <item quantity="one">%1$d, une journée spéciale</item>
+        <item quantity="other">%1$d jours spéciaux</item>
+        <item quantity="many">%1$d jours spéciaux</item>
+    </plurals>
+    <!-- System Notifications: Name of notification channel displayed in Android system settings -->
+    <string name="notification_channel_name">Rappels d\'activités</string>
+    <!-- System Notifications: Description of notification channel displayed in Android system settings -->
+    <string name="notification_channel_description">Rappels avant le début des activités et après la fin des cours</string>
+
+    <!-- Reminder notifications, formatted at fire time (AlarmReceiver) -->
+    <string name="notification_alarm_school_title">Sortie d\'école</string>
+    <string name="notification_alarm_school_text_format">%1$s : %2$s s\'est terminé il y a %3$d min</string>
+    <string name="notification_alarm_activity_title">Rappel d\'activité</string>
+    <string name="notification_alarm_activity_text_format">%1$s : %2$s commence dans %3$d min</string>
+</resources>

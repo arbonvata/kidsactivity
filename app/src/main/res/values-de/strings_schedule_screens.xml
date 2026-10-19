@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dashboard: Header greeting shown when no kids have been added yet -->
+    <string name="welcome_title">Herzlich willkommen!</string>
+    <!-- Dashboard: Subtitle message encouraging the user to add their first kid -->
+    <string name="welcome_add_first_kid_message">Füge dein erstes Kind hinzu, um dessen Schulbesuch und Aktivitäten zu verfolgen.</string>
+    <!-- Dashboard: Button text in empty state to add a new kid -->
+    <string name="welcome_add_kid">Kind hinzufügen</string>
+    <!-- Dashboard: Main header title for the Today view -->
+    <string name="dashboard_title">Heute</string>
+    <!-- Dashboard: Accessibility text for the Settings icon button -->
+    <string name="dashboard_settings">Einstellungen</string>
+    <!-- Dashboard: Floating Action Button label to create a new activity -->
+    <string name="dashboard_add_activity">Aktivität hinzufügen</string>
+    <!-- Dashboard: Title of card showing next upcoming event. %1$s = activity name (e.g. "Football") -->
+    <string name="dashboard_up_next_format">Als Nächstes: %1$s</string>
+    <!-- Dashboard: Subtitle on upcoming event card. %1$s = kid's name, %2$d = minutes until trigger -->
+    <string name="dashboard_up_next_details_format">Für %1$s • in %2$d Minuten</string>
+    <!-- Dashboard: Header above today's activity timeline list -->
+    <string name="dashboard_today_schedule">Das heutige Programm</string>
+    <!-- Dashboard: Empty state message when there are no activities scheduled for today -->
+    <string name="today_no_activities">🎉 Heute finden keine Aktivitäten statt!</string>
+    <!-- Dashboard: Badge text indicating reminder alarms are muted for an activity -->
+    <string name="dashboard_alarms_disabled">Alarme deaktiviert</string>
+    <!-- Dashboard: Text button navigating from Today view to the full Week tab -->
+    <string name="dashboard_view_full_week">Gesamte Woche anzeigen</string>
+    <!-- Dashboard: Title on top warning banner when exact alarm or notification permissions are missing -->
+    <string name="dashboard_permissions_banner_title">Erinnerungen sind deaktiviert</string>
+    <!-- Dashboard: Subtitle on warning banner prompting user to grant missing permissions -->
+    <string name="dashboard_permissions_banner_message">Die erforderlichen Berechtigungen fehlen – tippe hier, um sie zu erteilen</string>
+    <!-- Dashboard: Accessibility action text to dismiss the permissions warning banner -->
+    <string name="dashboard_permissions_banner_dismiss">Erinnerungswarnungen schließen</string>
+    <!-- Reminder Prompt Dialog: Title asking user permission to configure reminder notifications -->
+    <string name="reminder_prompt_title">Erinnerungen zulassen?</string>
+    <!-- Reminder Prompt Dialog: Detailed message explaining required permissions (notifications, exact alarms, battery optimization) -->
+    <string name="reminder_prompt_message">Der „Kids Activity Tracker“ erinnert dich vor Beginn der Aktivitäten und nach Schulschluss. Erteile nacheinander die für die Erinnerungen erforderlichen Berechtigungen – Benachrichtigungen, präzise Alarme und Akkuoptimierung.</string>
+    <!-- Reminder Prompt Dialog: Confirm button text to start granting permissions -->
+    <string name="reminder_prompt_continue">Weiter</string>
+    <!-- Reminder Prompt Dialog: Dismiss button text to postpone setting up permissions -->
+    <string name="reminder_prompt_not_now">Nicht jetzt</string>
+    <!-- Dashboard: Summary header showing number of scheduled activities for today. %1$d = activity count -->
+    <plurals name="today_activities_count">
+        <item quantity="one">%1$d Aktivitäten heute</item>
+        <item quantity="other">%1$d Aktivitäten heute</item>
+    </plurals>
+    <!-- Week View: Header title displaying visible date range. %1$s = start date (e.g. "Oct 19"), %2$s = end date (e.g. "Oct 25") -->
+    <string name="week_range_title_format">%1$s – %2$s</string>
+    <!-- Week View: Navigation button accessibility label to view the previous week -->
+    <string name="week_previous_week">Letzte Woche</string>
+    <!-- Week View: Navigation button accessibility label to view the next week -->
+    <string name="week_next_week">Nächste Woche</string>
+    <!-- Week View: Empty state message shown when no kids exist in database -->
+    <string name="week_add_kid_to_get_started">Füge ein Kind hinzu, um loszulegen!</string>
+    <!-- Week View: Empty state message when no activities fall in the current week -->
+    <string name="week_no_activities_this_week">Diese Woche finden keine Aktivitäten statt</string>
+    <!-- Week View: Badge text indicating alarms are turned off for a row -->
+    <string name="week_alarms_disabled">Alarme deaktiviert</string>
+    <!-- Month View: Navigation button accessibility label to view the previous month -->
+    <string name="month_previous_month">Vormonat</string>
+    <!-- Month View: Navigation button accessibility label to view the next month -->
+    <string name="month_next_month">Nächsten Monat</string>
+    <!-- Month View: Empty state text when no activities exist in selected month -->
+    <string name="month_no_activities">Keine Aktivitäten</string>
+    <!-- Month View: Badge text indicating alarms are turned off -->
+    <string name="month_alarms_disabled">Alarme deaktiviert</string>
+    <!-- Daily Schedule Screen: Navigation back button label -->
+    <string name="daily_back">Zurück</string>
+    <!-- Daily Schedule Screen: Button accessibility label to go to yesterday -->
+    <string name="daily_previous_day">Vortag</string>
+    <!-- Daily Schedule Screen: Button accessibility label to go to tomorrow -->
+    <string name="daily_next_day">Am nächsten Tag</string>
+    <!-- Daily Schedule Screen: Empty state message for selected date -->
+    <string name="daily_no_activities_scheduled">Für diesen Tag sind keine Aktivitäten geplant</string>
+    <!-- Daily Schedule Screen: Badge text indicating alarms are disabled -->
+    <string name="daily_alarms_disabled">Alarme deaktiviert</string>
+    <!-- Kid Selection Screen: Header title for screen picking kids for daily filter -->
+    <string name="kid_selection_title">„Kinder“ auswählen</string>
+    <!-- Kid Selection Screen: Button label to navigate to Add Kid form -->
+    <string name="kid_selection_add_kid">Kind hinzufügen</string>
+    <!-- Kid Selection Screen: Button text to select all kids in list -->
+    <string name="kid_selection_select_all">Alles auswählen</string>
+    <!-- Kid Selection Screen: Button text to clear all checked kids in list -->
+    <string name="kid_selection_deselect_all">Alle abwählen</string>
+    <!-- Kid Selection Screen: Main action button to open daily schedule for chosen kids. %1$d = selected count -->
+    <string name="kid_selection_view_schedule_format">Zeitplan anzeigen (%1$d ausgewählt)</string>
+    <!-- Kid Selection Screen: Empty state text when no kids exist -->
+    <string name="kid_selection_no_kids_added_yet">Es wurden noch keine Kinder hinzugefügt.</string>
+    <!-- Kid Selection Screen: Subtitle in kid card row. %1$s = school name -->
+    <string name="kid_selection_school_format">Schule: %1$s</string>
+    <!-- Kids Management Screen: Top app bar title -->
+    <string name="kids_management_title">Kinder</string>
+    <!-- Kids Management Screen: Top app bar back button label -->
+    <string name="kids_management_back">Zurück</string>
+    <!-- Kids Management Screen: Button to add a new kid -->
+    <string name="kids_management_add_kid">Kind hinzufügen</string>
+    <!-- Kids Management Screen: Empty state text when no kids exist -->
+    <string name="kids_management_no_kids_added_yet">Es wurden noch keine Kinder hinzugefügt.</string>
+    <!-- Kids Management Screen: Subtitle showing school name in kid row. %1$s = school name -->
+    <string name="kids_management_school_format">Schule: %1$s</string>
+    <!-- Delete All Activities: Button label to delete all activities belonging to a kid -->
+    <string name="delete_all_activities_button">Alle Aktivitäten löschen</string>
+    <!-- Delete All Activities Dialog: Title of confirmation dialog -->
+    <string name="delete_all_activities_dialog_title">Alle Aktivitäten löschen?</string>
+    <!-- Delete All Activities Dialog: Confirmation warning text. %1$s = kid's name -->
+    <string name="delete_all_activities_dialog_message_format">Möchten Sie wirklich alle Aktivitäten löschen und alle Erinnerungen für %1$s aufheben? Dieser Vorgang kann nicht rückgängig gemacht werden.</string>
+    <!-- Delete All Activities Dialog: Confirm destructive action button -->
+    <string name="delete_all_activities_confirm">Löschen</string>
+    <!-- Delete All Activities Dialog: Cancel action button -->
+    <string name="delete_all_activities_cancel">Abbrechen</string></resources>

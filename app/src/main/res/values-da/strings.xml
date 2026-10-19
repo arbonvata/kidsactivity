@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Application name displayed on the launcher home screen and app management settings -->
+    <string name="app_name">Børns aktivitetsmåler</string>
+    <!-- Navigation Bar: Bottom tab label for the Today / Dashboard view -->
+    <string name="tab_today">I dag</string>
+    <!-- Navigation Bar: Bottom tab label for the Week schedule view -->
+    <string name="tab_week">Uge</string>
+    <!-- Navigation Bar: Bottom tab label for the Month schedule view -->
+    <string name="tab_month">Måned</string>
+    <!-- Navigation Bar: Bottom tab label for the More / Settings / Tools view -->
+    <string name="tab_more">Mere</string>
+    <!-- Top App Bar Title: Settings screen -->
+    <string name="screen_title_settings">Indstillinger</string>
+    <!-- Top App Bar Title: Form to add a new activity -->
+    <string name="screen_title_add_activity">Tilføj aktivitet</string>
+    <!-- Top App Bar Title: Form to edit an existing activity -->
+    <string name="screen_title_edit_activity">Rediger aktivitet</string>
+    <!-- Top App Bar Title: Screen to pick kids for multi-kid filtering or daily schedule -->
+    <string name="screen_title_kid_selection">Vælg Børn</string>
+    <!-- Top App Bar Title: Form to register a new kid -->
+    <string name="screen_title_add_kid">Tilføj barn</string>
+    <!-- Top App Bar Title: Single-day schedule view for selected kids -->
+    <string name="screen_title_daily_schedule">Dagsprogram</string>
+    <!-- Top App Bar Title: Overview and activity list for a specific kid -->
+    <string name="screen_title_kid_detail">Børnedetaljer</string>
+    <!-- Top App Bar Title: Screen to manage school holidays and early release times -->
+    <string name="screen_title_school_overrides">Undtagelser for skoler</string>
+    <!-- Top App Bar Title: Screen showing detected activity schedule overlaps -->
+    <string name="screen_title_conflicts">Konflikter</string>
+    <!-- Top App Bar Title: Data backup, restore, and sharing screen -->
+    <string name="screen_title_share">Del</string>
+    <!-- Top App Bar Title: List of registered kids -->
+    <string name="screen_title_kids_management">Børn</string>
+    <!-- Top App Bar Title: About / app information screen -->
+    <string name="screen_title_about">Om</string>
+    <!-- About Screen: Navigation bar back button accessibility label -->
+    <string name="about_back">Tilbage</string>
+    <!-- About Screen: App version label. %1$s = version name (e.g. "1.0") -->
+    <string name="about_version_format">Version %1$s</string>
+    <!-- About Screen: Short slogan explaining the core purpose of the app -->
+    <string name="about_tagline">Skole- og aktivitetsplaner med påmindelser om afhentning – alt om alle dine børn samlet ét sted.</string>
+    <!-- About Screen: Section header for key app feature highlights -->
+    <string name="about_section_highlights">Højdepunkter</string>
+    <!-- About Screen: Bullet point describing the schedule view options -->
+    <string name="about_feature_views">Visninger af tidsplaner for i dag, ugen, måneden og pr. dag</string>
+    <!-- About Screen: Bullet point describing the school pickup reminder feature -->
+    <string name="about_feature_school">Skolen sender dig en påmindelse, når skoledagen er slut — tidspunktet for afhentning</string>
+    <!-- About Screen: Bullet point describing custom school end times and holidays -->
+    <string name="about_feature_overrides">Dage uden skole og særlige sluttider for skolen</string>
+    <!-- About Screen: Bullet point describing schedule overlap / conflict detection -->
+    <string name="about_feature_conflicts">Registrering af overlapninger i de kommende 30 dage</string>
+    <!-- About Screen: Bullet point describing data export / backup capabilities -->
+    <string name="about_feature_backup">Sikkerhedskopiering, gendannelse og deling af JSON-filer</string>
+</resources>

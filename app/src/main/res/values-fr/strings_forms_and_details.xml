@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Form: Screen title when creating a new activity -->
+    <string name="add_activity_title">Ajouter une activité</string>
+    <!-- Form: Accessibility label for top navigation back button -->
+    <string name="add_activity_back_content_description">Retour</string>
+    <!-- Form: Accessibility label for delete button in edit mode -->
+    <string name="add_activity_delete_content_description">Supprimer</string>
+    <!-- Form: Subtitle showing the kid this activity belongs to. %1$s = kid\'s name -->
+    <string name="add_activity_for_kid">Pour %1$s</string>
+    <!-- Form: Text field label for entering activity name -->
+    <string name="add_activity_name_label">Nom de l\'activité (par exemple, football)</string>
+    <!-- Form: Validation error when activity name field is submitted empty -->
+    <string name="add_activity_name_error">Veuillez saisir le nom d\'une activité</string>
+    <!-- Form: Section title above day-of-week selection chips -->
+    <string name="add_activity_select_days_label">Jours sélectionnés :</string>
+    <!-- Form: Validation error when no day chips are selected -->
+    <string name="add_activity_days_error">Sélectionnez au moins un jour</string>
+    <!-- Form: Switch label for recurring weekly activities -->
+    <string name="add_activity_periodic_label">Diffusion hebdomadaire</string>
+    <!-- Form: Checkbox label designating activity as a school activity -->
+    <string name="add_activity_school_label">Activité scolaire</string>
+    <!-- Form: Supporting text explaining how school activities trigger pickup reminders after school ends -->
+    <string name="add_activity_school_supporting_text">Se répète chaque semaine · envoie un rappel après la fin de l\'événement plutôt qu\'avant son début</string>
+    <!-- Form: Button label showing selected start time. %1$s = time string (e.g. "17:00") -->
+    <string name="add_activity_start_time">Début : %1$s</string>
+    <!-- Form: Button label showing selected end time. %1$s = time string (e.g. "18:30") -->
+    <string name="add_activity_end_time">Fin : %1$s</string>
+    <string name="add_activity_end_before_start_error">L\'heure de fin doit être postérieure à l\'heure de début</string>
+    <!-- Form: Submit button text to save the activity -->
+    <string name="add_activity_save">Enregistrer l\'activité</string>
+    <!-- Form: Dropdown selector label for picking the kid -->
+    <string name="add_activity_kid_label">Gamin</string>
+    <!-- Form: Error text shown when attempting to create an activity before adding any kids -->
+    <string name="add_activity_no_kids_yet">Pas encore d\'enfants — ajoutez d\'abord un enfant</string>
+    <!-- Form: Time picker dialog confirm button -->
+    <string name="add_activity_time_picker_ok">OK</string>
+    <!-- Form: Time picker dialog cancel button -->
+    <string name="add_activity_time_picker_cancel">Annuler</string>
+    <!-- Edit Activity: Screen header when editing an existing activity -->
+    <string name="edit_activity_title">Modifier l\'activité</string>
+    <!-- Edit Activity: Error message displayed if activity ID is invalid or deleted -->
+    <string name="edit_activity_not_found">Activité introuvable</string>
+    <!-- Edit Activity Dialog: Title of deletion confirmation dialog -->
+    <string name="edit_activity_delete_dialog_title">Supprimer l\'activité ?</string>
+    <!-- Edit Activity Dialog: Body message confirming deletion of activity and its reminders -->
+    <string name="edit_activity_delete_dialog_message">L\'activité et ses rappels seront supprimés.</string>
+    <!-- Edit Activity Dialog: Confirm deletion button text -->
+    <string name="edit_activity_delete_dialog_confirm">Supprimer</string>
+    <!-- Edit Activity Dialog: Cancel deletion button text -->
+    <string name="edit_activity_delete_dialog_cancel">Annuler</string>
+    <!-- Add Kid Form: Screen header title for adding a kid -->
+    <string name="add_kid_title">Ajouter un enfant</string>
+    <!-- Add Kid Form: Top navigation back button accessibility text -->
+    <string name="add_kid_back_content_description">Retour</string>
+    <!-- Add Kid Form: Text field label for entering kid\'s name -->
+    <string name="add_kid_name_label">Nom de l\'enfant</string>
+    <!-- Add Kid Form: Validation error when name field is left blank -->
+    <string name="add_kid_name_error_blank">Veuillez saisir le nom de l\'enfant</string>
+    <!-- Add Kid Form: Validation error when a kid with the same name exists. %1$s = duplicate name -->
+    <string name="add_kid_name_error_duplicate">Un enfant nommé %1$s existe déjà</string>
+    <!-- Add Kid Form: Text field label for entering school name -->
+    <string name="add_kid_school_name_label">Nom de l\'établissement scolaire</string>
+    <!-- Add Kid Form: Validation error when school name is left blank -->
+    <string name="add_kid_school_name_error">Veuillez saisir le nom de l\'établissement</string>
+    <!-- Add Kid Form: Submit button text to save kid -->
+    <string name="add_kid_save">Sauvez un enfant</string>
+    <!-- Edit Kid Form: Screen header title when editing an existing kid -->
+    <string name="edit_kid_title">Modifier Kid</string>
+    <!-- Edit Kid Form: Error state message when kid no longer exists -->
+    <string name="edit_kid_not_found">Cet enfant n\'existe plus.</string>
+    <!-- Kid Detail Screen: Header title showing kid\'s name. %1$s = kid\'s name -->
+    <string name="kid_detail_title">Les activités de %1$s</string>
+    <!-- Kid Detail Screen: Fallback header title if kid\'s name is empty -->
+    <string name="kid_detail_title_default">Gamin</string>
+    <!-- Kid Detail Screen: Top app bar back button accessibility text -->
+    <string name="kid_detail_back_content_description">Retour</string>
+    <!-- Kid Detail Screen: Edit kid action button accessibility text -->
+    <string name="kid_detail_edit_kid_content_description">Modifier « kid »</string>
+    <!-- Kid Detail Screen: Delete kid action button accessibility text -->
+    <string name="kid_detail_delete_kid_content_description">Supprimer « kid »</string>
+    <!-- Kid Detail Screen: Floating Action Button label to add an activity for this kid -->
+    <string name="kid_detail_add_new_activity">Ajouter une nouvelle activité</string>
+    <!-- Kid Detail Screen: Error state text when kid ID is invalid -->
+    <string name="kid_detail_kid_not_found">Cet enfant n\'existe plus.</string>
+    <!-- Kid Detail Screen: Empty state text when kid has no activities -->
+    <string name="kid_detail_no_activities">Aucune activité pour l\'instant.</string>
+    <!-- Kid Detail Delete Dialog: Title of dialog confirming kid deletion -->
+    <string name="kid_detail_delete_dialog_title">Supprimer « kid » ?</string>
+    <!-- Kid Detail Delete Dialog: Warning message explaining cascade deletion. %1$s = kid\'s name -->
+    <string name="kid_detail_delete_dialog_message">Toutes les activités et les modifications d\'horaires scolaires de %1$s seront également supprimées.</string>
+    <!-- Kid Detail Delete Dialog: Fallback kid name if name is missing in message -->
+    <string name="kid_detail_delete_dialog_message_default_name">ce gamin</string>
+    <!-- Kid Detail Delete Dialog: Confirm deletion button text -->
+    <string name="kid_detail_delete_dialog_confirm">Supprimer</string>
+    <!-- Kid Detail Delete Dialog: Cancel deletion button text -->
+    <string name="kid_detail_delete_dialog_cancel">Annuler</string>
+    <!-- Kid Detail Row: Badge text indicating weekly recurring activity -->
+    <string name="kid_detail_recurrence_weekly">hebdomadaire</string>
+    <!-- Kid Detail Row: Badge text indicating one-off activity -->
+    <string name="kid_detail_recurrence_once">une fois</string>
+    <!-- Kid Detail Row: Badge text indicating a school activity -->
+    <string name="kid_detail_marker_school">école</string>
+    <!-- More Screen: Screen header title -->
+    <string name="more_title">En savoir plus</string>
+    <!-- More Screen: Section title for management options -->
+    <string name="more_section_management">Direction</string>
+    <!-- More Screen: Menu title for managing kids -->
+    <string name="more_kids_management_title">Gestion des enfants</string>
+    <!-- More Screen: Menu subtitle for managing kids -->
+    <string name="more_kids_management_subtitle">Ajouter, modifier ou supprimer des enfants</string>
+    <!-- More Screen: Menu title for managing school overrides -->
+    <string name="more_school_overrides_title">Modifications de l\'emploi du temps scolaire</string>
+    <!-- More Screen: Menu subtitle for managing school overrides -->
+    <string name="more_school_overrides_subtitle">Sorties anticipées, jours fériés, jours de congé exceptionnels</string>
+    <!-- More Screen: Menu title for daily filter schedule view -->
+    <string name="more_daily_view_title">Affichage quotidien (filtrer par « Enfants »)</string>
+    <!-- More Screen: Menu subtitle for daily filter schedule view -->
+    <string name="more_daily_view_subtitle">Consultez le programme quotidien spécifique aux enfants</string>
+    <!-- More Screen: Section title for utility tools -->
+    <string name="more_section_tools">Outils</string>
+    <!-- More Screen: Menu title for checking schedule overlaps -->
+    <string name="more_check_conflicts_title">Vérifier les conflits</string>
+    <!-- More Screen: Menu subtitle for checking schedule overlaps -->
+    <string name="more_check_conflicts_subtitle">Rechercher les activités qui se chevauchent</string>
+    <!-- More Screen: Menu title for backup, export, and share screen -->
+    <string name="more_share_export_title">Partager / Exporter</string>
+    <!-- More Screen: Menu subtitle for backup, export, and share screen -->
+    <string name="more_share_export_subtitle">Envoyer le planning via WhatsApp, par e-mail ou au format PDF</string>
+    <!-- More Screen: Section title for app system & info items -->
+    <string name="more_section_system">Système</string>
+    <!-- More Screen: Menu title for settings screen -->
+    <string name="more_settings_title">Paramètres</string>
+    <!-- More Screen: Menu subtitle for settings screen -->
+    <string name="more_settings_subtitle">Autorisations, alertes, sauvegarde</string>
+    <!-- More Screen: Menu title for about screen -->
+    <string name="more_about_title">À propos de l\'application</string>
+    <!-- More Screen: Menu subtitle for about screen -->
+    <string name="more_about_subtitle">Fonctionnalités de cette application</string>
+    <!-- Conflicts Screen: Screen header title -->
+    <string name="conflicts_title">Conflits d\'horaires</string>
+    <!-- Conflicts Screen: Navigation back button accessibility text -->
+    <string name="conflicts_back_content_description">Retour</string>
+    <!-- Conflicts Screen: Empty state header when no overlapping activities exist -->
+    <string name="conflicts_none_found_title">Aucun conflit détecté !</string>
+    <!-- Conflicts Screen: Empty state subtitle when schedule is free of overlaps -->
+    <string name="conflicts_none_found_subtitle">Toutes les activités sont correctement programmées</string>
+    <!-- Conflicts Screen: Subtitle showing duration of activity overlap. %1$d = duration in minutes -->
+    <string name="conflicts_min_overlap">%1$d min de chevauchement</string>
+    <!-- Conflicts Screen: Action button text to navigate to edit conflicting activity -->
+    <string name="conflicts_resolve">Résoudre les conflits</string>
+    <!-- Conflicts Screen: Header summary showing number of detected schedule overlaps. %1$d = conflict count -->
+    <plurals name="conflicts_detected_count">
+        <item quantity="one">%1$d conflit détecté</item>
+        <item quantity="other">%1$d conflits détectés</item>
+        <item quantity="many">%1$d conflits détectés</item>
+    </plurals>
+    <!-- Shared: Short 3-letter day abbreviations starting Monday (item 0 = Mon, item 6 = Sun) -->
+    <string-array name="weekday_abbreviations">
+        <item>lun</item>
+        <item>mar</item>
+        <item>mer</item>
+        <item>jeu</item>
+        <item>ven</item>
+        <item>Sam</item>
+        <item>dimanche</item>
+    </string-array>
+    <!-- One-Off Activity: Week picker button label showing anchor Monday date. %1$s = formatted Monday date -->
+    <string name="add_activity_week_of_format">Semaine du : %1$s</string>
+    <!-- One-Off Activity: Explanatory text below week picker -->
+    <string name="add_activity_one_off_hint">A lieu une seule fois, les jours de la semaine sélectionnés de cette semaine</string>
+    <!-- One-Off Activity: Date picker confirm button text -->
+    <string name="add_activity_date_picker_ok">OK</string>
+    <!-- One-Off Activity: Date picker cancel button text -->
+    <string name="add_activity_date_picker_cancel">Annuler</string></resources>
