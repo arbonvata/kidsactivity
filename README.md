@@ -42,9 +42,11 @@ keep showing muted activities dimmed.
   status with one-tap requests, and sliders for reminder offsets
   (school: 5–30 min after end, activities: 5–60 min before start), persisted
   in DataStore.
-- **Localization-ready** — all UI copy lives in `res/values/strings*.xml`
-  (~200 strings, plurals included); drop in a `values-<locale>/` folder to
-  translate.
+- **Localized** — the UI (including the reminder notifications, formatted
+  when they fire) is translated into Danish, German, Spanish, French and
+  Swedish. All copy lives in `res/values/strings*.xml` (~200 strings, plurals
+  included); drop in a `values-<locale>/` folder to translate another
+  language.
 
 ## Tech stack
 
@@ -68,12 +70,12 @@ app/src/main/java/com/arbonvata/kidstrackeractivity/
 ├── data/
 │   ├── objectbox/ # Kid, Activity, DailySchedule entities
 │   ├── repository/# Kid / Activity / ScheduleOverride / AlarmSettings / Backup repos
-│   └── Conflict.kt, ActivityOccurence.kt  # occurrence expansion + conflict detection (pure)
+│   └── Conflict.kt, ActivityOccurrence.kt  # occurrence expansion + conflict detection (pure)
 ├── di/            # Koin module
 └── presentation/  # screens (Compose), one ViewModel per screen, shared formatters
 ```
 
-Core scheduling logic lives in `data/ActivityOccurence.kt`
+Core scheduling logic lives in `data/ActivityOccurrence.kt`
 (`expandActivitiesForDateRange`) — the single expansion used by every view,
 the alarm scheduler and conflict detection, so weekly/one-off windows and
 school overrides behave identically everywhere.
@@ -82,7 +84,7 @@ school overrides behave identically everywhere.
 
 ```bash
 ./gradlew assembleDebug          # build the app
-./gradlew testDebugUnitTest      # 111 unit tests
+./gradlew testDebugUnitTest      # unit tests
 ./gradlew :app:ktlintCheck       # style (must stay green)
 ```
 

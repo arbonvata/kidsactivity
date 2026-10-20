@@ -9,6 +9,34 @@ in-app About screen); this file records what each release shipped.
   off the bottom on small screens (or with large font sizes) when a one-off
   non-school activity is being edited — the form scrolls and Save stays
   pinned above it.
+- **Fixed**: reminders no longer silently stop after a week without opening
+  the app — a rolling "keeper" alarm now refreshes the schedule just before
+  the 7-day horizon expires, so reminders keep themselves alive without an
+  app launch or reboot.
+- **Fixed**: reminder notifications are formatted at fire time, so they show
+  in the app's language and pick up kid/activity renames made after
+  scheduling, instead of the English text captured when the alarm was set.
+- **Fixed**: alarms already queued in the system are cancelled when the
+  exact-alarm permission is missing, instead of continuing to fire with
+  stale data — and they are rescheduled as soon as the permission is granted
+  again, even while the app stays open.
+- **Fixed**: conflict detection now reports every overlapping pair on a
+  kid's day, not just schedule-adjacent ones — a long activity overlapping
+  two shorter ones no longer hides one of the clashes.
+- **Fixed**: restoring a backup validates every time and date before
+  touching the database — malformed rows are rejected up front instead of
+  crashing every screen after a "successful" import, and corrupt rows from
+  older files are skipped rather than crashing the schedule views.
+- **Fixed**: the Add/Edit Activity form rejects an end time at or before the
+  start time.
+- **Fixed**: restoring a backup that omits the "repeats weekly" flag no
+  longer turns weekly activities into one-offs that vanish after their week.
+- **Fixed**: the app now actually applies its own theme — dark mode and
+  dynamic color work at runtime instead of only in previews.
+- **Added**: Danish, German, Spanish, French and Swedish translations for
+  every screen, including the reminder notifications and restore messages.
+- **Changed**: the Today tab refreshes once a minute, so it keeps up across
+  midnight and the "up next" card stays current while the screen is open.
 
 ## 1.0 — 2026-09-27
 
