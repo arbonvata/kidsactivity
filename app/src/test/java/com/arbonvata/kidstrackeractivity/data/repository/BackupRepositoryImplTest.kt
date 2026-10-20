@@ -87,7 +87,7 @@ class BackupRepositoryImplTest {
     @Test
     fun importAllThrowsOnBackupVersionFromANewerApp() =
         runTest {
-            val json = validBackupJson.replace("\"version\": 1", "\"version\": 2")
+            val json = validBackupJson.replace("\"version\": 1", "\"version\": 999")
 
             assertInstanceOf(JSONException::class.java, assertImportThrows(json))
             verify(exactly = 0) { store.runInTx(any()) }
@@ -157,6 +157,24 @@ class BackupRepositoryImplTest {
             verify { kidBox.put(any<Kid>()) }
             verify { activityBox.put(any<Activity>()) }
             verify { scheduleBox.put(any<DailySchedule>()) }
+        }
+
+    @Test
+    fun importPreservesExceptionsAndRejectsInvalidExceptionsBeforeReplacing() =
+        runTest {
+            every { kidBox.put(any<Kid>()) } returns 100L
+            val captured = slot<Activity>()
+            every { activityBox.put(capture(captured)) } returns 200L
+            every { scheduleBox.put(any<DailySchedule>()) } returns 300L
+            val json =
+                validBackupJson.replace(
+                    "\"firstDate\": \"\"",
+                    "\"firstDate\": \"\", \"occurrenceExceptions\": \"2026-10-26|18:00|19:00\"",
+                )
+            repository.importAll(json, replaceExisting = false)
+            assertEquals("2026-10-26|18:00|19:00", captured.captured.occurrenceExceptions)
+            assertInstanceOf(JSONException::class.java, assertImportThrows(json.replace("18:00|19:00", "19:00|18:00")))
+            verify(exactly = 0) { kidBox.removeAll() }
         }
 
     /** JUnit's assertThrows cannot wrap a suspend call, so catch manually. */

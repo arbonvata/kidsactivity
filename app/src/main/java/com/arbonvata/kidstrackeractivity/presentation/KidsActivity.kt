@@ -173,6 +173,9 @@ fun EditActivityScreen(
                 onNavigateBack = onNavigateBack,
                 screenTitle = stringResource(R.string.edit_activity_title),
                 onDeleteClick = { showDeleteDialog = true },
+                extraContent = {
+                    OccurrenceExceptionEditor(form, viewModel::onExceptionChange, viewModel::onExceptionRemoved)
+                },
             )
         }
     }
@@ -217,6 +220,7 @@ fun AddActivityContent(
     onNavigateBack: () -> Unit,
     screenTitle: String = stringResource(R.string.add_activity_title),
     onDeleteClick: (() -> Unit)? = null,
+    extraContent: @Composable () -> Unit = {},
 ) {
     var showStartTimePicker by remember { mutableStateOf(false) }
     var showEndTimePicker by remember { mutableStateOf(false) }
@@ -325,6 +329,8 @@ fun AddActivityContent(
                     color = MaterialTheme.colorScheme.error,
                 )
             }
+
+            extraContent()
 
             // School activities are always weekly, so the periodic toggle is
             // meaningless for them (checking School Activity forces it on).

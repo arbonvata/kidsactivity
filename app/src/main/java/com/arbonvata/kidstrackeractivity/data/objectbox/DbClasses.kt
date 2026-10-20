@@ -32,6 +32,8 @@ data class Activity(
     // School activities remind AFTER they end (pickup); everything else
     // reminds before it starts. Consumed by the future alarm scheduler.
     var isSchoolActivity: Boolean = false,
+    // Date-specific exceptions encoded by OccurrenceException; null for legacy rows.
+    var occurrenceExceptions: String? = null,
 ) {
     // Overriding equals and hashCode is highly recommended when using IntArray
     // in data classes, because arrays in Kotlin compare by reference by default.
@@ -41,6 +43,7 @@ data class Activity(
 
         other as Activity
 
+        if (occurrenceExceptions != other.occurrenceExceptions) return false
         if (id != other.id) return false
         if (kidId != other.kidId) return false
         if (name != other.name) return false
@@ -57,6 +60,7 @@ data class Activity(
 
     override fun hashCode(): Int {
         var result = id.hashCode()
+        result = 31 * result + (occurrenceExceptions?.hashCode() ?: 0)
         result = 31 * result + kidId.hashCode()
         result = 31 * result + name.hashCode()
         result = 31 * result + startTime.hashCode()

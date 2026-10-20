@@ -5,6 +5,9 @@ in-app About screen); this file records what each release shipped.
 
 ## Unreleased
 
+- **Added**: cancel or change the times of an individual activity date without
+  changing its weekly schedule; exceptions are included in backups.
+
 - **Fixed**: the Save button on the Add/Edit Activity screen no longer falls
   off the bottom on small screens (or with large font sizes) when a one-off
   non-school activity is being edited — the form scrolls and Save stays

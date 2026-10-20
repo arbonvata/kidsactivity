@@ -127,6 +127,7 @@ class BackupRepositoryImpl(
                             isPeriodic = parsed.isPeriodic,
                             isSchoolActivity = parsed.isSchoolActivity,
                             firstDate = parsed.firstDate,
+                            occurrenceExceptions = parsed.exceptions,
                         ),
                     )
                 }
@@ -162,6 +163,7 @@ class BackupRepositoryImpl(
         val isPeriodic: Boolean,
         val isSchoolActivity: Boolean,
         val firstDate: String,
+        val exceptions: String,
     )
 
     private data class ParsedOverride(
@@ -192,6 +194,17 @@ class BackupRepositoryImpl(
                 } ?: intArrayOf(),
             isPeriodic = json.optBoolean("isPeriodic", true),
             isSchoolActivity = json.optBoolean("isSchoolActivity"),
+            exceptions =
+                json.optString("occurrenceExceptions").also {
+                    try {
+                        com.arbonvata.kidstrackeractivity.data
+                            .decodeExceptions(it)
+                    } catch (e: IllegalArgumentException) {
+                        throw JSONException("Invalid occurrence exceptions")
+                    } catch (e: java.time.DateTimeException) {
+                        throw JSONException("Invalid occurrence exception date/time")
+                    }
+                },
             firstDate = requireOptionalDate(json.optString("firstDate"), "activity firstDate"),
         )
 
@@ -257,6 +270,7 @@ class BackupRepositoryImpl(
             .put("isPeriodic", activity.isPeriodic)
             .put("isSchoolActivity", activity.isSchoolActivity)
             .put("firstDate", activity.firstDate)
+            .put("occurrenceExceptions", activity.occurrenceExceptions.orEmpty())
 
     private fun overrideToJson(override: DailySchedule): JSONObject =
         JSONObject()
@@ -267,6 +281,6 @@ class BackupRepositoryImpl(
             .put("isNoSchool", override.isNoSchool)
 
     private companion object {
-        const val FORMAT_VERSION = 1
+        const val FORMAT_VERSION = 2
     }
 }

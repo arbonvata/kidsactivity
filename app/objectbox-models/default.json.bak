@@ -5,7 +5,7 @@
   "entities": [
     {
       "id": "1:6241753072432626048",
-      "lastPropertyId": "9:1914762641605883935",
+      "lastPropertyId": "10:9140636806834503742",
       "name": "Activity",
       "properties": [
         {
@@ -53,6 +53,11 @@
           "id": "9:1914762641605883935",
           "name": "firstDate",
           "type": 9
+        },
+        {
+          "id": "10:9140636806834503742",
+          "name": "isSchoolActivity",
+          "type": 1
         }
       ],
       "relations": []

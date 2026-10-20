@@ -1,0 +1,10 @@
+<resources>
+    <string name="occurrence_title">Changes to individual dates</string>
+    <string name="occurrence_hint">Cancel or change the times on one scheduled date. Save the activity to apply your changes.</string>
+    <string name="occurrence_choose_date">Choose a date to change</string>
+    <string name="occurrence_no_activity">This activity is not scheduled on this date.</string>
+    <string name="occurrence_cancelled">%1$s — cancelled</string>
+    <string name="occurrence_reset">Restore usual schedule</string>
+    <string name="occurrence_cancel">Cancel on this date</string>
+    <string name="occurrence_change">Use these times on this date</string>
+</resources>

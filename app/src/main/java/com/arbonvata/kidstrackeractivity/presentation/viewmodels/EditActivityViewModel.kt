@@ -90,6 +90,11 @@ class EditActivityViewModel(
             it.copy(isSchoolActivity = isSchoolActivity, isPeriodic = it.isPeriodic || isSchoolActivity)
         }
 
+    fun onExceptionChange(exception: com.arbonvata.kidstrackeractivity.data.OccurrenceException) =
+        updateForm { it.copy(exceptions = it.exceptions.filterNot { entry -> entry.date == exception.date } + exception) }
+
+    fun onExceptionRemoved(date: LocalDate) = updateForm { it.copy(exceptions = it.exceptions.filterNot { entry -> entry.date == date }) }
+
     fun saveActivity() {
         val form = _uiState.value.form ?: return
         val original = original ?: return
@@ -108,6 +113,9 @@ class EditActivityViewModel(
             activityRepository.updateActivity(
                 Activity(
                     id = original.id,
+                    occurrenceExceptions =
+                        com.arbonvata.kidstrackeractivity.data
+                            .encodeExceptions(form.exceptions),
                     kidId = original.kidId,
                     name = form.name.trim(),
                     startTime = form.startTime.format(AddActivityViewModel.TIME_FORMATTER),
@@ -150,6 +158,9 @@ class EditActivityViewModel(
             AddActivityUiState(
                 selectedKidId = activity.kidId,
                 name = activity.name,
+                exceptions =
+                    com.arbonvata.kidstrackeractivity.data
+                        .decodeExceptions(activity.occurrenceExceptions),
                 selectedDays = activity.daysOfWeek.toSet(),
                 startTime = LocalTime.parse(activity.startTime),
                 endTime = LocalTime.parse(activity.endTime),

@@ -21,6 +21,7 @@ import java.time.temporal.TemporalAdjusters
 
 data class AddActivityUiState(
     val name: String = "",
+    val exceptions: List<com.arbonvata.kidstrackeractivity.data.OccurrenceException> = emptyList(),
     val selectedKidId: Long = 0L,
     val selectedDays: Set<Int> = emptySet(),
     val startTime: LocalTime = LocalTime.of(17, 0),

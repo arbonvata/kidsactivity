@@ -38,6 +38,10 @@ fun expandActivitiesForDateRange(
     val kidMap = kids.associateBy { it.id }
     val overrideMap = overrides.associateBy { "${it.kidId}|${it.date}" }
     val occurrences = mutableListOf<ActivityOccurrence>()
+    val exceptions =
+        activities.associate { activity ->
+            activity.id to runCatching { decodeExceptions(activity.occurrenceExceptions).associateBy { it.date } }.getOrDefault(emptyMap())
+        }
 
     var currentDate = startDate
     while (!currentDate.isAfter(endDate)) {
@@ -55,8 +59,10 @@ fun expandActivitiesForDateRange(
                 // Corrupt time strings (a hand-edited backup, a row written
                 // before import validation existed) are skipped rather than
                 // crashing every screen that expands the schedule.
-                val startTime = parseTimeOrNull(activity.startTime) ?: continue
-                val endTime = parseTimeOrNull(effectiveEndTime(activity, override)) ?: continue
+                val exception = exceptions[activity.id]?.get(currentDate)
+                if (exception != null && exception.start == null) continue
+                val startTime = exception?.start ?: parseTimeOrNull(activity.startTime) ?: continue
+                val endTime = exception?.end ?: parseTimeOrNull(effectiveEndTime(activity, override)) ?: continue
                 if (kid != null) {
                     occurrences.add(
                         ActivityOccurrence(

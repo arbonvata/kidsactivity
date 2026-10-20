@@ -28,6 +28,9 @@ keep showing muted activities dimmed.
 - **School-day overrides** — mark No-School days (holidays, trips) and custom
   early-release end times on a calendar; overrides hide or shift only school
   activities for that kid and day.
+- **Individual-date changes** — in Edit Activity, cancel a scheduled date or
+  change its start/end times, then Save. Restore the usual schedule by removing
+  the exception. Changes apply to views, conflicts, reminders and JSON backups.
 - **Conflict detection** — same-kid activity overlaps across the next 30 days,
   with one tap from a conflict to the editor. Respects one-off weeks and
   school overrides.
