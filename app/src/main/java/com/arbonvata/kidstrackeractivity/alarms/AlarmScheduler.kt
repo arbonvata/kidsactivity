@@ -21,6 +21,17 @@ interface AlarmScheduler {
     suspend fun syncAlarms(alarms: List<ScheduledAlarm>)
 
     suspend fun cancelAll()
+
+    /** Whether exact alarms can be scheduled right now (pure system check). */
+    fun canScheduleExactAlarms(): Boolean
+
+    /**
+     * Whether the last sync ran without the exact-alarm permission — and
+     * therefore cancelled the queued alarms. Callers use this to reschedule
+     * when the permission comes back: a grant made in system Settings is
+     * invisible to the reactive sync.
+     */
+    suspend fun missedExactAlarmPermissionOnLastSync(): Boolean
 }
 
 class AlarmManagerAlarmScheduler(
@@ -33,6 +44,13 @@ class AlarmManagerAlarmScheduler(
     /** Codes known to be live in AlarmManager; null until loaded from disk. */
     private var scheduledRequestCodes: Set<Int>? = null
 
+    /** Written under [mutex]; see [missedExactAlarmPermissionOnLastSync]. */
+    private var permissionWasMissingOnLastSync = false
+
+    override fun canScheduleExactAlarms(): Boolean = context.getSystemService(AlarmManager::class.java).canScheduleExactAlarms()
+
+    override suspend fun missedExactAlarmPermissionOnLastSync(): Boolean = mutex.withLock { permissionWasMissingOnLastSync }
+
     override suspend fun syncAlarms(alarms: List<ScheduledAlarm>) =
         mutex.withLock {
             val alarmManager = context.getSystemService(AlarmManager::class.java)
@@ -44,6 +62,7 @@ class AlarmManagerAlarmScheduler(
                 // once the permission is granted again.
                 val queued = rememberScheduledRequestCodes()
                 Log.w(TAG, "Exact alarms not granted; cancelling ${queued.size} queued alarms")
+                permissionWasMissingOnLastSync = true
                 cancelQueuedActivityAlarms(alarmManager)
                 scheduleKeeperAlarm(alarmManager)
                 return@withLock
@@ -66,6 +85,7 @@ class AlarmManagerAlarmScheduler(
             }
             scheduledRequestCodes = wantedRequestCodes
             codesStore.saveRequestCodes(wantedRequestCodes)
+            permissionWasMissingOnLastSync = false
             scheduleKeeperAlarm(alarmManager)
         }
 

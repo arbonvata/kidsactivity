@@ -63,4 +63,18 @@ class AlarmSyncCoordinator(
             ),
         )
     }
+
+    /**
+     * Granting the exact-alarm permission while this process is alive is
+     * invisible to the reactive combine above — and every sync that ran
+     * without the permission CANCELLED the queued alarms. MainActivity calls
+     * this on ON_RESUME so reminders come back immediately after a grant
+     * from system Settings or the guided permission chain, instead of
+     * waiting for the keeper, a reboot or the next data change.
+     */
+    suspend fun onAppResumed() {
+        if (alarmScheduler.missedExactAlarmPermissionOnLastSync() && alarmScheduler.canScheduleExactAlarms()) {
+            resyncOnce()
+        }
+    }
 }
