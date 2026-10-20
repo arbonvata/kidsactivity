@@ -87,6 +87,13 @@ class AlarmReceiver : BroadcastReceiver() {
             } else {
                 context.getString(R.string.notification_alarm_activity_text_format, kid.name, activity.name, offsetMinutes)
             }
+        val details =
+            listOfNotNull(
+                activity.location?.takeIf { it.isNotBlank() }?.let { context.getString(R.string.pickup_location_format, it) },
+                activity.pickupAdult?.takeIf { it.isNotBlank() }?.let { context.getString(R.string.pickup_adult_format, it) },
+                activity.pickupNotes?.takeIf { it.isNotBlank() },
+            ).joinToString("\n")
+        val fullText = listOf(text, details).filter { it.isNotBlank() }.joinToString("\n")
         NotificationChannels.ensure(context)
         val contentIntent =
             PendingIntent.getActivity(
@@ -111,7 +118,7 @@ class AlarmReceiver : BroadcastReceiver() {
                         if (isSchool) R.string.notification_alarm_school_title else R.string.notification_alarm_activity_title,
                     ),
                 ).setContentText(text)
-                .setStyle(NotificationCompat.BigTextStyle().bigText(text))
+                .setStyle(NotificationCompat.BigTextStyle().bigText(fullText))
                 .setContentIntent(contentIntent)
                 .setCategory(NotificationCompat.CATEGORY_ALARM)
                 .setAutoCancel(true)

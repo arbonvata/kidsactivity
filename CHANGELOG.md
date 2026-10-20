@@ -5,6 +5,9 @@ in-app About screen); this file records what each release shipped.
 
 ## Unreleased
 
+- **Added**: activity locations, pickup adults and notes, displayed on Today
+  and in expanded reminders and preserved in backups.
+
 - **Added**: cancel or change the times of an individual activity date without
   changing its weekly schedule; exceptions are included in backups.
 

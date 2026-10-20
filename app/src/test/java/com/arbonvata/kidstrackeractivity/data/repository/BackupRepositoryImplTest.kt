@@ -177,6 +177,28 @@ class BackupRepositoryImplTest {
             verify(exactly = 0) { kidBox.removeAll() }
         }
 
+    @Test
+    fun importPreservesPickupDetailsAndDefaultsLegacyBackupsToEmpty() =
+        runTest {
+            every { kidBox.put(any<Kid>()) } returns 100L
+            val captured = slot<Activity>()
+            every { activityBox.put(capture(captured)) } returns 200L
+            every { scheduleBox.put(any<DailySchedule>()) } returns 300L
+            val json =
+                validBackupJson.replace(
+                    "\"firstDate\": \"\"",
+                    "\"firstDate\": \"\", \"location\": \"Pool\", \"pickupAdult\": \"Alex\", \"pickupNotes\": \"Side door\"",
+                )
+            repository.importAll(json, replaceExisting = false)
+            assertEquals("Pool", captured.captured.location)
+            assertEquals("Alex", captured.captured.pickupAdult)
+            assertEquals("Side door", captured.captured.pickupNotes)
+            repository.importAll(validBackupJson, replaceExisting = false)
+            assertEquals("", captured.captured.location)
+            assertEquals("", captured.captured.pickupAdult)
+            assertEquals("", captured.captured.pickupNotes)
+        }
+
     /** JUnit's assertThrows cannot wrap a suspend call, so catch manually. */
     private suspend fun assertImportThrows(json: String): Throwable? =
         runCatching { repository.importAll(json, replaceExisting = true) }.exceptionOrNull()

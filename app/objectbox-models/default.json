@@ -5,7 +5,7 @@
   "entities": [
     {
       "id": "1:6241753072432626048",
-      "lastPropertyId": "11:7595654631547927809",
+      "lastPropertyId": "14:2145072863133526948",
       "name": "Activity",
       "properties": [
         {
@@ -62,6 +62,21 @@
         {
           "id": "11:7595654631547927809",
           "name": "occurrenceExceptions",
+          "type": 9
+        },
+        {
+          "id": "12:1678508286868890510",
+          "name": "location",
+          "type": 9
+        },
+        {
+          "id": "13:8256926467658489469",
+          "name": "pickupAdult",
+          "type": 9
+        },
+        {
+          "id": "14:2145072863133526948",
+          "name": "pickupNotes",
           "type": 9
         }
       ],

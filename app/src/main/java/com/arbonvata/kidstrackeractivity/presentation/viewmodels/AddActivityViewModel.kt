@@ -21,6 +21,9 @@ import java.time.temporal.TemporalAdjusters
 
 data class AddActivityUiState(
     val name: String = "",
+    val location: String = "",
+    val pickupAdult: String = "",
+    val pickupNotes: String = "",
     val exceptions: List<com.arbonvata.kidstrackeractivity.data.OccurrenceException> = emptyList(),
     val selectedKidId: Long = 0L,
     val selectedDays: Set<Int> = emptySet(),
@@ -68,6 +71,18 @@ class AddActivityViewModel(
         kidRepository
             .getAllKidsFlow()
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    fun onLocationChange(value: String) {
+        _uiState.update { it.copy(location = value) }
+    }
+
+    fun onPickupAdultChange(value: String) {
+        _uiState.update { it.copy(pickupAdult = value) }
+    }
+
+    fun onPickupNotesChange(value: String) {
+        _uiState.update { it.copy(pickupNotes = value) }
+    }
 
     fun onKidSelected(kidId: Long) {
         _uiState.update { it.copy(selectedKidId = kidId) }
@@ -129,6 +144,9 @@ class AddActivityViewModel(
                 Activity(
                     kidId = state.selectedKidId,
                     name = trimmedName,
+                    location = state.location.trim(),
+                    pickupAdult = state.pickupAdult.trim(),
+                    pickupNotes = state.pickupNotes.trim(),
                     startTime = state.startTime.format(TIME_FORMATTER),
                     endTime = state.endTime.format(TIME_FORMATTER),
                     isEnabled = true,

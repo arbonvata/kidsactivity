@@ -414,6 +414,10 @@ fun DashboardScreen(
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
+                                PickupDetails(occurrence.activity)
+                                if (occurrence.activity.isSchoolActivity || !occurrence.activity.pickupAdult.isNullOrBlank()) {
+                                    Text(stringResource(R.string.pickup_time_format, occurrence.endTime.format(shortTimeFormatter)))
+                                }
                             }
                             if (alarmsDisabled) {
                                 Icon(

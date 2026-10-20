@@ -44,6 +44,22 @@ class AddActivityViewModelTest {
     }
 
     @Test
+    fun savesPickupArrangementsWithTrimmedValues() =
+        runTest {
+            val captured = slot<Activity>()
+            coEvery { activityRepository.addActivity(capture(captured)) } answers { captured.captured }
+            val viewModel = AddActivityViewModel(5L, activityRepository, kidRepository)
+            viewModel.onNameChange("Swim")
+            viewModel.onLocationChange("  Pool entrance  ")
+            viewModel.onPickupAdultChange("  Alex  ")
+            viewModel.onPickupNotesChange("  Bring towel  ")
+            viewModel.saveActivity()
+            assertEquals("Pool entrance", captured.captured.location)
+            assertEquals("Alex", captured.captured.pickupAdult)
+            assertEquals("Bring towel", captured.captured.pickupNotes)
+        }
+
+    @Test
     fun initialStatePreselectsTodaysWeekdayForTheScopedKid() =
         runTest {
             val viewModel = AddActivityViewModel(kidId = 5L, activityRepository, kidRepository)

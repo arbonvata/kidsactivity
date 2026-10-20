@@ -28,6 +28,8 @@ keep showing muted activities dimmed.
 - **School-day overrides** — mark No-School days (holidays, trips) and custom
   early-release end times on a calendar; overrides hide or shift only school
   activities for that kid and day.
+- **Pickup arrangements** — optional location, responsible adult and notes per
+  activity, shown on Today and in expanded reminder notifications, and backed up.
 - **Individual-date changes** — in Edit Activity, cancel a scheduled date or
   change its start/end times, then Save. Restore the usual schedule by removing
   the exception. Changes apply to views, conflicts, reminders and JSON backups.

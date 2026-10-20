@@ -96,6 +96,9 @@ fun AddActivityScreen(
         isKidPickerEnabled = kidId == 0L,
         onKidSelected = viewModel::onKidSelected,
         onNameChange = viewModel::onNameChange,
+        onLocationChange = viewModel::onLocationChange,
+        onPickupAdultChange = viewModel::onPickupAdultChange,
+        onPickupNotesChange = viewModel::onPickupNotesChange,
         onToggleDay = viewModel::onToggleDay,
         onStartTimeChange = viewModel::onStartTimeChange,
         onEndTimeChange = viewModel::onEndTimeChange,
@@ -163,6 +166,9 @@ fun EditActivityScreen(
                 isKidPickerEnabled = false,
                 onKidSelected = {},
                 onNameChange = viewModel::onNameChange,
+                onLocationChange = viewModel::onLocationChange,
+                onPickupAdultChange = viewModel::onPickupAdultChange,
+                onPickupNotesChange = viewModel::onPickupNotesChange,
                 onToggleDay = viewModel::onToggleDay,
                 onStartTimeChange = viewModel::onStartTimeChange,
                 onEndTimeChange = viewModel::onEndTimeChange,
@@ -221,6 +227,9 @@ fun AddActivityContent(
     screenTitle: String = stringResource(R.string.add_activity_title),
     onDeleteClick: (() -> Unit)? = null,
     extraContent: @Composable () -> Unit = {},
+    onLocationChange: (String) -> Unit = {},
+    onPickupAdultChange: (String) -> Unit = {},
+    onPickupNotesChange: (String) -> Unit = {},
 ) {
     var showStartTimePicker by remember { mutableStateOf(false) }
     var showEndTimePicker by remember { mutableStateOf(false) }
@@ -330,6 +339,28 @@ fun AddActivityContent(
                 )
             }
 
+            Text(stringResource(R.string.pickup_details_title), style = MaterialTheme.typography.titleMedium)
+            OutlinedTextField(
+                value = uiState.location,
+                onValueChange = onLocationChange,
+                label = { Text(stringResource(R.string.pickup_location)) },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+            )
+            OutlinedTextField(
+                value = uiState.pickupAdult,
+                onValueChange = onPickupAdultChange,
+                label = { Text(stringResource(R.string.pickup_adult)) },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+            )
+            OutlinedTextField(
+                value = uiState.pickupNotes,
+                onValueChange = onPickupNotesChange,
+                label = { Text(stringResource(R.string.pickup_notes)) },
+                modifier = Modifier.fillMaxWidth(),
+                minLines = 2,
+            )
             extraContent()
 
             // School activities are always weekly, so the periodic toggle is

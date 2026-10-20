@@ -65,6 +65,12 @@ class EditActivityViewModel(
         }
     }
 
+    fun onLocationChange(value: String) = updateForm { it.copy(location = value) }
+
+    fun onPickupAdultChange(value: String) = updateForm { it.copy(pickupAdult = value) }
+
+    fun onPickupNotesChange(value: String) = updateForm { it.copy(pickupNotes = value) }
+
     fun onNameChange(name: String) = updateForm { it.copy(name = name, nameError = name.isBlank()) }
 
     fun onToggleDay(day: Int) =
@@ -118,6 +124,9 @@ class EditActivityViewModel(
                             .encodeExceptions(form.exceptions),
                     kidId = original.kidId,
                     name = form.name.trim(),
+                    location = form.location.trim(),
+                    pickupAdult = form.pickupAdult.trim(),
+                    pickupNotes = form.pickupNotes.trim(),
                     startTime = form.startTime.format(AddActivityViewModel.TIME_FORMATTER),
                     endTime = form.endTime.format(AddActivityViewModel.TIME_FORMATTER),
                     isEnabled = original.isEnabled,
@@ -158,6 +167,9 @@ class EditActivityViewModel(
             AddActivityUiState(
                 selectedKidId = activity.kidId,
                 name = activity.name,
+                location = activity.location.orEmpty(),
+                pickupAdult = activity.pickupAdult.orEmpty(),
+                pickupNotes = activity.pickupNotes.orEmpty(),
                 exceptions =
                     com.arbonvata.kidstrackeractivity.data
                         .decodeExceptions(activity.occurrenceExceptions),

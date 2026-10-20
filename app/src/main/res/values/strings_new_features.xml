@@ -7,4 +7,11 @@
     <string name="occurrence_reset">Restore usual schedule</string>
     <string name="occurrence_cancel">Cancel on this date</string>
     <string name="occurrence_change">Use these times on this date</string>
+    <string name="pickup_details_title">Location and pickup arrangements</string>
+    <string name="pickup_location">Location (optional)</string>
+    <string name="pickup_adult">Adult responsible for pickup (optional)</string>
+    <string name="pickup_notes">Pickup notes (optional)</string>
+    <string name="pickup_location_format">Location: %1$s</string>
+    <string name="pickup_adult_format">Pickup: %1$s</string>
+    <string name="pickup_time_format">Pickup at %1$s</string>
 </resources>

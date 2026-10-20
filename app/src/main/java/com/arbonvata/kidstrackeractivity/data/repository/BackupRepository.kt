@@ -120,6 +120,9 @@ class BackupRepositoryImpl(
                         Activity(
                             kidId = kidId,
                             name = parsed.name,
+                            location = parsed.location,
+                            pickupAdult = parsed.pickupAdult,
+                            pickupNotes = parsed.pickupNotes,
                             startTime = parsed.startTime,
                             endTime = parsed.endTime,
                             isEnabled = parsed.isEnabled,
@@ -164,6 +167,9 @@ class BackupRepositoryImpl(
         val isSchoolActivity: Boolean,
         val firstDate: String,
         val exceptions: String,
+        val location: String,
+        val pickupAdult: String,
+        val pickupNotes: String,
     )
 
     private data class ParsedOverride(
@@ -185,6 +191,9 @@ class BackupRepositoryImpl(
         ParsedActivity(
             kidId = json.optLong("kidId"),
             name = json.optString("name"),
+            location = json.optString("location"),
+            pickupAdult = json.optString("pickupAdult"),
+            pickupNotes = json.optString("pickupNotes"),
             startTime = requireTime(json.optString("startTime"), "activity startTime"),
             endTime = requireTime(json.optString("endTime"), "activity endTime"),
             isEnabled = json.optBoolean("isEnabled", true),
@@ -263,6 +272,9 @@ class BackupRepositoryImpl(
             .put("id", activity.id)
             .put("kidId", activity.kidId)
             .put("name", activity.name)
+            .put("location", activity.location.orEmpty())
+            .put("pickupAdult", activity.pickupAdult.orEmpty())
+            .put("pickupNotes", activity.pickupNotes.orEmpty())
             .put("startTime", activity.startTime)
             .put("endTime", activity.endTime)
             .put("isEnabled", activity.isEnabled)
@@ -281,6 +293,6 @@ class BackupRepositoryImpl(
             .put("isNoSchool", override.isNoSchool)
 
     private companion object {
-        const val FORMAT_VERSION = 2
+        const val FORMAT_VERSION = 3
     }
 }
