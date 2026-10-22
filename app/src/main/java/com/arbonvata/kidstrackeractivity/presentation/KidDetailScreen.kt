@@ -71,6 +71,7 @@ fun KidDetailScreen(
     val uiState by viewModel.uiState.collectAsState()
     val isKidDeleted by viewModel.isKidDeleted.collectAsState()
     var showDeleteDialog by remember { mutableStateOf(false) }
+    var showCopyDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(isKidDeleted) {
         if (isKidDeleted) {
@@ -88,8 +89,12 @@ fun KidDetailScreen(
         onActivityEnabledChange = viewModel::setActivityEnabled,
         onAddActivityClick = onAddActivityClick,
         onNavigateBack = onNavigateBack,
+        onCopySchedule = { showCopyDialog = true },
     )
 
+    if (showCopyDialog) {
+        CopyActivitiesDialog(kidId, onDismiss = { showCopyDialog = false })
+    }
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
@@ -131,6 +136,7 @@ fun KidDetailContent(
     onActivityEnabledChange: (activityId: Long, enabled: Boolean) -> Unit,
     onAddActivityClick: () -> Unit,
     onNavigateBack: () -> Unit,
+    onCopySchedule: () -> Unit = {},
 ) {
     val kid = uiState.kid
     Scaffold(
@@ -151,6 +157,9 @@ fun KidDetailContent(
                     }
                 },
                 actions = {
+                    TextButton(onClick = onCopySchedule, enabled = uiState.activities.isNotEmpty()) {
+                        Text(stringResource(R.string.copy_schedule))
+                    }
                     IconButton(onClick = onEditKidClick) {
                         Icon(
                             Icons.Default.Edit,

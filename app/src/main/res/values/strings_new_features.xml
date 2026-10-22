@@ -22,4 +22,14 @@
     <string name="widget_pickup">School pickup</string>
     <string name="widget_refresh">Refresh</string>
     <string name="widget_updated">Updated %1$s</string>
+    <string name="copy_schedule">Copy schedule</string>
+    <string name="copy_activity">Duplicate activity</string>
+    <string name="copy_hint">Copies saved activities, including pickup details and reminder settings. Weekly activities keep their weekdays; one-offs move to the chosen week. Date exceptions and school overrides are not copied. Existing activities stay in place.</string>
+    <string name="copy_source_count">Activities to copy: %1$d</string>
+    <string name="copy_one_off_week">Week for copied one-offs: %1$s</string>
+    <string name="copy_success">Copied %1$d activities. You can edit them from the child’s activity list.</string>
+    <string name="copy_no_target">Add another child to copy a full schedule.</string>
+    <string name="copy_confirm">Copy</string>
+    <string name="copy_done">Done</string>
+    <string name="copy_error">Could not copy the activities. Check the selected child and try again.</string>
 </resources>

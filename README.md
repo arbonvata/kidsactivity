@@ -28,6 +28,11 @@ keep showing muted activities dimmed.
 - **School-day overrides** — mark No-School days (holidays, trips) and custom
   early-release end times on a calendar; overrides hide or shift only school
   activities for that kid and day.
+- **Duplicate and copy** — use Duplicate activity in Edit Activity to copy a
+  saved activity to the same child or a sibling, with an editable name. Use
+  Copy schedule on a child’s screen to copy all activities to another child.
+  Weekly patterns and pickup details are preserved; one-offs move to a chosen
+  week. Date exceptions and school overrides are not copied.
 - **Family agenda widget** — add it from your launcher’s widget picker. Shows
   the next activity or school pickup and up to four remaining activities today.
   Tap the next activity to edit, or Refresh to update. Updates live while the

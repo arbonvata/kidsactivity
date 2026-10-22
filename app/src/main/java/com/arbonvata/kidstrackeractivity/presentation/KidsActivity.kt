@@ -125,6 +125,7 @@ fun EditActivityScreen(
     val uiState by viewModel.uiState.collectAsState()
     val kids by viewModel.kids.collectAsState()
     var showDeleteDialog by remember { mutableStateOf(false) }
+    var showCopyDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(uiState.isSaved) {
         if (uiState.isSaved) {
@@ -180,12 +181,18 @@ fun EditActivityScreen(
                 screenTitle = stringResource(R.string.edit_activity_title),
                 onDeleteClick = { showDeleteDialog = true },
                 extraContent = {
+                    OutlinedButton(onClick = { showCopyDialog = true }) {
+                        Text(stringResource(R.string.copy_activity))
+                    }
                     OccurrenceExceptionEditor(form, viewModel::onExceptionChange, viewModel::onExceptionRemoved)
                 },
             )
         }
     }
 
+    if (showCopyDialog && form != null) {
+        CopyActivitiesDialog(form.selectedKidId, activityId, onDismiss = { showCopyDialog = false })
+    }
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },

@@ -49,6 +49,10 @@ val appModule =
         single<KidRepository> { KidRepositoryImpl(get()) }
         single<ActivityRepository> { ActivityRepositoryImpl(get()) }
         single<ScheduleOverrideRepository> { ScheduleOverrideRepositoryImpl(get()) }
+        single<com.arbonvata.kidstrackeractivity.data.repository.ScheduleCopyRepository> {
+            com.arbonvata.kidstrackeractivity.data.repository
+                .ScheduleCopyRepositoryImpl(get())
+        }
         single<BackupRepository> { BackupRepositoryImpl(get()) }
         single<AlarmSettingsRepository> { AlarmSettingsRepositoryImpl(androidContext()) }
         single<CoroutineScope> { CoroutineScope(SupervisorJob() + Dispatchers.Default) }
@@ -59,6 +63,10 @@ val appModule =
                 .AgendaWidgetSync(androidContext(), get(), get(), get(), get())
         }
         single<AlarmSyncCoordinator> { AlarmSyncCoordinator(get(), get(), get(), get(), get(), get()) }
+        viewModel { (sourceKidId: Long, activityId: Long) ->
+            com.arbonvata.kidstrackeractivity.presentation.viewmodels
+                .ActivityCopyViewModel(sourceKidId, activityId, get(), get(), get())
+        }
         viewModel { KidsViewModel(get()) }
         viewModel { AddKidViewModel(get()) }
         viewModel { TodayViewModel(get(), get(), get(), get()) }
