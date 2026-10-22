@@ -54,6 +54,10 @@ val appModule =
         single<CoroutineScope> { CoroutineScope(SupervisorJob() + Dispatchers.Default) }
         single { ScheduledAlarmCodesStore(androidContext()) }
         single<AlarmScheduler> { AlarmManagerAlarmScheduler(androidContext(), get()) }
+        single {
+            com.arbonvata.kidstrackeractivity.widgets
+                .AgendaWidgetSync(androidContext(), get(), get(), get(), get())
+        }
         single<AlarmSyncCoordinator> { AlarmSyncCoordinator(get(), get(), get(), get(), get(), get()) }
         viewModel { KidsViewModel(get()) }
         viewModel { AddKidViewModel(get()) }

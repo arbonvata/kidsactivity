@@ -5,6 +5,9 @@ in-app About screen); this file records what each release shipped.
 
 ## Unreleased
 
+- **Added**: resizable Family agenda home-screen widget with next activity or
+  school pickup, remaining daily agenda, live updates and manual refresh.
+
 - **Added**: activity locations, pickup adults and notes, displayed on Today
   and in expanded reminders and preserved in backups.
 

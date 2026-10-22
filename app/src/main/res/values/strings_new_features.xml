@@ -14,4 +14,12 @@
     <string name="pickup_location_format">Location: %1$s</string>
     <string name="pickup_adult_format">Pickup: %1$s</string>
     <string name="pickup_time_format">Pickup at %1$s</string>
+    <string name="widget_title">Family agenda</string>
+    <string name="widget_description">Next activity, school pickup and today’s remaining schedule</string>
+    <string name="widget_no_upcoming">No activities in the next seven days</string>
+    <string name="widget_today">Remaining today</string>
+    <string name="widget_today_empty">Nothing else scheduled today</string>
+    <string name="widget_pickup">School pickup</string>
+    <string name="widget_refresh">Refresh</string>
+    <string name="widget_updated">Updated %1$s</string>
 </resources>

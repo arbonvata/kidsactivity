@@ -28,6 +28,10 @@ keep showing muted activities dimmed.
 - **School-day overrides** — mark No-School days (holidays, trips) and custom
   early-release end times on a calendar; overrides hide or shift only school
   activities for that kid and day.
+- **Family agenda widget** — add it from your launcher’s widget picker. Shows
+  the next activity or school pickup and up to four remaining activities today.
+  Tap the next activity to edit, or Refresh to update. Updates live while the
+  app process runs and periodically (about 30 minutes) otherwise.
 - **Pickup arrangements** — optional location, responsible adult and notes per
   activity, shown on Today and in expanded reminder notifications, and backed up.
 - **Individual-date changes** — in Edit Activity, cancel a scheduled date or

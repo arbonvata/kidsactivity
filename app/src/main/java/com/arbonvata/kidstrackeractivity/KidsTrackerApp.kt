@@ -17,5 +17,6 @@ class KidsTrackerApp : Application() {
         }
         NotificationChannels.ensure(this)
         GlobalContext.get().get<AlarmSyncCoordinator>().start()
+        GlobalContext.get().get<com.arbonvata.kidstrackeractivity.widgets.AgendaWidgetSync>().start()
     }
 }
