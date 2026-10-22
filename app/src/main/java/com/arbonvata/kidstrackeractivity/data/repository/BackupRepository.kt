@@ -131,6 +131,7 @@ class BackupRepositoryImpl(
                             isSchoolActivity = parsed.isSchoolActivity,
                             firstDate = parsed.firstDate,
                             occurrenceExceptions = parsed.exceptions,
+                            calendarStartDate = parsed.calendarStartDate,
                         ),
                     )
                 }
@@ -167,6 +168,7 @@ class BackupRepositoryImpl(
         val isSchoolActivity: Boolean,
         val firstDate: String,
         val exceptions: String,
+        val calendarStartDate: String?,
         val location: String,
         val pickupAdult: String,
         val pickupNotes: String,
@@ -191,6 +193,7 @@ class BackupRepositoryImpl(
         ParsedActivity(
             kidId = json.optLong("kidId"),
             name = json.optString("name"),
+            calendarStartDate = requireOptionalDate(json.optString("calendarStartDate"), "calendar start date").ifBlank { null },
             location = json.optString("location"),
             pickupAdult = json.optString("pickupAdult"),
             pickupNotes = json.optString("pickupNotes"),
@@ -281,6 +284,7 @@ class BackupRepositoryImpl(
             .put("daysOfWeek", JSONArray(activity.daysOfWeek.toList()))
             .put("isPeriodic", activity.isPeriodic)
             .put("isSchoolActivity", activity.isSchoolActivity)
+            .put("calendarStartDate", activity.calendarStartDate.orEmpty())
             .put("firstDate", activity.firstDate)
             .put("occurrenceExceptions", activity.occurrenceExceptions.orEmpty())
 
@@ -293,6 +297,6 @@ class BackupRepositoryImpl(
             .put("isNoSchool", override.isNoSchool)
 
     private companion object {
-        const val FORMAT_VERSION = 3
+        const val FORMAT_VERSION = 4
     }
 }

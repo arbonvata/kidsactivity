@@ -106,7 +106,13 @@ private fun isWithinActivePeriod(
     activity: Activity,
     date: LocalDate,
 ): Boolean {
-    if (activity.isPeriodic || activity.isSchoolActivity) return true
+    if (activity.isPeriodic || activity.isSchoolActivity) {
+        activity.calendarStartDate?.takeIf { it.isNotBlank() }?.let {
+            val start = runCatching { LocalDate.parse(it) }.getOrNull() ?: return false
+            if (date.isBefore(start)) return false
+        }
+        return true
+    }
     val anchorString = activity.firstDate?.takeIf { it.isNotEmpty() } ?: return true
     // A corrupt anchor hides the one-off (its week is unknowable) instead of
     // crashing; blank is the legacy unbounded case.

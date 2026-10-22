@@ -1,0 +1,16 @@
+<resources>
+    <string name="calendar_title">Share and import calendars</string>
+    <string name="calendar_hint">Choose a child to share their activities as an .ics calendar file, or import a file shared with you.</string>
+    <string name="calendar_share">Share calendar</string>
+    <string name="calendar_save">Save calendar file</string>
+    <string name="calendar_import">Import calendar</string>
+    <string name="calendar_preview_title">Import activities for a child</string>
+    <string name="calendar_preview_count">Activities in this file: %1$d</string>
+    <string name="calendar_import_hint">Choose an existing child or create a new one. Activities are added without removing anything. Exact duplicates are skipped. Weekly events keep repeating; dated events stay on their dates. Imported reminders use this device’s timing settings.</string>
+    <string name="calendar_new_child">Create a new child instead</string>
+    <string name="calendar_child_name">New child’s name</string>
+    <string name="calendar_error">Calendar could not be processed</string>
+    <string name="calendar_complete">Calendar imported</string>
+    <string name="calendar_import_result">Added %1$d activities; skipped %2$d duplicates.</string>
+    <string name="calendar_supported">Supports timed events and weekly schedules. All-day, overnight, monthly and fortnightly events are not supported. Recurring events must use local time or this device’s time zone.</string>
+</resources>

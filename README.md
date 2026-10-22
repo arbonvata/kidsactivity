@@ -28,6 +28,24 @@ keep showing muted activities dimmed.
 - **School-day overrides** — mark No-School days (holidays, trips) and custom
   early-release end times on a calendar; overrides hide or shift only school
   activities for that kid and day.
+- **Calendar sharing and import** — open More → Share / Export. Select a child
+  and share/save an `.ics` file. On the receiving device, save the file, open
+  the same screen and choose Import calendar. Preview the activities and select
+  an existing child or enter a new child’s name before confirming. Imports add
+  activities and skip matching duplicates; they never replace existing data.
+  Weekly patterns, locations, pickup details, reminder mute flags and date
+  exceptions transfer between copies of this app. School-day overrides become
+  exceptions on the exported school activities. Weekly sharing starts from the
+  export date (or an imported future start date); dated activities retain their
+  dates. Reminder timing uses the receiving device’s settings.
+  This is file sharing rather than ongoing synchronization. The importer
+  supports timed single events and weekly interval-1 rules, including finite
+  COUNT/UNTIL rules (expanded into dated activities). Other recurrence patterns,
+  all-day/overnight events and changes that move an occurrence to another day
+  are rejected before any data is written. Recurring events must be floating
+  local times or use the device’s IANA time zone; UTC/named-zone single events
+  convert to local time. UTF-8 files are limited to 2 MB and 2,000 events.
+  Format reference: [iCalendar (RFC 5545)](https://www.rfc-editor.org/rfc/rfc5545).
 - **Duplicate and copy** — use Duplicate activity in Edit Activity to copy a
   saved activity to the same child or a sibling, with an editable name. Use
   Copy schedule on a child’s screen to copy all activities to another child.

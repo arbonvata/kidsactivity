@@ -5,7 +5,7 @@
   "entities": [
     {
       "id": "1:6241753072432626048",
-      "lastPropertyId": "14:2145072863133526948",
+      "lastPropertyId": "15:4777885297854858790",
       "name": "Activity",
       "properties": [
         {
@@ -77,6 +77,11 @@
         {
           "id": "14:2145072863133526948",
           "name": "pickupNotes",
+          "type": 9
+        },
+        {
+          "id": "15:4777885297854858790",
+          "name": "calendarStartDate",
           "type": 9
         }
       ],

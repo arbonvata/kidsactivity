@@ -119,6 +119,7 @@ class EditActivityViewModel(
             activityRepository.updateActivity(
                 Activity(
                     id = original.id,
+                    calendarStartDate = original.calendarStartDate,
                     occurrenceExceptions =
                         com.arbonvata.kidstrackeractivity.data
                             .encodeExceptions(form.exceptions),

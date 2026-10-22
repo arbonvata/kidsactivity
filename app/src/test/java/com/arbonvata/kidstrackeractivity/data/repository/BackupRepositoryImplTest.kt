@@ -199,6 +199,22 @@ class BackupRepositoryImplTest {
             assertEquals("", captured.captured.pickupNotes)
         }
 
+    @Test
+    fun importedCalendarStartDateSurvivesBackupsAndRejectsInvalidDatesBeforeReplacing() =
+        runTest {
+            every { kidBox.put(any<Kid>()) } returns 100L
+            val captured = slot<Activity>()
+            every { activityBox.put(capture(captured)) } returns 200L
+            every { scheduleBox.put(any<DailySchedule>()) } returns 300L
+            val json = validBackupJson.replace("\"firstDate\": \"\"", "\"firstDate\": \"\", \"calendarStartDate\": \"2026-11-02\"")
+            repository.importAll(json, replaceExisting = false)
+            assertEquals("2026-11-02", captured.captured.calendarStartDate)
+            assertInstanceOf(JSONException::class.java, assertImportThrows(json.replace("2026-11-02", "not-a-date")))
+            verify(exactly = 0) { kidBox.removeAll() }
+            repository.importAll(validBackupJson, replaceExisting = false)
+            assertEquals(null, captured.captured.calendarStartDate)
+        }
+
     /** JUnit's assertThrows cannot wrap a suspend call, so catch manually. */
     private suspend fun assertImportThrows(json: String): Throwable? =
         runCatching { repository.importAll(json, replaceExisting = true) }.exceptionOrNull()

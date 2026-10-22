@@ -34,6 +34,8 @@ data class Activity(
     var isSchoolActivity: Boolean = false,
     // Date-specific exceptions encoded by OccurrenceException; null for legacy rows.
     var occurrenceExceptions: String? = null,
+    // Imported recurring calendars must not occur before their DTSTART.
+    var calendarStartDate: String? = null,
     var location: String? = null,
     var pickupAdult: String? = null,
     var pickupNotes: String? = null,
@@ -47,6 +49,7 @@ data class Activity(
         other as Activity
 
         if (location != other.location || pickupAdult != other.pickupAdult || pickupNotes != other.pickupNotes) return false
+        if (calendarStartDate != other.calendarStartDate) return false
         if (occurrenceExceptions != other.occurrenceExceptions) return false
         if (id != other.id) return false
         if (kidId != other.kidId) return false
@@ -64,6 +67,7 @@ data class Activity(
 
     override fun hashCode(): Int {
         var result = id.hashCode()
+        result = 31 * result + (calendarStartDate?.hashCode() ?: 0)
         result = 31 * result + (location?.hashCode() ?: 0)
         result = 31 * result + (pickupAdult?.hashCode() ?: 0)
         result = 31 * result + (pickupNotes?.hashCode() ?: 0)

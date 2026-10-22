@@ -133,6 +133,7 @@ fun ShareScreen(
             openDocumentLauncher.launch(arrayOf("application/json", "text/*", "application/octet-stream"))
         },
         onBackClick = onBackClick,
+        calendarContent = { CalendarSharingSection() },
     )
 
     pendingImportJson?.let { json ->
@@ -196,6 +197,7 @@ fun ShareContent(
     onShareFileClick: () -> Unit,
     onImportClick: () -> Unit,
     onBackClick: () -> Unit,
+    calendarContent: @Composable () -> Unit = {},
 ) {
     Scaffold(
         topBar = {
@@ -237,6 +239,8 @@ fun ShareContent(
                     )
                 }
             }
+
+            calendarContent()
 
             Text(
                 stringResource(R.string.share_section_backup),

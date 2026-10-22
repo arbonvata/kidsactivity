@@ -11,12 +11,15 @@ import com.arbonvata.kidstrackeractivity.data.repository.AlarmSettingsRepository
 import com.arbonvata.kidstrackeractivity.data.repository.AlarmSettingsRepositoryImpl
 import com.arbonvata.kidstrackeractivity.data.repository.BackupRepository
 import com.arbonvata.kidstrackeractivity.data.repository.BackupRepositoryImpl
+import com.arbonvata.kidstrackeractivity.data.repository.CalendarRepository
+import com.arbonvata.kidstrackeractivity.data.repository.CalendarRepositoryImpl
 import com.arbonvata.kidstrackeractivity.data.repository.KidRepository
 import com.arbonvata.kidstrackeractivity.data.repository.KidRepositoryImpl
 import com.arbonvata.kidstrackeractivity.data.repository.ScheduleOverrideRepository
 import com.arbonvata.kidstrackeractivity.data.repository.ScheduleOverrideRepositoryImpl
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.AddActivityViewModel
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.AddKidViewModel
+import com.arbonvata.kidstrackeractivity.presentation.viewmodels.CalendarShareViewModel
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.ConflictViewModel
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.DailyScheduleViewModel
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.EditActivityViewModel
@@ -53,6 +56,15 @@ val appModule =
             com.arbonvata.kidstrackeractivity.data.repository
                 .ScheduleCopyRepositoryImpl(get())
         }
+        single<CalendarRepository> {
+            val preferences = androidContext().getSharedPreferences("calendar_export", android.content.Context.MODE_PRIVATE)
+            val namespace =
+                preferences.getString("namespace", null) ?: java.util.UUID.randomUUID().toString().also {
+                    check(preferences.edit().putString("namespace", it).commit()) { "Unable to persist calendar identity" }
+                }
+            CalendarRepositoryImpl(get(), exportNamespace = namespace)
+        }
+        viewModel { CalendarShareViewModel(get(), get()) }
         single<BackupRepository> { BackupRepositoryImpl(get()) }
         single<AlarmSettingsRepository> { AlarmSettingsRepositoryImpl(androidContext()) }
         single<CoroutineScope> { CoroutineScope(SupervisorJob() + Dispatchers.Default) }
