@@ -35,6 +35,21 @@ class CalendarShareViewModelTest {
     private val preview = CalendarImport("Leo", listOf(Activity(name = "Swim")))
 
     @Test
+    fun `single activity export does not require choosing a child and reports errors`() =
+        runTest {
+            coEvery { repository.exportActivity(10) } returns "single-event-calendar"
+            val vm = CalendarShareViewModel(repository, kids)
+            backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.uiState.collect() }
+            assertEquals("single-event-calendar", vm.exportActivity(10))
+            assertFalse(vm.uiState.value.isWorking)
+            coVerify(exactly = 0) { repository.export(any()) }
+            coEvery { repository.exportActivity(10) } throws IllegalArgumentException("Activity no longer exists")
+            assertNull(vm.exportActivity(10))
+            assertEquals("Activity no longer exists", vm.uiState.value.error)
+            assertFalse(vm.uiState.value.isWorking)
+        }
+
+    @Test
     fun `preview chooses matching child but waits for confirmation and cancel writes nothing`() =
         runTest {
             coEvery { repository.preview("calendar") } returns preview

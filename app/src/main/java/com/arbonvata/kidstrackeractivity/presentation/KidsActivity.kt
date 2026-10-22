@@ -181,6 +181,7 @@ fun EditActivityScreen(
                 screenTitle = stringResource(R.string.edit_activity_title),
                 onDeleteClick = { showDeleteDialog = true },
                 extraContent = {
+                    ActivityCalendarShare(activityId)
                     OutlinedButton(onClick = { showCopyDialog = true }) {
                         Text(stringResource(R.string.copy_activity))
                     }

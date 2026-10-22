@@ -13,4 +13,6 @@
     <string name="calendar_complete">Calendar imported</string>
     <string name="calendar_import_result">Added %1$d activities; skipped %2$d duplicates.</string>
     <string name="calendar_supported">Supports timed events and weekly schedules. All-day, overnight, monthly and fortnightly events are not supported. Recurring events must use local time or this device’s time zone.</string>
+    <string name="calendar_share_activity">Share this activity as calendar</string>
+    <string name="calendar_share_activity_hint">Shares only this saved activity, including its weekly repeats and date changes. Save any edits before sharing.</string>
 </resources>

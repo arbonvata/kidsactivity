@@ -5,6 +5,9 @@ in-app About screen); this file records what each release shipped.
 
 ## Unreleased
 
+- **Added**: share a single saved activity as an `.ics` calendar from its editor,
+  including recurring dates, pickup details and exceptions.
+
 - **Added**: per-child `.ics` calendar sharing/saving and previewed import into
   an existing or new child, with duplicate detection, weekly recurrence,
   pickup details and individual-date exceptions. Imported recurring schedules

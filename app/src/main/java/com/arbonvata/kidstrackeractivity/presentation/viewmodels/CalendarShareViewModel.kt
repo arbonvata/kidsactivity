@@ -78,6 +78,19 @@ class CalendarShareViewModel(
         }
     }
 
+    suspend fun exportActivity(activityId: Long): String? {
+        if (state.value.isWorking) return null
+        state.update { it.copy(isWorking = true, error = null) }
+        return try {
+            repository.exportActivity(activityId).also { state.update { it.copy(isWorking = false) } }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            reportFailure(e)
+            null
+        }
+    }
+
     fun preview(text: String) {
         if (state.value.isWorking) return
         state.update { it.copy(isWorking = true, error = null, result = null) }

@@ -47,6 +47,71 @@ class CalendarRepositoryTest {
     }
 
     @Test
+    fun `single activity export contains only that activity and remains importable`() =
+        runTest {
+            val selected = activity.copy(id = 10, kidId = 7)
+            val schedules = mockk<Box<com.arbonvata.kidstrackeractivity.data.objectbox.DailySchedule>>()
+            every { store.boxFor(com.arbonvata.kidstrackeractivity.data.objectbox.DailySchedule::class.java) } returns schedules
+            every { schedules.all } returns emptyList()
+            every { activities.get(10) } returns selected
+            val parsed = repository.preview(repository.exportActivity(10))
+            assertEquals("Leo", parsed.childName)
+            assertEquals(1, parsed.activities.size)
+            assertEquals("Swim", parsed.activities.single().name)
+            assertEquals("Alex", parsed.activities.single().pickupAdult)
+            assertEquals(false, parsed.activities.single().isPeriodic)
+            verify(exactly = 0) { activities.all }
+            verify(exactly = 0) { store.runInTx(any()) }
+        }
+
+    @Test
+    fun `single activity export keeps school pickup exceptions`() =
+        runTest {
+            val date =
+                java.time.LocalDate
+                    .now()
+                    .with(
+                        java.time.temporal.TemporalAdjusters
+                            .nextOrSame(java.time.DayOfWeek.MONDAY),
+                    )
+            every { activities.get(10) } returns
+                activity.copy(
+                    id = 10,
+                    kidId = 7,
+                    isSchoolActivity = true,
+                    isPeriodic = true,
+                    startTime = "08:00",
+                    endTime = "14:00",
+                )
+            val schedules = mockk<Box<com.arbonvata.kidstrackeractivity.data.objectbox.DailySchedule>>()
+            every { store.boxFor(com.arbonvata.kidstrackeractivity.data.objectbox.DailySchedule::class.java) } returns schedules
+            every { schedules.all } returns
+                listOf(
+                    com.arbonvata.kidstrackeractivity.data.objectbox
+                        .DailySchedule(kidId = 7, date = date.toString(), endTime = "13:00"),
+                    com.arbonvata.kidstrackeractivity.data.objectbox
+                        .DailySchedule(kidId = 8, date = date.toString(), isNoSchool = true),
+                )
+            val imported = repository.preview(repository.exportActivity(10)).activities.single()
+            assertTrue(imported.isSchoolActivity)
+            assertEquals(
+                java.time.LocalTime.of(13, 0),
+                com.arbonvata.kidstrackeractivity.data
+                    .decodeExceptions(imported.occurrenceExceptions)
+                    .single()
+                    .end,
+            )
+        }
+
+    @Test
+    fun `missing activity is rejected instead of exporting the whole child`() =
+        runTest {
+            every { activities.get(10) } returns null
+            assertTrue(runCatching { repository.exportActivity(10) }.isFailure)
+            verify(exactly = 0) { activities.all }
+        }
+
+    @Test
     fun `import existing child adds fresh records without changing child or clearing existing data`() =
         runTest {
             val captured = slot<Activity>()

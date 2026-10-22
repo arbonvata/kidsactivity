@@ -29,7 +29,9 @@ keep showing muted activities dimmed.
   early-release end times on a calendar; overrides hide or shift only school
   activities for that kid and day.
 - **Calendar sharing and import** — open More → Share / Export. Select a child
-  and share/save an `.ics` file. On the receiving device, save the file, open
+  and share/save an `.ics` file. To share just one saved activity, open its
+  editor and tap Share this activity as calendar. Weekly activities include
+  their repeating series and exceptions. On the receiving device, save the file, open
   the same screen and choose Import calendar. Preview the activities and select
   an existing child or enter a new child’s name before confirming. Imports add
   activities and skip matching duplicates; they never replace existing data.

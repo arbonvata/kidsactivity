@@ -13,6 +13,8 @@ import kotlinx.coroutines.withContext
 interface CalendarRepository {
     suspend fun export(kidId: Long): String
 
+    suspend fun exportActivity(activityId: Long): String
+
     suspend fun preview(calendar: String): CalendarImport
 
     suspend fun importCalendar(
@@ -41,6 +43,13 @@ class CalendarRepositoryImpl(
             val activities = store.boxFor(Activity::class.java).all.filter { it.kidId == kidId }
             require(activities.isNotEmpty()) { "This child has no activities to share" }
             CalendarCodec.export(kid, activities, store.boxFor(DailySchedule::class.java).all, namespace = exportNamespace)
+        }
+
+    override suspend fun exportActivity(activityId: Long): String =
+        withContext(ioDispatcher) {
+            val activity = requireNotNull(store.boxFor(Activity::class.java).get(activityId)) { "Activity no longer exists" }
+            val kid = requireNotNull(store.boxFor(Kid::class.java).get(activity.kidId)) { "Child no longer exists" }
+            CalendarCodec.export(kid, listOf(activity), store.boxFor(DailySchedule::class.java).all, namespace = exportNamespace)
         }
 
     override suspend fun preview(calendar: String): CalendarImport = withContext(ioDispatcher) { CalendarCodec.parse(calendar) }
