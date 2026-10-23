@@ -6,6 +6,7 @@ import com.arbonvata.kidstrackeractivity.data.objectbox.Activity
 import com.arbonvata.kidstrackeractivity.data.objectbox.Kid
 import com.arbonvata.kidstrackeractivity.data.repository.ActivityRepository
 import com.arbonvata.kidstrackeractivity.data.repository.KidRepository
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -22,6 +23,7 @@ data class EditActivityUiState(
     val form: AddActivityUiState? = null,
     val isNotFound: Boolean = false,
     val isSaving: Boolean = false,
+    val saveError: Boolean = false,
     val isSaved: Boolean = false,
     val isDeleted: Boolean = false,
 )
@@ -102,6 +104,7 @@ class EditActivityViewModel(
     fun onExceptionRemoved(date: LocalDate) = updateForm { it.copy(exceptions = it.exceptions.filterNot { entry -> entry.date == date }) }
 
     fun saveActivity() {
+        if (_uiState.value.isSaving || _uiState.value.isSaved) return
         val form = _uiState.value.form ?: return
         val original = original ?: return
         val nameError = form.name.isBlank()
@@ -114,30 +117,38 @@ class EditActivityViewModel(
             return
         }
 
+        _uiState.update { it.copy(isSaving = true, saveError = false) }
         viewModelScope.launch {
-            _uiState.update { it.copy(isSaving = true) }
-            activityRepository.updateActivity(
-                Activity(
-                    id = original.id,
-                    calendarStartDate = original.calendarStartDate,
-                    occurrenceExceptions =
-                        com.arbonvata.kidstrackeractivity.data
-                            .encodeExceptions(form.exceptions),
-                    kidId = original.kidId,
-                    name = form.name.trim(),
-                    location = form.location.trim(),
-                    pickupAdult = form.pickupAdult.trim(),
-                    pickupNotes = form.pickupNotes.trim(),
-                    startTime = form.startTime.format(AddActivityViewModel.TIME_FORMATTER),
-                    endTime = form.endTime.format(AddActivityViewModel.TIME_FORMATTER),
-                    isEnabled = original.isEnabled,
-                    daysOfWeek = form.selectedDays.sorted().toIntArray(),
-                    isPeriodic = form.isPeriodic,
-                    isSchoolActivity = form.isSchoolActivity,
-                    firstDate = form.firstDate.format(DateTimeFormatter.ISO_DATE),
-                ),
-            )
-            _uiState.update { it.copy(isSaved = true, isSaving = false) }
+            try {
+                activityRepository.updateActivity(
+                    Activity(
+                        id = original.id,
+                        calendarStartDate = original.calendarStartDate,
+                        occurrenceExceptions =
+                            com.arbonvata.kidstrackeractivity.data
+                                .encodeExceptions(form.exceptions),
+                        kidId = original.kidId,
+                        name = form.name.trim(),
+                        location = form.location.trim(),
+                        pickupAdult = form.pickupAdult.trim(),
+                        pickupNotes = form.pickupNotes.trim(),
+                        startTime = form.startTime.format(AddActivityViewModel.TIME_FORMATTER),
+                        endTime = form.endTime.format(AddActivityViewModel.TIME_FORMATTER),
+                        isEnabled = original.isEnabled,
+                        daysOfWeek = form.selectedDays.sorted().toIntArray(),
+                        isPeriodic = form.isPeriodic,
+                        isSchoolActivity = form.isSchoolActivity,
+                        firstDate = form.firstDate.format(DateTimeFormatter.ISO_DATE),
+                    ),
+                )
+                _uiState.update { it.copy(isSaved = true) }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                _uiState.update { it.copy(saveError = true) }
+            } finally {
+                _uiState.update { it.copy(isSaving = false) }
+            }
         }
     }
 
@@ -159,7 +170,7 @@ class EditActivityViewModel(
     }
 
     private fun updateForm(transform: (AddActivityUiState) -> AddActivityUiState) {
-        _uiState.update { state -> state.form?.let { state.copy(form = transform(it)) } ?: state }
+        _uiState.update { state -> state.form?.let { state.copy(form = transform(it), saveError = false) } ?: state }
     }
 
     /** Null when the stored time/date strings do not parse (corrupt row). */

@@ -171,4 +171,7 @@
     <!-- One-Off Activity: Date picker confirm button text -->
     <string name="add_activity_date_picker_ok">OK</string>
     <!-- One-Off Activity: Date picker cancel button text -->
-    <string name="add_activity_date_picker_cancel">Annuller</string></resources>
+    <string name="add_activity_date_picker_cancel">Annuller</string>
+    <string name="edit_activity_save_error">Aktiviteten kunne ikke gemmes. Dine ændringer er bevaret. Prøv igen.</string>
+    <string name="edit_activity_saving">Gemmer…</string>
+</resources>

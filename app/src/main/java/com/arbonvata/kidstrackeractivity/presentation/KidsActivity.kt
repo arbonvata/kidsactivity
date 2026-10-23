@@ -162,7 +162,7 @@ fun EditActivityScreen(
 
         else -> {
             AddActivityContent(
-                uiState = form,
+                uiState = form.copy(isSaving = uiState.isSaving, saveError = uiState.saveError),
                 kids = kids,
                 isKidPickerEnabled = false,
                 onKidSelected = {},
@@ -271,16 +271,38 @@ fun AddActivityContent(
             )
         },
         bottomBar = {
-            Button(
-                onClick = onSaveClick,
+            Column(
                 modifier =
                     Modifier
                         .fillMaxWidth()
                         .windowInsetsPadding(WindowInsets.navigationBars.union(WindowInsets.ime))
-                        .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 8.dp),
-                enabled = uiState.selectedKidId != 0L && uiState.name.isNotBlank() && uiState.selectedDays.isNotEmpty(),
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                Text(stringResource(R.string.add_activity_save))
+                // Keep feedback beside Save even when the time fields are off-screen.
+                val error =
+                    when {
+                        uiState.hasInvertedTimeRange -> R.string.add_activity_end_before_start_error
+                        uiState.nameError -> R.string.add_activity_name_error
+                        uiState.daysError -> R.string.add_activity_days_error
+                        uiState.saveError -> R.string.edit_activity_save_error
+                        else -> null
+                    }
+                error?.let {
+                    Text(stringResource(it), color = MaterialTheme.colorScheme.error)
+                }
+                Button(
+                    onClick = onSaveClick,
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled =
+                        !uiState.isSaving &&
+                            !uiState.hasInvertedTimeRange &&
+                            uiState.selectedKidId != 0L &&
+                            uiState.name.isNotBlank() &&
+                            uiState.selectedDays.isNotEmpty(),
+                ) {
+                    Text(stringResource(if (uiState.isSaving) R.string.edit_activity_saving else R.string.add_activity_save))
+                }
             }
         },
     ) { padding ->

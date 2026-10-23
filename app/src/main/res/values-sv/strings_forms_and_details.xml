@@ -171,4 +171,7 @@
     <!-- One-Off Activity: Date picker confirm button text -->
     <string name="add_activity_date_picker_ok">OK</string>
     <!-- One-Off Activity: Date picker cancel button text -->
-    <string name="add_activity_date_picker_cancel">Avbryt</string></resources>
+    <string name="add_activity_date_picker_cancel">Avbryt</string>
+    <string name="edit_activity_save_error">Det gick inte att spara aktiviteten. Dina ändringar finns kvar. Försök igen.</string>
+    <string name="edit_activity_saving">Sparar…</string>
+</resources>

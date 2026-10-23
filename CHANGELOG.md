@@ -5,6 +5,10 @@ in-app About screen); this file records what each release shipped.
 
 ## Unreleased
 
+- **Fixed**: invalid activity times now show an explanation beside the pinned
+  Save button, even when the time fields are off-screen. Editing an activity
+  shows saving progress, retains edits on write failure and allows retry.
+
 - **Added**: share a single saved activity as an `.ics` calendar from its editor,
   including recurring dates, pickup details and exceptions.
 

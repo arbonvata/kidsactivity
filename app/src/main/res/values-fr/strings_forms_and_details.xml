@@ -172,4 +172,7 @@
     <!-- One-Off Activity: Date picker confirm button text -->
     <string name="add_activity_date_picker_ok">OK</string>
     <!-- One-Off Activity: Date picker cancel button text -->
-    <string name="add_activity_date_picker_cancel">Annuler</string></resources>
+    <string name="add_activity_date_picker_cancel">Annuler</string>
+    <string name="edit_activity_save_error">Impossible d’enregistrer l’activité. Vos modifications sont conservées. Réessayez.</string>
+    <string name="edit_activity_saving">Enregistrement…</string>
+</resources>

@@ -9,6 +9,7 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.test.runTest
@@ -50,6 +51,101 @@ class EditActivityViewModelTest {
             isSchoolActivity = false,
             firstDate = "2026-10-20",
         )
+
+    @Test
+    fun correctingInvalidTimesThenSavingPersistsTheEditedTimes() =
+        runTest {
+            coEvery { activityRepository.getActivity(5L) } returns storedActivity()
+            val updated = slot<Activity>()
+            coEvery { activityRepository.updateActivity(capture(updated)) } returns Unit
+            val viewModel = EditActivityViewModel(5L, activityRepository, kidRepository)
+            viewModel.onStartTimeChange(LocalTime.of(19, 0))
+            viewModel.saveActivity()
+            assertTrue(
+                viewModel.uiState.value.form
+                    ?.timeError == true,
+            )
+            coVerify(exactly = 0) { activityRepository.updateActivity(any()) }
+
+            viewModel.onEndTimeChange(LocalTime.of(20, 30))
+            viewModel.saveActivity()
+            assertEquals("19:00", updated.captured.startTime)
+            assertEquals("20:30", updated.captured.endTime)
+            assertTrue(viewModel.uiState.value.isSaved)
+            assertFalse(viewModel.uiState.value.isSaving)
+            assertFalse(
+                viewModel.uiState.value.form
+                    ?.timeError == true,
+            )
+        }
+
+    @Test
+    fun saveFailureKeepsEditsAndAllowsRetry() =
+        runTest {
+            coEvery { activityRepository.getActivity(5L) } returns storedActivity()
+            coEvery { activityRepository.updateActivity(any()) } throws IllegalStateException("Database unavailable")
+            val viewModel = EditActivityViewModel(5L, activityRepository, kidRepository)
+            viewModel.onEndTimeChange(LocalTime.of(20, 30))
+            viewModel.saveActivity()
+            assertTrue(viewModel.uiState.value.saveError)
+            assertFalse(viewModel.uiState.value.isSaving)
+            assertFalse(viewModel.uiState.value.isSaved)
+            assertEquals(
+                LocalTime.of(20, 30),
+                viewModel.uiState.value.form
+                    ?.endTime,
+            )
+
+            val updated = slot<Activity>()
+            coEvery { activityRepository.updateActivity(capture(updated)) } returns Unit
+            viewModel.saveActivity()
+            assertEquals("20:30", updated.captured.endTime)
+            assertTrue(viewModel.uiState.value.isSaved)
+            assertFalse(viewModel.uiState.value.saveError)
+        }
+
+    @Test
+    fun repeatedSaveWhileWriteIsPendingDoesNotStartAnotherWrite() =
+        runTest {
+            coEvery { activityRepository.getActivity(5L) } returns storedActivity()
+            val write = CompletableDeferred<Unit>()
+            coEvery { activityRepository.updateActivity(any()) } coAnswers { write.await() }
+            val viewModel = EditActivityViewModel(5L, activityRepository, kidRepository)
+            viewModel.onEndTimeChange(LocalTime.of(20, 30))
+            viewModel.saveActivity()
+            viewModel.saveActivity()
+            assertTrue(viewModel.uiState.value.isSaving)
+            assertFalse(viewModel.uiState.value.isSaved)
+            coVerify(exactly = 1) { activityRepository.updateActivity(any()) }
+            write.complete(Unit)
+            assertTrue(viewModel.uiState.value.isSaved)
+            assertFalse(viewModel.uiState.value.isSaving)
+        }
+
+    @Test
+    fun savingTimeChangesPreservesPickupDetailsCalendarStartAndExceptions() =
+        runTest {
+            val original =
+                storedActivity().copy(
+                    location = "Pitch",
+                    pickupAdult = "Alex",
+                    pickupNotes = "Side gate",
+                    calendarStartDate = "2026-10-19",
+                    occurrenceExceptions = "2026-10-20||",
+                )
+            coEvery { activityRepository.getActivity(5L) } returns original
+            val updated = slot<Activity>()
+            coEvery { activityRepository.updateActivity(capture(updated)) } returns Unit
+            val viewModel = EditActivityViewModel(5L, activityRepository, kidRepository)
+            viewModel.onEndTimeChange(LocalTime.of(20, 30))
+            viewModel.saveActivity()
+            assertEquals("20:30", updated.captured.endTime)
+            assertEquals(original.location, updated.captured.location)
+            assertEquals(original.pickupAdult, updated.captured.pickupAdult)
+            assertEquals(original.pickupNotes, updated.captured.pickupNotes)
+            assertEquals(original.calendarStartDate, updated.captured.calendarStartDate)
+            assertEquals(original.occurrenceExceptions, updated.captured.occurrenceExceptions)
+        }
 
     @Test
     fun loadsStoredActivityIntoTheForm() =

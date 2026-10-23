@@ -39,6 +39,7 @@ data class AddActivityUiState(
     val daysError: Boolean = false,
     val timeError: Boolean = false,
     val isSaving: Boolean = false,
+    val saveError: Boolean = false,
     val isSaved: Boolean = false,
 ) {
     /** Inverted or zero-length ranges are not representable (no overnight activities). */
