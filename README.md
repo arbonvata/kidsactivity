@@ -62,6 +62,11 @@ keep showing muted activities dimmed.
 - **Individual-date changes** — in Edit Activity, cancel a scheduled date or
   change its start/end times, then Save. Restore the usual schedule by removing
   the exception. Changes apply to views, conflicts, reminders and JSON backups.
+- **Delegated pickups** — hand a single date to someone else ("picked by
+  Grandma"): the row is dimmed with a person icon on Today, Week and Daily,
+  reminders stay silent for that date, and it never counts as your "up next".
+  The kid's schedule is unaffected, so conflicts still apply. Unnamed
+  delegations fall back to the activity's pickup adult.
 - **Conflict detection** — same-kid activity overlaps across the next 30 days,
   with one tap from a conflict to the editor. Respects one-off weeks and
   school overrides. Today's conflicts are also marked directly on the Today

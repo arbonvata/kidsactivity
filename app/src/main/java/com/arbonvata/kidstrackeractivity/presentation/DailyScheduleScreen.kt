@@ -18,6 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.HowToReg
 import androidx.compose.material.icons.filled.NotificationsOff
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Card
@@ -174,6 +175,7 @@ fun DailyActivityCard(
     onClick: () -> Unit,
 ) {
     val alarmsDisabled = !occurrence.activity.isEnabled
+    val delegated = occurrence.delegatedTo != null
     val dimmed = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
     Card(
         onClick = onClick,
@@ -199,7 +201,7 @@ fun DailyActivityCard(
                     text = occurrence.startTime.format(shortTimeFormatter),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
-                    color = if (alarmsDisabled) dimmed else MaterialTheme.colorScheme.primary,
+                    color = if (alarmsDisabled || delegated) dimmed else MaterialTheme.colorScheme.primary,
                 )
                 Text(
                     text = occurrence.endTime.format(shortTimeFormatter),
@@ -216,7 +218,7 @@ fun DailyActivityCard(
                     text = occurrence.activity.name,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
-                    color = if (alarmsDisabled) dimmed else MaterialTheme.colorScheme.onSurface,
+                    color = if (alarmsDisabled || delegated) dimmed else MaterialTheme.colorScheme.onSurface,
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -233,9 +235,22 @@ fun DailyActivityCard(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
+                delegatedPickupLabel(occurrence)?.let {
+                    Text(
+                        it,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
             }
 
-            if (alarmsDisabled) {
+            if (delegated) {
+                Icon(
+                    Icons.Default.HowToReg,
+                    contentDescription = stringResource(R.string.dashboard_delegated_content_description),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            } else if (alarmsDisabled) {
                 Icon(
                     Icons.Default.NotificationsOff,
                     contentDescription = stringResource(R.string.daily_alarms_disabled),

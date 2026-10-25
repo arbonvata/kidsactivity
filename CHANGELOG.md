@@ -5,6 +5,13 @@ in-app About screen); this file records what each release shipped.
 
 ## Unreleased
 
+- **Added**: delegate a single activity date to someone else ("picked by
+  Grandma"). The date is dimmed with a person icon and a picked-by label on
+  Today, Week and Daily, produces no reminders, and is excluded from the
+  Today "up next" card. Conflicts still apply (the kid's schedule is
+  unchanged). Composes with per-date time changes; stored in the
+  backward-compatible exception encoding and included in JSON backups.
+
 - **Added**: conflicting activities (same kid, overlapping times) are marked
   directly on the Today screen with an error-colored time and a warning icon,
   using the same conflict definition as the Conflicts screen — muted

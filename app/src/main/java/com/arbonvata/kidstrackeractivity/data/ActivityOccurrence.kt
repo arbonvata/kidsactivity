@@ -14,6 +14,8 @@ data class ActivityOccurrence(
     val startTime: LocalTime,
     /** Effective end: a school-day override replaces the school activity's end. */
     val endTime: LocalTime,
+    /** Non-null when this date is delegated: someone else handles the pickup. */
+    val delegatedTo: String? = null,
 )
 
 /**
@@ -60,7 +62,7 @@ fun expandActivitiesForDateRange(
                 // before import validation existed) are skipped rather than
                 // crashing every screen that expands the schedule.
                 val exception = exceptions[activity.id]?.get(currentDate)
-                if (exception != null && exception.start == null) continue
+                if (exception != null && exception.isCancelled) continue
                 val startTime = exception?.start ?: parseTimeOrNull(activity.startTime) ?: continue
                 val endTime = exception?.end ?: parseTimeOrNull(effectiveEndTime(activity, override)) ?: continue
                 if (kid != null) {
@@ -71,6 +73,7 @@ fun expandActivitiesForDateRange(
                             date = currentDate,
                             startTime = startTime,
                             endTime = endTime,
+                            delegatedTo = exception?.delegatedTo,
                         ),
                     )
                 }

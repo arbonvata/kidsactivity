@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -29,6 +30,7 @@ fun OccurrenceExceptionEditor(
     var date by remember { mutableStateOf<LocalDate?>(null) }
     var start by remember { mutableStateOf<LocalTime?>(null) }
     var end by remember { mutableStateOf<LocalTime?>(null) }
+    var delegatedName by remember { mutableStateOf("") }
     var pickingDate by remember { mutableStateOf(false) }
     var pickingStart by remember { mutableStateOf(false) }
     var pickingEnd by remember { mutableStateOf(false) }
@@ -37,10 +39,24 @@ fun OccurrenceExceptionEditor(
     form.exceptions.sortedBy { it.date }.forEach { exception ->
         Column {
             Text(
-                if (exception.start == null) {
-                    stringResource(R.string.occurrence_cancelled, exception.date.format(weekdayDateFormatter))
-                } else {
-                    "${exception.date.format(weekdayDateFormatter)}: ${exception.start}–${exception.end}"
+                when {
+                    exception.isCancelled ->
+                        stringResource(R.string.occurrence_cancelled, exception.date.format(weekdayDateFormatter))
+                    exception.delegatedTo != null && exception.start != null ->
+                        stringResource(
+                            R.string.occurrence_delegated_times_on_format,
+                            exception.date.format(weekdayDateFormatter),
+                            exception.start!!.format(shortTimeFormatter),
+                            exception.end!!.format(shortTimeFormatter),
+                            exception.delegatedTo,
+                        )
+                    exception.delegatedTo != null ->
+                        stringResource(
+                            R.string.occurrence_delegated_on_format,
+                            exception.date.format(weekdayDateFormatter),
+                            exception.delegatedTo,
+                        )
+                    else -> "${exception.date.format(weekdayDateFormatter)}: ${exception.start}–${exception.end}"
                 },
             )
             TextButton(onClick = { onRemove(exception.date) }) { Text(stringResource(R.string.occurrence_reset)) }
@@ -82,6 +98,30 @@ fun OccurrenceExceptionEditor(
                 },
             ) { Text(stringResource(R.string.occurrence_change)) }
             if (!effectiveEnd.isAfter(effectiveStart)) Text(stringResource(R.string.add_activity_end_before_start_error))
+
+            // Delegation: hand this date to someone else. Staged times compose
+            // — untouched times keep the usual schedule, picked ones change it.
+            OutlinedTextField(
+                value = delegatedName,
+                onValueChange = { delegatedName = it },
+                label = { Text(stringResource(R.string.occurrence_delegate_name)) },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            TextButton(onClick = {
+                // The name travels inside the pipe-delimited exception
+                // encoding; strip anything that would corrupt it. Empty is
+                // allowed — it means "someone, unnamed".
+                val cleaned =
+                    delegatedName
+                        .replace("|", "")
+                        .replace("\n", " ")
+                        .trim()
+                onChange(OccurrenceException(selected, start, end, delegatedTo = cleaned))
+                date = null
+            }) {
+                Text(stringResource(R.string.occurrence_delegate))
+            }
         }
     }
     if (pickingDate) {
@@ -92,6 +132,7 @@ fun OccurrenceExceptionEditor(
                 val existing = form.exceptions.firstOrNull { it.date == selected }
                 start = existing?.start
                 end = existing?.end
+                delegatedName = existing?.delegatedTo.orEmpty()
                 pickingDate = false
             },
             onDismiss = { pickingDate = false },

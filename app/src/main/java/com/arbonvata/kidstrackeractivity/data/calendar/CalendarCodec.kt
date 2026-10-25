@@ -98,7 +98,7 @@ object CalendarCodec {
                     exceptions.values.filter {
                         !it.date.isBefore(date) && (weekly || it.date == date) && it.date.dayOfWeek.value in activity.daysOfWeek
                     }
-                relevant.filter { it.start == null }.forEach { lines += "EXDATE:${it.date.atTime(start).format(dateTime)}" }
+                relevant.filter { it.isCancelled }.forEach { lines += "EXDATE:${it.date.atTime(start).format(dateTime)}" }
                 lines += "END:VEVENT"
                 relevant.filter { it.start != null }.forEach {
                     lines += listOf("BEGIN:VEVENT", "UID:$uid", "DTSTAMP:$stamp")
@@ -282,7 +282,7 @@ object CalendarCodec {
             )
         if (rule == null) {
             val exception = exceptions[start.toLocalDate()]
-            if (exception != null && exception.start == null) return emptyList()
+            if (exception != null && exception.isCancelled) return emptyList()
             return listOf(
                 activity.copy(
                     startTime = (exception?.start ?: start.toLocalTime()).toString(),

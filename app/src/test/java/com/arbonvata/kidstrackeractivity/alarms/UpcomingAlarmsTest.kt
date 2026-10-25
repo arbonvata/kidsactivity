@@ -1,11 +1,14 @@
 package com.arbonvata.kidstrackeractivity.alarms
 
+import com.arbonvata.kidstrackeractivity.data.OccurrenceException
+import com.arbonvata.kidstrackeractivity.data.encodeExceptions
 import com.arbonvata.kidstrackeractivity.data.objectbox.Activity
 import com.arbonvata.kidstrackeractivity.data.objectbox.DailySchedule
 import com.arbonvata.kidstrackeractivity.data.objectbox.Kid
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 /**
@@ -119,6 +122,22 @@ class UpcomingAlarmsTest {
                 activityAlarmMinutes = 15,
                 now = now,
             )
+
+        assertTrue(alarms.isEmpty())
+    }
+
+    @Test
+    fun delegatedDatesProduceNoAlarms() {
+        // Grandma covers Monday Oct 19 — no reminder for the parent; the
+        // following Monday (Oct 26) is beyond the 7-day horizon.
+        val delegatedMonday =
+            footballActivity().copy(
+                occurrenceExceptions =
+                    encodeExceptions(listOf(OccurrenceException(LocalDate.of(2026, 10, 19), delegatedTo = "Grandma"))),
+            )
+        val now = LocalDateTime.of(2026, 10, 19, 7, 0)
+
+        val alarms = computeUpcomingAlarms(kids, listOf(delegatedMonday), schoolAlarmMinutes = 10, activityAlarmMinutes = 15, now = now)
 
         assertTrue(alarms.isEmpty())
     }

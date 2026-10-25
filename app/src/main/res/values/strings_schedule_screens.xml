@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Today / Dashboard screen -->
     <string name="welcome_title">Welcome!</string>
     <string name="welcome_add_first_kid_message">Add your first kid to start tracking their school and activities.</string>
@@ -13,6 +13,9 @@
     <string name="today_no_activities">🎉 No activities today!</string>
     <string name="dashboard_alarms_disabled">Alarms disabled</string>
     <string name="dashboard_conflict_present">Schedule conflict</string>
+    <string name="dashboard_picked_by_format" tools:ignore="MissingTranslation">Picked by %1$s</string>
+    <string name="dashboard_picked_by_someone_else" tools:ignore="MissingTranslation">Picked by someone else</string>
+    <string name="dashboard_delegated_content_description" tools:ignore="MissingTranslation">Someone else picks up</string>
     <string name="dashboard_view_full_week">View Full Week</string>
     <string name="dashboard_permissions_banner_title">Reminders are off</string>
     <string name="dashboard_permissions_banner_message">Required permissions are missing — tap to grant them</string>

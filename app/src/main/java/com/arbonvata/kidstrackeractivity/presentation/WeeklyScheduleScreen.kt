@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.HowToReg
 import androidx.compose.material.icons.filled.NotificationsOff
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -172,6 +173,7 @@ fun WeeklyActivityRow(
     onClick: () -> Unit,
 ) {
     val alarmsDisabled = !occurrence.activity.isEnabled
+    val delegated = occurrence.delegatedTo != null
     val dimmed = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
     Surface(
         onClick = onClick,
@@ -188,7 +190,7 @@ fun WeeklyActivityRow(
                 text = occurrence.date.format(weekdayDateFormatter),
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.SemiBold,
-                color = if (alarmsDisabled) dimmed else MaterialTheme.colorScheme.onSurface,
+                color = if (alarmsDisabled || delegated) dimmed else MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.width(90.dp),
             )
 
@@ -196,19 +198,33 @@ fun WeeklyActivityRow(
             Text(
                 text = occurrence.startTime.format(shortTimeFormatter),
                 style = MaterialTheme.typography.bodyMedium,
-                color = if (alarmsDisabled) dimmed else MaterialTheme.colorScheme.primary,
+                color = if (alarmsDisabled || delegated) dimmed else MaterialTheme.colorScheme.primary,
                 modifier = Modifier.width(50.dp),
             )
 
             // Activity Name
-            Text(
-                text = occurrence.activity.name,
-                style = MaterialTheme.typography.bodyLarge,
-                color = if (alarmsDisabled) dimmed else MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.weight(1f),
-            )
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = occurrence.activity.name,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = if (alarmsDisabled || delegated) dimmed else MaterialTheme.colorScheme.onSurface,
+                )
+                delegatedPickupLabel(occurrence)?.let {
+                    Text(
+                        it,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
 
-            if (alarmsDisabled) {
+            if (delegated) {
+                Icon(
+                    Icons.Default.HowToReg,
+                    contentDescription = stringResource(R.string.dashboard_delegated_content_description),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            } else if (alarmsDisabled) {
                 Icon(
                     Icons.Default.NotificationsOff,
                     contentDescription = stringResource(R.string.week_alarms_disabled),

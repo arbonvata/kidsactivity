@@ -18,6 +18,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.HowToReg
 import androidx.compose.material.icons.filled.NotificationsOff
 import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material.icons.filled.Schedule
@@ -262,7 +263,8 @@ fun DashboardScreen(
 ) {
     val nextActivity =
         todayOccurrences
-            .filter { it.startTime.isAfter(now) }
+            // A delegated date is somebody else's to handle — never "up next".
+            .filter { it.startTime.isAfter(now) && it.delegatedTo == null }
             .minByOrNull { it.startTime }
 
     Scaffold(
@@ -393,6 +395,9 @@ fun DashboardScreen(
                     // (matching the Conflicts screen), so a muted row is
                     // never also flagged as conflicted.
                     val hasConflict = occurrence.activity.id in conflictedActivityIds
+                    // Delegated dates are dimmed like muted ones; the label
+                    // names whoever covers the pickup.
+                    val delegated = occurrence.delegatedTo != null
                     val dimmed = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
                     OutlinedCard(
                         onClick = { onActivityClick(occurrence.activity) },
@@ -409,7 +414,7 @@ fun DashboardScreen(
                                 color =
                                     when {
                                         hasConflict -> MaterialTheme.colorScheme.error
-                                        alarmsDisabled -> dimmed
+                                        alarmsDisabled || delegated -> dimmed
                                         else -> MaterialTheme.colorScheme.primary
                                     },
                                 modifier = Modifier.width(60.dp),
@@ -419,13 +424,20 @@ fun DashboardScreen(
                                     occurrence.activity.name,
                                     style = MaterialTheme.typography.bodyLarge,
                                     fontWeight = FontWeight.SemiBold,
-                                    color = if (alarmsDisabled) dimmed else MaterialTheme.colorScheme.onSurface,
+                                    color = if (alarmsDisabled || delegated) dimmed else MaterialTheme.colorScheme.onSurface,
                                 )
                                 Text(
                                     occurrence.kidName,
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
+                                delegatedPickupLabel(occurrence)?.let {
+                                    Text(
+                                        it,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                }
                                 PickupDetails(occurrence.activity)
                                 if (occurrence.activity.isSchoolActivity || !occurrence.activity.pickupAdult.isNullOrBlank()) {
                                     Text(stringResource(R.string.pickup_time_format, occurrence.endTime.format(shortTimeFormatter)))
@@ -436,6 +448,13 @@ fun DashboardScreen(
                                     Icons.Default.Warning,
                                     contentDescription = stringResource(R.string.dashboard_conflict_present),
                                     tint = MaterialTheme.colorScheme.error,
+                                )
+                                Spacer(Modifier.width(8.dp))
+                            } else if (delegated) {
+                                Icon(
+                                    Icons.Default.HowToReg,
+                                    contentDescription = stringResource(R.string.dashboard_delegated_content_description),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
                                 Spacer(Modifier.width(8.dp))
                             } else if (alarmsDisabled) {
@@ -487,6 +506,7 @@ fun DashboardScreenPreview() {
         val todayOccurrences =
             listOf(
                 ActivityOccurrence(DebugTestData.mockActivities[0], "Leo", today, LocalTime.of(17, 0), LocalTime.of(18, 30)),
+                ActivityOccurrence(DebugTestData.mockActivities[1], "Mia", today, LocalTime.of(16, 0), LocalTime.of(17, 0), delegatedTo = "Grandma"),
                 ActivityOccurrence(DebugTestData.mockActivities[2], "Leo", today, LocalTime.of(15, 0), LocalTime.of(16, 0)),
             )
         DashboardScreen(

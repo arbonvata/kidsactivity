@@ -5,6 +5,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.arbonvata.kidstrackeractivity.R
+import com.arbonvata.kidstrackeractivity.data.ActivityOccurrence
 import com.arbonvata.kidstrackeractivity.data.objectbox.Activity
 
 @Composable
@@ -17,5 +18,23 @@ fun PickupDetails(activity: Activity) {
     }
     activity.pickupNotes?.takeIf { it.isNotBlank() }?.let {
         Text(it, style = MaterialTheme.typography.bodySmall)
+    }
+}
+
+/**
+ * The "picked by" label for a delegated date, or null when the date is not
+ * delegated. A name marked on the date wins; an unnamed delegation falls
+ * back to the activity's usual pickup adult; otherwise a generic label.
+ */
+@Composable
+fun delegatedPickupLabel(occurrence: ActivityOccurrence): String? {
+    if (occurrence.delegatedTo == null) return null
+    val name =
+        occurrence.delegatedTo.takeIf { it.isNotBlank() }
+            ?: occurrence.activity.pickupAdult?.takeIf { it.isNotBlank() }
+    return if (name == null) {
+        stringResource(R.string.dashboard_picked_by_someone_else)
+    } else {
+        stringResource(R.string.dashboard_picked_by_format, name)
     }
 }

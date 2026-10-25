@@ -1,9 +1,13 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="occurrence_title">Changes to individual dates</string>
-    <string name="occurrence_hint">Cancel or change the times on one scheduled date. Save the activity to apply your changes.</string>
+    <string name="occurrence_hint">Cancel, change the times, or hand one scheduled date to someone else. Save the activity to apply your changes.</string>
     <string name="occurrence_choose_date">Choose a date to change</string>
     <string name="occurrence_no_activity">This activity is not scheduled on this date.</string>
     <string name="occurrence_cancelled">%1$s — cancelled</string>
+    <string name="occurrence_delegated_on_format" tools:ignore="MissingTranslation">%1$s — picked by %2$s</string>
+    <string name="occurrence_delegated_times_on_format" tools:ignore="MissingTranslation">%1$s: %2$s–%3$s — picked by %4$s</string>
+    <string name="occurrence_delegate" tools:ignore="MissingTranslation">Someone else picks up on this date</string>
+    <string name="occurrence_delegate_name" tools:ignore="MissingTranslation">Who picks up (optional)</string>
     <string name="occurrence_reset">Restore usual schedule</string>
     <string name="occurrence_cancel">Cancel on this date</string>
     <string name="occurrence_change">Use these times on this date</string>
