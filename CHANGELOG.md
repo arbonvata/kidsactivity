@@ -5,6 +5,10 @@ in-app About screen); this file records what each release shipped.
 
 ## Unreleased
 
+- **Added**: save parents and guardians — More → Add Parent stores a name,
+  relation (Father/Mother/Guardian/Other) and optional phone. First slice of
+  parent management; lists, editing and integrations follow in later steps.
+
 - **Added**: delegate a single activity date to someone else ("picked by
   Grandma"). The date is dimmed with a person icon and a picked-by label on
   Today, Week and Daily, produces no reminders, and is excluded from the

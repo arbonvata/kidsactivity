@@ -43,6 +43,7 @@ import com.arbonvata.kidstrackeractivity.R
 import com.arbonvata.kidstrackeractivity.presentation.AboutScreen
 import com.arbonvata.kidstrackeractivity.presentation.AddActivityScreen
 import com.arbonvata.kidstrackeractivity.presentation.AddKidScreen
+import com.arbonvata.kidstrackeractivity.presentation.AddParentScreen
 import com.arbonvata.kidstrackeractivity.presentation.ConflictScreen
 import com.arbonvata.kidstrackeractivity.presentation.DailyScheduleScreen
 import com.arbonvata.kidstrackeractivity.presentation.EditActivityScreen
@@ -93,6 +94,8 @@ sealed class Screen(
     object KidSelection : Screen("kid_selection", R.string.screen_title_kid_selection, Icons.Default.People)
 
     object AddKid : Screen("add_kid", R.string.screen_title_add_kid, Icons.Default.PersonAdd)
+
+    object AddParent : Screen("add_parent", R.string.add_parent_title, Icons.Default.PersonAdd)
 
     object DailySchedule : Screen("daily_schedule/{kidIds}", R.string.screen_title_daily_schedule, Icons.Default.ViewDay) {
         fun route(kidIds: Collection<Long>): String = "daily_schedule/${kidIds.joinToString(",")}"
@@ -211,6 +214,7 @@ fun KidsScheduleApp(deepLinkIntent: Intent? = null) {
             composable(Screen.More.route) {
                 MoreScreen(
                     onKidsClick = { navController.navigate(Screen.KidsManagement.route) },
+                    onAddParentClick = { navController.navigate(Screen.AddParent.route) },
                     onSchoolOverridesClick = { navController.navigate(Screen.SchoolOverrides.route) },
                     onConflictsClick = { navController.navigate(Screen.Conflicts.route) },
                     onShareClick = { navController.navigate(Screen.Share.route) },
@@ -272,6 +276,10 @@ fun KidsScheduleApp(deepLinkIntent: Intent? = null) {
 
             composable(Screen.AddKid.route) {
                 AddKidScreen(onNavigateBack = { navController.popBackStack() })
+            }
+
+            composable(Screen.AddParent.route) {
+                AddParentScreen(onNavigateBack = { navController.popBackStack() })
             }
 
             composable(

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Add / Edit Activity form (KidsActivity.kt) -->
     <string name="add_activity_title">Add Activity</string>
     <string name="add_activity_back_content_description">Back</string>
@@ -38,6 +38,21 @@
     <string name="add_kid_save">Save Kid</string>
     <string name="edit_kid_title">Edit Kid</string>
     <string name="edit_kid_not_found">This kid no longer exists.</string>
+
+    <!-- Add Parent form (AddParentScreen.kt) -->
+    <string name="add_parent_title" tools:ignore="MissingTranslation">Add Parent</string>
+    <string name="add_parent_back_content_description" tools:ignore="MissingTranslation">Back</string>
+    <string name="add_parent_name_label" tools:ignore="MissingTranslation">Name</string>
+    <string name="add_parent_name_error_blank" tools:ignore="MissingTranslation">Please enter a name</string>
+    <string name="add_parent_relation_label" tools:ignore="MissingTranslation">Relation</string>
+    <string name="add_parent_phone_label" tools:ignore="MissingTranslation">Phone (optional)</string>
+    <string name="add_parent_save" tools:ignore="MissingTranslation">Save Parent</string>
+    <string name="parent_relation_father" tools:ignore="MissingTranslation">Father</string>
+    <string name="parent_relation_mother" tools:ignore="MissingTranslation">Mother</string>
+    <string name="parent_relation_guardian" tools:ignore="MissingTranslation">Guardian</string>
+    <string name="parent_relation_other" tools:ignore="MissingTranslation">Other</string>
+    <string name="more_add_parent_title" tools:ignore="MissingTranslation">Add Parent</string>
+    <string name="more_add_parent_subtitle" tools:ignore="MissingTranslation">Save a parent or guardian</string>
 
     <!-- Kid detail (KidDetailScreen.kt) -->
     <string name="kid_detail_title">%1$s\'s Activities</string>

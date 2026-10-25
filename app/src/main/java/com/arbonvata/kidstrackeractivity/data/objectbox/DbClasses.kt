@@ -96,3 +96,26 @@ data class DailySchedule(
     var endTime: String = "",
     var isNoSchool: Boolean = false,
 )
+
+@Entity
+data class Parent(
+    @Id var id: Long = 0,
+    var name: String = "",
+    // Stable ParentRelation key ("father"/"mother"/"guardian"/"other");
+    // rendered through a localized label, never displayed raw.
+    var relation: String = "",
+    var phone: String = "",
+)
+
+/** Entries are always listed by name; the relation is a subtitle. */
+enum class ParentRelation(val key: String) {
+    FATHER("father"),
+    MOTHER("mother"),
+    GUARDIAN("guardian"),
+    OTHER("other");
+
+    companion object {
+        /** Unknown keys (a hand-edited backup) degrade to OTHER, never crash. */
+        fun fromKey(key: String?): ParentRelation = entries.firstOrNull { it.key == key } ?: OTHER
+    }
+}

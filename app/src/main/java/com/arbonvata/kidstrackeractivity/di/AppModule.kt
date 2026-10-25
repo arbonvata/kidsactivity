@@ -15,10 +15,13 @@ import com.arbonvata.kidstrackeractivity.data.repository.CalendarRepository
 import com.arbonvata.kidstrackeractivity.data.repository.CalendarRepositoryImpl
 import com.arbonvata.kidstrackeractivity.data.repository.KidRepository
 import com.arbonvata.kidstrackeractivity.data.repository.KidRepositoryImpl
+import com.arbonvata.kidstrackeractivity.data.repository.ParentRepository
+import com.arbonvata.kidstrackeractivity.data.repository.ParentRepositoryImpl
 import com.arbonvata.kidstrackeractivity.data.repository.ScheduleOverrideRepository
 import com.arbonvata.kidstrackeractivity.data.repository.ScheduleOverrideRepositoryImpl
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.AddActivityViewModel
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.AddKidViewModel
+import com.arbonvata.kidstrackeractivity.presentation.viewmodels.AddParentViewModel
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.CalendarShareViewModel
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.ConflictViewModel
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.DailyScheduleViewModel
@@ -50,6 +53,7 @@ val appModule =
         }
 
         single<KidRepository> { KidRepositoryImpl(get()) }
+        single<ParentRepository> { ParentRepositoryImpl(get()) }
         single<ActivityRepository> { ActivityRepositoryImpl(get()) }
         single<ScheduleOverrideRepository> { ScheduleOverrideRepositoryImpl(get()) }
         single<com.arbonvata.kidstrackeractivity.data.repository.ScheduleCopyRepository> {
@@ -81,6 +85,7 @@ val appModule =
         }
         viewModel { KidsViewModel(get()) }
         viewModel { AddKidViewModel(get()) }
+        viewModel { AddParentViewModel(get()) }
         viewModel { TodayViewModel(get(), get(), get(), get()) }
         viewModel { WeekViewModel(get(), get(), get()) }
         viewModel { MonthViewModel(get(), get(), get()) }
