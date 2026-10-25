@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.arbonvata.kidstrackeractivity.data.ActivityOccurrence
 import com.arbonvata.kidstrackeractivity.data.expandActivitiesForDateRange
+import com.arbonvata.kidstrackeractivity.data.findConflicts
 import com.arbonvata.kidstrackeractivity.data.objectbox.Kid
 import com.arbonvata.kidstrackeractivity.data.repository.ActivityRepository
 import com.arbonvata.kidstrackeractivity.data.repository.AlarmSettingsRepository
@@ -23,18 +24,20 @@ data class TodayUiState(
     val isLoading: Boolean = true,
     val kids: List<Kid> = emptyList(),
     val todayOccurrences: List<ActivityOccurrence> = emptyList(),
+    /** Activities on today's list that overlap another of the same kid's. */
+    val conflictedActivityIds: Set<Long> = emptySet(),
     /** Refreshed by a one-minute ticker so the screen follows midnight rollovers. */
     val today: LocalDate = LocalDate.now(),
     val now: LocalTime = LocalTime.now(),
 )
 
 /**
- * Today tab: all kids' activities expanded onto today's date. All sources
- * are reactive ObjectBox queries, so adding, editing or deleting kids,
- * activities or school-day overrides anywhere updates the list
- * automatically. A one-minute ticker re-emits even without data changes, so
- * the tab keeps up across midnight and the "up next" card stays fresh while
- * the screen stays open.
+ * Today tab: all kids' activities expanded onto today's date, with same-kid
+ * overlaps flagged for the rows to mark. All sources are reactive ObjectBox
+ * queries, so adding, editing or deleting kids, activities or school-day
+ * overrides anywhere updates the list automatically. A one-minute ticker
+ * re-emits even without data changes, so the tab keeps up across midnight
+ * and the "up next" card stays fresh while the screen stays open.
  */
 class TodayViewModel(
     kidRepository: KidRepository,
@@ -49,19 +52,29 @@ class TodayViewModel(
             scheduleOverrideRepository.getAllOverridesFlow(),
             nowTicker(),
         ) { kids, activities, overrides, _ ->
+            val today = LocalDate.now()
+            val occurrences =
+                expandActivitiesForDateRange(
+                    kids,
+                    activities,
+                    today,
+                    today,
+                    // Muted activities stay listed (marked); only alarms skip them.
+                    includeDisabled = true,
+                    overrides = overrides,
+                )
+            // Same findConflicts and same muted exclusion as the Conflicts
+            // screen, so a row is flagged here exactly when that screen
+            // lists a conflict for it.
+            val conflictedActivityIds =
+                findConflicts(occurrences.filter { it.activity.isEnabled })
+                    .flatMap { conflict -> listOf(conflict.activity1.activity.id, conflict.activity2.activity.id) }
+                    .toSet()
             TodayUiState(
                 isLoading = false,
                 kids = kids,
-                todayOccurrences =
-                    expandActivitiesForDateRange(
-                        kids,
-                        activities,
-                        LocalDate.now(),
-                        LocalDate.now(),
-                        // Muted activities stay listed (marked); only alarms skip them.
-                        includeDisabled = true,
-                        overrides = overrides,
-                    ),
+                todayOccurrences = occurrences,
+                conflictedActivityIds = conflictedActivityIds,
                 today = LocalDate.now(),
                 now = LocalTime.now(),
             )

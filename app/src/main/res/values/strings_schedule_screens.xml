@@ -12,6 +12,7 @@
     <string name="dashboard_today_schedule">Today\'s Schedule</string>
     <string name="today_no_activities">🎉 No activities today!</string>
     <string name="dashboard_alarms_disabled">Alarms disabled</string>
+    <string name="dashboard_conflict_present">Schedule conflict</string>
     <string name="dashboard_view_full_week">View Full Week</string>
     <string name="dashboard_permissions_banner_title">Reminders are off</string>
     <string name="dashboard_permissions_banner_message">Required permissions are missing — tap to grant them</string>

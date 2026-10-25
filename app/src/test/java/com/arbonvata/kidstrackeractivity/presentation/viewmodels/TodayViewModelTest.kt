@@ -109,6 +109,78 @@ class TodayViewModelTest {
         }
 
     @Test
+    fun overlappingSameKidActivitiesAreFlaggedForToday() =
+        runTest {
+            val today = LocalDate.now()
+            val kid = Kid(id = 1L, name = "Leo")
+            val football =
+                Activity(
+                    id = 1L,
+                    kidId = 1L,
+                    name = "Football",
+                    startTime = "17:00",
+                    endTime = "18:30",
+                    daysOfWeek = intArrayOf(today.dayOfWeek.value),
+                )
+            val piano =
+                Activity(
+                    id = 2L,
+                    kidId = 1L,
+                    name = "Piano",
+                    startTime = "18:00",
+                    endTime = "19:00",
+                    daysOfWeek = intArrayOf(today.dayOfWeek.value),
+                )
+            every { kidRepository.getAllKidsFlow() } returns flowOf(listOf(kid))
+            every { activityRepository.getAllActivitiesFlow() } returns flowOf(listOf(football, piano))
+            val viewModel = TodayViewModel(kidRepository, activityRepository, scheduleOverrideRepository, alarmSettingsRepository)
+
+            backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+                viewModel.uiState.collect()
+            }
+
+            assertEquals(setOf(1L, 2L), viewModel.uiState.value.conflictedActivityIds)
+        }
+
+    @Test
+    fun mutedActivitiesNeverConflictOnToday() =
+        runTest {
+            // The Conflicts screen skips muted activities, so a muted row on
+            // Today must not be flagged either — even when its times overlap
+            // an enabled activity of the same kid.
+            val today = LocalDate.now()
+            val kid = Kid(id = 1L, name = "Leo")
+            val muted =
+                Activity(
+                    id = 1L,
+                    kidId = 1L,
+                    name = "Football",
+                    startTime = "17:00",
+                    endTime = "18:30",
+                    isEnabled = false,
+                    daysOfWeek = intArrayOf(today.dayOfWeek.value),
+                )
+            val piano =
+                Activity(
+                    id = 2L,
+                    kidId = 1L,
+                    name = "Piano",
+                    startTime = "18:00",
+                    endTime = "19:00",
+                    daysOfWeek = intArrayOf(today.dayOfWeek.value),
+                )
+            every { kidRepository.getAllKidsFlow() } returns flowOf(listOf(kid))
+            every { activityRepository.getAllActivitiesFlow() } returns flowOf(listOf(muted, piano))
+            val viewModel = TodayViewModel(kidRepository, activityRepository, scheduleOverrideRepository, alarmSettingsRepository)
+
+            backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+                viewModel.uiState.collect()
+            }
+
+            assertTrue(viewModel.uiState.value.conflictedActivityIds.isEmpty())
+        }
+
+    @Test
     fun reminderPromptFlagComesFromTheRepository() =
         runTest {
             every { alarmSettingsRepository.reminderPromptShown } returns flowOf(true)

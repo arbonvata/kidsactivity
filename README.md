@@ -64,7 +64,8 @@ keep showing muted activities dimmed.
   the exception. Changes apply to views, conflicts, reminders and JSON backups.
 - **Conflict detection** — same-kid activity overlaps across the next 30 days,
   with one tap from a conflict to the editor. Respects one-off weeks and
-  school overrides.
+  school overrides. Today's conflicts are also marked directly on the Today
+  screen (red time + warning icon).
 - **Exact alarms** — `AlarmManager.setExactAndAllowWhileIdle()`, rescheduled
   on boot (`BootReceiver`) and re-synced reactively whenever kids, activities,
   overrides or timing settings change. Notifications deep-link into the

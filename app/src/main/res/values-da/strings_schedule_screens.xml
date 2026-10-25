@@ -22,6 +22,8 @@
     <string name="today_no_activities">🎉 Der er ingen aktiviteter i dag!</string>
     <!-- Dashboard: Badge text indicating reminder alarms are muted for an activity -->
     <string name="dashboard_alarms_disabled">Alarmer deaktiveret</string>
+    <!-- Dashboard: Badge text indicating the activity overlaps another of the same kid -->
+    <string name="dashboard_conflict_present">Tidsplanskonflikt</string>
     <!-- Dashboard: Text button navigating from Today view to the full Week tab -->
     <string name="dashboard_view_full_week">Se hele ugen</string>
     <!-- Dashboard: Title on top warning banner when exact alarm or notification permissions are missing -->

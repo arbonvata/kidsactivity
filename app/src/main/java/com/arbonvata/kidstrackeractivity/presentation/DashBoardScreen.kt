@@ -22,6 +22,7 @@ import androidx.compose.material.icons.filled.NotificationsOff
 import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -125,6 +126,7 @@ fun TodayScreen(
             DashboardScreen(
                 kids = uiState.kids,
                 todayOccurrences = uiState.todayOccurrences,
+                conflictedActivityIds = uiState.conflictedActivityIds,
                 today = uiState.today,
                 now = uiState.now,
                 showPermissionsBanner = permissions.remindersBlocked && !bannerDismissed,
@@ -248,6 +250,7 @@ fun WelcomeNoKidsContent(onAddKidClick: () -> Unit) {
 fun DashboardScreen(
     kids: List<Kid>,
     todayOccurrences: List<ActivityOccurrence>,
+    conflictedActivityIds: Set<Long>,
     today: LocalDate,
     now: LocalTime,
     showPermissionsBanner: Boolean,
@@ -386,6 +389,10 @@ fun DashboardScreen(
             } else {
                 todayOccurrences.forEach { occurrence ->
                     val alarmsDisabled = !occurrence.activity.isEnabled
+                    // Conflicts are computed over enabled activities only
+                    // (matching the Conflicts screen), so a muted row is
+                    // never also flagged as conflicted.
+                    val hasConflict = occurrence.activity.id in conflictedActivityIds
                     val dimmed = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
                     OutlinedCard(
                         onClick = { onActivityClick(occurrence.activity) },
@@ -399,7 +406,12 @@ fun DashboardScreen(
                                 occurrence.startTime.format(shortTimeFormatter),
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold,
-                                color = if (alarmsDisabled) dimmed else MaterialTheme.colorScheme.primary,
+                                color =
+                                    when {
+                                        hasConflict -> MaterialTheme.colorScheme.error
+                                        alarmsDisabled -> dimmed
+                                        else -> MaterialTheme.colorScheme.primary
+                                    },
                                 modifier = Modifier.width(60.dp),
                             )
                             Column(modifier = Modifier.weight(1f)) {
@@ -419,7 +431,14 @@ fun DashboardScreen(
                                     Text(stringResource(R.string.pickup_time_format, occurrence.endTime.format(shortTimeFormatter)))
                                 }
                             }
-                            if (alarmsDisabled) {
+                            if (hasConflict) {
+                                Icon(
+                                    Icons.Default.Warning,
+                                    contentDescription = stringResource(R.string.dashboard_conflict_present),
+                                    tint = MaterialTheme.colorScheme.error,
+                                )
+                                Spacer(Modifier.width(8.dp))
+                            } else if (alarmsDisabled) {
                                 Icon(
                                     Icons.Default.NotificationsOff,
                                     contentDescription = stringResource(R.string.dashboard_alarms_disabled),
@@ -473,6 +492,9 @@ fun DashboardScreenPreview() {
         DashboardScreen(
             kids = DebugTestData.mockKids,
             todayOccurrences = todayOccurrences,
+            // The 17:00 row is marked conflicted so the third row style
+            // (error time + warning icon) is visible too.
+            conflictedActivityIds = setOf(DebugTestData.mockActivities[0].id),
             today = today,
             now = LocalTime.of(14, 0),
             showPermissionsBanner = false,
@@ -492,6 +514,7 @@ fun DashboardScreenEmptyPreview() {
         DashboardScreen(
             kids = DebugTestData.mockKids,
             todayOccurrences = emptyList(),
+            conflictedActivityIds = emptySet(),
             today = LocalDate.of(2026, 10, 19),
             now = LocalTime.of(14, 0),
             showPermissionsBanner = false,
@@ -511,6 +534,7 @@ fun DashboardScreenBannerPreview() {
         DashboardScreen(
             kids = DebugTestData.mockKids,
             todayOccurrences = emptyList(),
+            conflictedActivityIds = emptySet(),
             today = LocalDate.of(2026, 10, 19),
             now = LocalTime.of(14, 0),
             showPermissionsBanner = true,

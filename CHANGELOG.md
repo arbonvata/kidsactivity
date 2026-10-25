@@ -5,6 +5,11 @@ in-app About screen); this file records what each release shipped.
 
 ## Unreleased
 
+- **Added**: conflicting activities (same kid, overlapping times) are marked
+  directly on the Today screen with an error-colored time and a warning icon,
+  using the same conflict definition as the Conflicts screen — muted
+  activities never conflict.
+
 - **Fixed**: invalid activity times now show an explanation beside the pinned
   Save button, even when the time fields are off-screen. Editing an activity
   shows saving progress, retains edits on write failure and allows retry.
