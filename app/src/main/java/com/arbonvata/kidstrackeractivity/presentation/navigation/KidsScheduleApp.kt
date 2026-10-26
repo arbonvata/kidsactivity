@@ -8,6 +8,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.FamilyRestroom
 import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.MoreHoriz
@@ -44,6 +45,7 @@ import com.arbonvata.kidstrackeractivity.presentation.AboutScreen
 import com.arbonvata.kidstrackeractivity.presentation.AddActivityScreen
 import com.arbonvata.kidstrackeractivity.presentation.AddKidScreen
 import com.arbonvata.kidstrackeractivity.presentation.AddParentScreen
+import com.arbonvata.kidstrackeractivity.presentation.EditParentScreen
 import com.arbonvata.kidstrackeractivity.presentation.ConflictScreen
 import com.arbonvata.kidstrackeractivity.presentation.DailyScheduleScreen
 import com.arbonvata.kidstrackeractivity.presentation.EditActivityScreen
@@ -52,6 +54,7 @@ import com.arbonvata.kidstrackeractivity.presentation.KidDetailScreen
 import com.arbonvata.kidstrackeractivity.presentation.KidSelectionScreen
 import com.arbonvata.kidstrackeractivity.presentation.KidsManagementScreen
 import com.arbonvata.kidstrackeractivity.presentation.MonthScreen
+import com.arbonvata.kidstrackeractivity.presentation.ParentsManagementScreen
 import com.arbonvata.kidstrackeractivity.presentation.MoreScreen
 import com.arbonvata.kidstrackeractivity.presentation.SchoolOverrideScreen
 import com.arbonvata.kidstrackeractivity.presentation.SettingsScreen
@@ -96,6 +99,12 @@ sealed class Screen(
     object AddKid : Screen("add_kid", R.string.screen_title_add_kid, Icons.Default.PersonAdd)
 
     object AddParent : Screen("add_parent", R.string.add_parent_title, Icons.Default.PersonAdd)
+
+    object ParentsManagement : Screen("parents_management", R.string.parents_management_title, Icons.Default.FamilyRestroom)
+
+    object EditParent : Screen("edit_parent/{parentId}", R.string.edit_parent_title, Icons.Default.Edit) {
+        fun route(parentId: Long): String = "edit_parent/$parentId"
+}
 
     object DailySchedule : Screen("daily_schedule/{kidIds}", R.string.screen_title_daily_schedule, Icons.Default.ViewDay) {
         fun route(kidIds: Collection<Long>): String = "daily_schedule/${kidIds.joinToString(",")}"
@@ -214,7 +223,7 @@ fun KidsScheduleApp(deepLinkIntent: Intent? = null) {
             composable(Screen.More.route) {
                 MoreScreen(
                     onKidsClick = { navController.navigate(Screen.KidsManagement.route) },
-                    onAddParentClick = { navController.navigate(Screen.AddParent.route) },
+                    onParentsClick = { navController.navigate(Screen.ParentsManagement.route) },
                     onSchoolOverridesClick = { navController.navigate(Screen.SchoolOverrides.route) },
                     onConflictsClick = { navController.navigate(Screen.Conflicts.route) },
                     onShareClick = { navController.navigate(Screen.Share.route) },
@@ -280,6 +289,25 @@ fun KidsScheduleApp(deepLinkIntent: Intent? = null) {
 
             composable(Screen.AddParent.route) {
                 AddParentScreen(onNavigateBack = { navController.popBackStack() })
+            }
+
+            composable(Screen.ParentsManagement.route) {
+                ParentsManagementScreen(
+                    onAddParentClick = { navController.navigate(Screen.AddParent.route) },
+                    onParentClick = { parent -> navController.navigate(Screen.EditParent.route(parent.id)) },
+                    onBackClick = { navController.popBackStack() },
+                )
+            }
+
+            composable(
+                route = Screen.EditParent.route,
+                arguments = listOf(navArgument("parentId") { type = NavType.LongType }),
+            ) { backStackEntry ->
+                val parentId = backStackEntry.arguments?.getLong("parentId") ?: return@composable
+                EditParentScreen(
+                    parentId = parentId,
+                    onNavigateBack = { navController.popBackStack() },
+                )
             }
 
             composable(

@@ -44,15 +44,23 @@
     <string name="add_parent_back_content_description" tools:ignore="MissingTranslation">Back</string>
     <string name="add_parent_name_label" tools:ignore="MissingTranslation">Name</string>
     <string name="add_parent_name_error_blank" tools:ignore="MissingTranslation">Please enter a name</string>
+    <string name="add_parent_name_error_duplicate" tools:ignore="MissingTranslation">%1$s is already saved</string>
     <string name="add_parent_relation_label" tools:ignore="MissingTranslation">Relation</string>
     <string name="add_parent_phone_label" tools:ignore="MissingTranslation">Phone (optional)</string>
     <string name="add_parent_save" tools:ignore="MissingTranslation">Save Parent</string>
+    <string name="edit_parent_title" tools:ignore="MissingTranslation">Edit Parent</string>
+    <string name="edit_parent_not_found" tools:ignore="MissingTranslation">This parent no longer exists.</string>
+    <string name="parent_delete_content_description" tools:ignore="MissingTranslation">Delete parent</string>
+    <string name="parent_delete_dialog_title" tools:ignore="MissingTranslation">Delete Parent?</string>
+    <string name="parent_delete_dialog_message" tools:ignore="MissingTranslation">Delete %1$s? Dates already marked as picked up keep the saved name.</string>
+    <string name="parent_delete_dialog_confirm" tools:ignore="MissingTranslation">Delete</string>
+    <string name="parent_delete_dialog_cancel" tools:ignore="MissingTranslation">Cancel</string>
     <string name="parent_relation_father" tools:ignore="MissingTranslation">Father</string>
     <string name="parent_relation_mother" tools:ignore="MissingTranslation">Mother</string>
     <string name="parent_relation_guardian" tools:ignore="MissingTranslation">Guardian</string>
     <string name="parent_relation_other" tools:ignore="MissingTranslation">Other</string>
-    <string name="more_add_parent_title" tools:ignore="MissingTranslation">Add Parent</string>
-    <string name="more_add_parent_subtitle" tools:ignore="MissingTranslation">Save a parent or guardian</string>
+    <string name="more_parents_management_title" tools:ignore="MissingTranslation">Parents</string>
+    <string name="more_parents_management_subtitle" tools:ignore="MissingTranslation">Manage parents and guardians</string>
 
     <!-- Kid detail (KidDetailScreen.kt) -->
     <string name="kid_detail_title">%1$s\'s Activities</string>

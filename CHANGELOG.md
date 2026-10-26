@@ -5,6 +5,12 @@ in-app About screen); this file records what each release shipped.
 
 ## Unreleased
 
+- **Added**: full parent management — More → Parents lists saved parents and
+  guardians (name, relation, phone), with add, edit and delete (with
+  confirmation). Duplicate names are rejected case-insensitively; deleting a
+  parent keeps existing "picked by" text. Parents are included in JSON
+  backups (format v5; version-4 files import unchanged, with no parents).
+
 - **Added**: toggling an activity's reminder switch on the kid detail screen
   shows a toast confirming "Reminders on/off for \<activity\>".
 

@@ -2,12 +2,20 @@ package com.arbonvata.kidstrackeractivity.data
 
 import com.arbonvata.kidstrackeractivity.data.objectbox.Activity
 import com.arbonvata.kidstrackeractivity.data.objectbox.Kid
+import com.arbonvata.kidstrackeractivity.data.objectbox.Parent
+import com.arbonvata.kidstrackeractivity.data.objectbox.ParentRelation
 
 object DebugTestData {
     val mockKids =
         listOf(
             Kid(id = 1, name = "Leo", schoolName = "Greenfield Primary"),
             Kid(id = 2, name = "Mia", schoolName = "St. Mary's"),
+        )
+
+    val mockParents =
+        listOf(
+            Parent(id = 1, name = "Anna", relation = ParentRelation.MOTHER.key, phone = "+46 70 111 22 33"),
+            Parent(id = 2, name = "Mark", relation = ParentRelation.FATHER.key, phone = ""),
         )
 
     val mockActivities =

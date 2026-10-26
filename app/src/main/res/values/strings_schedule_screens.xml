@@ -66,6 +66,13 @@
     <string name="kids_management_no_kids_added_yet">No kids added yet.</string>
     <string name="kids_management_school_format">School: %1$s</string>
 
+    <!-- Parents management screen -->
+    <string name="parents_management_title" tools:ignore="MissingTranslation">Parents</string>
+    <string name="parents_management_back" tools:ignore="MissingTranslation">Back</string>
+    <string name="parents_management_add_parent" tools:ignore="MissingTranslation">Add Parent</string>
+    <string name="parents_management_no_parents_added_yet" tools:ignore="MissingTranslation">No parents added yet.</string>
+    <string name="parents_management_subtitle_format" tools:ignore="MissingTranslation">%1$s · %2$s</string>
+
     <!-- Delete all activities dialog -->
     <string name="delete_all_activities_button">Delete All Activities</string>
     <string name="delete_all_activities_dialog_title">Delete All Activities?</string>

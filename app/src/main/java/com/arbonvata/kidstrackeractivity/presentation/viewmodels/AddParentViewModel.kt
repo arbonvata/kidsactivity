@@ -14,14 +14,25 @@ data class AddParentUiState(
     val name: String = "",
     val relation: ParentRelation = ParentRelation.FATHER,
     val phone: String = "",
-    val nameError: Boolean = false,
+    val nameError: ParentNameError? = null,
     val isSaving: Boolean = false,
     val isSaved: Boolean = false,
 )
 
+/** Validation failures for the parent name field; [Duplicate] carries the name it collided with. */
+sealed interface ParentNameError {
+    data object Blank : ParentNameError
+
+    data class Duplicate(
+        val existingName: String,
+    ) : ParentNameError
+}
+
 /**
- * Form state for the "Add Parent" screen: fills the fields, validates the
- * name, and persists one Parent row via [ParentRepository.addParent].
+ * Form state and validation for the "Add Parent" screen. Mirrors the kid
+ * form: blank and case-insensitive duplicate names are rejected, everything
+ * is trimmed, and the database work happens off the main thread while
+ * [AddParentUiState.isSaving] is set.
  */
 class AddParentViewModel(
     private val parentRepository: ParentRepository,
@@ -30,7 +41,7 @@ class AddParentViewModel(
     val uiState: StateFlow<AddParentUiState> = _uiState.asStateFlow()
 
     fun onNameChange(name: String) {
-        _uiState.update { it.copy(name = name, nameError = false) }
+        _uiState.update { it.copy(name = name, nameError = null) }
     }
 
     fun onRelationChange(relation: ParentRelation) {
@@ -44,19 +55,34 @@ class AddParentViewModel(
     fun saveParent() {
         val state = _uiState.value
         val trimmedName = state.name.trim()
+        val trimmedPhone = state.phone.trim()
+
         if (trimmedName.isEmpty()) {
-            _uiState.update { it.copy(nameError = true) }
+            _uiState.update { it.copy(nameError = ParentNameError.Blank) }
             return
         }
 
-        _uiState.update { it.copy(isSaving = true) }
+        _uiState.update { it.copy(isSaving = true, nameError = null) }
         viewModelScope.launch {
-            parentRepository.addParent(
-                name = trimmedName,
-                relation = state.relation.key,
-                phone = state.phone.trim(),
-            )
-            _uiState.update { it.copy(isSaved = true, isSaving = false) }
+            val duplicate =
+                parentRepository.getAllParents().firstOrNull { parent ->
+                    parent.name.equals(trimmedName, ignoreCase = true)
+                }
+            if (duplicate != null) {
+                _uiState.update {
+                    it.copy(
+                        nameError = ParentNameError.Duplicate(duplicate.name),
+                        isSaving = false,
+                    )
+                }
+            } else {
+                parentRepository.addParent(
+                    name = trimmedName,
+                    relation = state.relation.key,
+                    phone = trimmedPhone,
+                )
+                _uiState.update { it.copy(isSaved = true, isSaving = false) }
+            }
         }
     }
 

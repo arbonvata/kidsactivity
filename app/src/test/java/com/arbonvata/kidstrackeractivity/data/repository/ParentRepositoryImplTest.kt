@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Test
 
@@ -57,6 +58,64 @@ class ParentRepositoryImplTest {
             assertSame(parentSlot.captured, result)
             assertEquals(42L, result.id)
             verify { parentBox.put(parentSlot.captured) }
+        }
+
+    @Test
+    fun updateParentPutsParent() =
+        runTest {
+            val parent = Parent(id = 7L, name = "Anna", relation = "mother", phone = "")
+            every { parentBox.put(parent) } returns 7L
+
+            repository.updateParent(parent)
+
+            verify { parentBox.put(parent) }
+        }
+
+    @Test
+    fun getParentReturnsParentFromBox() =
+        runTest {
+            val parent = Parent(id = 7L, name = "Anna")
+            every { parentBox.get(7L) } returns parent
+
+            assertSame(parent, repository.getParent(7L))
+            verify { parentBox.get(7L) }
+        }
+
+    @Test
+    fun getParentReturnsNullWhenMissing() =
+        runTest {
+            every { parentBox.get(9L) } returns null
+
+            assertNull(repository.getParent(9L))
+            verify { parentBox.get(9L) }
+        }
+
+    @Test
+    fun getAllParentsOrdersByName() =
+        runTest {
+            val expected = listOf(Parent(id = 1L, name = "Anna"), Parent(id = 2L, name = "Mark"))
+            val queryBuilder = mockk<QueryBuilder<Parent>>()
+            val query = mockk<Query<Parent>>()
+            every { parentBox.query() } returns queryBuilder
+            every { queryBuilder.order(any()) } returns queryBuilder
+            every { queryBuilder.build() } returns query
+            every { query.find() } returns expected
+
+            assertEquals(expected, repository.getAllParents())
+            verify { queryBuilder.order(Parent_.name) }
+        }
+
+    @Test
+    fun deleteParentRemovesOnlyTheRowNoCascadeNeeded() =
+        runTest {
+            every { parentBox.remove(7L) } returns true
+
+            repository.deleteParent(7L)
+
+            // Delegations and pickup adults store names, not ids, so there is
+            // nothing to cascade from and no transaction required.
+            verify { parentBox.remove(7L) }
+            verify(exactly = 0) { store.runInTx(any()) }
         }
 
     @Test

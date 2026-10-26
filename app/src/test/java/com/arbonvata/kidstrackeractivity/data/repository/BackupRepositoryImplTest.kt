@@ -3,6 +3,7 @@ package com.arbonvata.kidstrackeractivity.data.repository
 import com.arbonvata.kidstrackeractivity.data.objectbox.Activity
 import com.arbonvata.kidstrackeractivity.data.objectbox.DailySchedule
 import com.arbonvata.kidstrackeractivity.data.objectbox.Kid
+import com.arbonvata.kidstrackeractivity.data.objectbox.Parent
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
@@ -31,6 +32,7 @@ class BackupRepositoryImplTest {
     private val kidBox = mockk<Box<Kid>>(relaxUnitFun = true)
     private val activityBox = mockk<Box<Activity>>(relaxUnitFun = true)
     private val scheduleBox = mockk<Box<DailySchedule>>(relaxUnitFun = true)
+    private val parentBox = mockk<Box<Parent>>(relaxUnitFun = true)
 
     private val testDispatcher = UnconfinedTestDispatcher()
 
@@ -39,6 +41,7 @@ class BackupRepositoryImplTest {
             every { boxFor(Kid::class.java) } returns kidBox
             every { boxFor(Activity::class.java) } returns activityBox
             every { boxFor(DailySchedule::class.java) } returns scheduleBox
+            every { boxFor(Parent::class.java) } returns parentBox
         }
 
     private val repository =
@@ -215,6 +218,49 @@ class BackupRepositoryImplTest {
             assertEquals(null, captured.captured.calendarStartDate)
         }
 
+    @Test
+    fun importAllImportsParentsAndNormalizesUnknownRelations() =
+        runTest {
+            every { kidBox.put(any<Kid>()) } returns 100L
+            every { activityBox.put(any<Activity>()) } returns 200L
+            every { scheduleBox.put(any<DailySchedule>()) } returns 300L
+            val captured = mutableListOf<Parent>()
+            every { parentBox.put(capture(captured)) } returns 400L
+
+            repository.importAll(backupJsonWithParents, replaceExisting = false)
+
+            assertEquals(listOf("Anna", "Sam"), captured.map { it.name })
+            assertEquals("mother", captured[0].relation)
+            assertEquals("+46 70", captured[0].phone)
+            // Unknown relation keys degrade to "other" rather than crashing.
+            assertEquals("other", captured[1].relation)
+        }
+
+    @Test
+    fun importAllAcceptsV4DocumentsWithNoParentsArray() =
+        runTest {
+            every { kidBox.put(any<Kid>()) } returns 100L
+            every { activityBox.put(any<Activity>()) } returns 200L
+            every { scheduleBox.put(any<DailySchedule>()) } returns 300L
+
+            repository.importAll(validBackupJson, replaceExisting = false)
+
+            verify(exactly = 0) { parentBox.put(any<Parent>()) }
+            verify(exactly = 0) { parentBox.removeAll() }
+        }
+
+    @Test
+    fun replaceImportAlsoWipesParents() =
+        runTest {
+            every { kidBox.put(any<Kid>()) } returns 100L
+            every { activityBox.put(any<Activity>()) } returns 200L
+            every { scheduleBox.put(any<DailySchedule>()) } returns 300L
+
+            repository.importAll(validBackupJson, replaceExisting = true)
+
+            verify { parentBox.removeAll() }
+        }
+
     /** JUnit's assertThrows cannot wrap a suspend call, so catch manually. */
     private suspend fun assertImportThrows(json: String): Throwable? =
         runCatching { repository.importAll(json, replaceExisting = true) }.exceptionOrNull()
@@ -232,6 +278,25 @@ class BackupRepositoryImplTest {
           "overrides": [{
             "id": 1, "kidId": 7, "date": "2026-10-26", "endTime": "14:00", "isNoSchool": false
           }]
+        }
+        """.trimIndent()
+
+
+    private val backupJsonWithParents =
+        """
+        {
+          "version": 5,
+          "kids": [{ "id": 7, "name": "Ada", "schoolName": "Fairview" }],
+          "activities": [{
+            "id": 3, "kidId": 7, "name": "Swim", "startTime": "15:00", "endTime": "16:00",
+            "isEnabled": true, "daysOfWeek": [1, 3], "isPeriodic": true,
+            "isSchoolActivity": false, "firstDate": ""
+          }],
+          "overrides": [],
+          "parents": [
+            { "id": 1, "name": "Anna", "relation": "mother", "phone": "+46 70" },
+            { "id": 2, "name": "Sam", "relation": "aunt", "phone": "" }
+          ]
         }
         """.trimIndent()
 }

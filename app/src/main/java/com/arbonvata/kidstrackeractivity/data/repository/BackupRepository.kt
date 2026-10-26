@@ -3,6 +3,8 @@ package com.arbonvata.kidstrackeractivity.data.repository
 import com.arbonvata.kidstrackeractivity.data.objectbox.Activity
 import com.arbonvata.kidstrackeractivity.data.objectbox.DailySchedule
 import com.arbonvata.kidstrackeractivity.data.objectbox.Kid
+import com.arbonvata.kidstrackeractivity.data.objectbox.Parent
+import com.arbonvata.kidstrackeractivity.data.objectbox.ParentRelation
 import io.objectbox.BoxStore
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -27,7 +29,8 @@ interface BackupRepository {
      * the database is wiped first; either way the whole import runs in one
      * transaction and takes effect completely or not at all. Throws
      * JSONException on malformed input, including documents missing the
-     * kids/activities/overrides arrays, an array of the wrong type, a
+     * kids/activities/overrides arrays (the parents array is optional —
+     * version-4 documents predate it), an array of the wrong type, a
      * version newer than this app understands, or a row with an invalid
      * time/date string — all before any data is touched, so an incomplete or
      * corrupt document cannot wipe the database (or crash every schedule
@@ -52,6 +55,7 @@ class BackupRepositoryImpl(
     private val kidBox = store.boxFor(Kid::class.java)
     private val activityBox = store.boxFor(Activity::class.java)
     private val scheduleBox = store.boxFor(DailySchedule::class.java)
+    private val parentBox = store.boxFor(Parent::class.java)
 
     override suspend fun exportAll(): String =
         withContext(ioDispatcher) {
@@ -64,6 +68,7 @@ class BackupRepositoryImpl(
                 .put("kids", JSONArray(kids.map(::kidToJson)))
                 .put("activities", JSONArray(activities.map(::activityToJson)))
                 .put("overrides", JSONArray(overrides.map(::overrideToJson)))
+                .put("parents", JSONArray(parentBox.query().build().find().map(::parentToJson)))
                 .toString(2)
         }
 
@@ -79,6 +84,9 @@ class BackupRepositoryImpl(
             val kids = root.getJSONArray("kids")
             val activities = root.getJSONArray("activities")
             val overrides = root.getJSONArray("overrides")
+            // Parents joined the format in v5; a missing array is simply an
+            // empty parent list, so v4 documents import unchanged.
+            val parents = root.optJSONArray("parents")
             val version = root.optInt("version", FORMAT_VERSION)
             if (version > FORMAT_VERSION) {
                 throw JSONException("Unsupported backup version $version (this app understands $FORMAT_VERSION)")
@@ -94,12 +102,27 @@ class BackupRepositoryImpl(
                 (0 until overrides.length())
                     .map { parseOverride(overrides.getJSONObject(it)) }
                     .filterNotNull()
+            val parsedParents =
+                parents
+                    ?.let { array -> (0 until array.length()).map { parseParent(array.getJSONObject(it)) } }
+                    ?: emptyList()
 
             store.runInTx {
                 if (replaceExisting) {
                     scheduleBox.removeAll()
                     activityBox.removeAll()
                     kidBox.removeAll()
+                    parentBox.removeAll()
+                }
+
+                parsedParents.forEach { parsed ->
+                    parentBox.put(
+                        Parent(
+                            name = parsed.name,
+                            relation = parsed.relation,
+                            phone = parsed.phone,
+                        ),
+                    )
                 }
 
                 val kidIdMap = mutableMapOf<Long, Long>()
@@ -182,6 +205,12 @@ class BackupRepositoryImpl(
         val isNoSchool: Boolean,
     )
 
+    private data class ParsedParent(
+        val name: String,
+        val relation: String,
+        val phone: String,
+    )
+
     private fun parseKid(json: JSONObject): ParsedKid =
         ParsedKid(
             oldId = json.optLong("id"),
@@ -239,6 +268,15 @@ class BackupRepositoryImpl(
         )
     }
 
+    private fun parseParent(json: JSONObject): ParsedParent =
+        ParsedParent(
+            name = json.optString("name"),
+            // Unknown keys (a hand-edited file) degrade to "other", matching
+            // what the rest of the app does with them.
+            relation = ParentRelation.fromKey(json.optString("relation")).key,
+            phone = json.optString("phone"),
+        )
+
     private fun requireTime(
         value: String,
         field: String,
@@ -288,6 +326,13 @@ class BackupRepositoryImpl(
             .put("firstDate", activity.firstDate)
             .put("occurrenceExceptions", activity.occurrenceExceptions.orEmpty())
 
+    private fun parentToJson(parent: Parent): JSONObject =
+        JSONObject()
+            .put("id", parent.id)
+            .put("name", parent.name)
+            .put("relation", parent.relation)
+            .put("phone", parent.phone)
+
     private fun overrideToJson(override: DailySchedule): JSONObject =
         JSONObject()
             .put("id", override.id)
@@ -297,6 +342,6 @@ class BackupRepositoryImpl(
             .put("isNoSchool", override.isNoSchool)
 
     private companion object {
-        const val FORMAT_VERSION = 4
+        const val FORMAT_VERSION = 5
     }
 }

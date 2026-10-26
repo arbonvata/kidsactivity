@@ -16,8 +16,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.FamilyRestroom
 import androidx.compose.material.icons.filled.People
-import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.ViewDay
@@ -43,7 +43,7 @@ import com.arbonvata.kidstrackeractivity.R
 @Composable
 fun MoreScreen(
     onKidsClick: () -> Unit,
-    onAddParentClick: () -> Unit,
+    onParentsClick: () -> Unit,
     onSchoolOverridesClick: () -> Unit,
     onConflictsClick: () -> Unit,
     onShareClick: () -> Unit,
@@ -84,10 +84,10 @@ fun MoreScreen(
             )
 
             MoreMenuItem(
-                icon = Icons.Default.PersonAdd,
-                title = stringResource(R.string.more_add_parent_title),
-                subtitle = stringResource(R.string.more_add_parent_subtitle),
-                onClick = onAddParentClick,
+                icon = Icons.Default.FamilyRestroom,
+                title = stringResource(R.string.more_parents_management_title),
+                subtitle = stringResource(R.string.more_parents_management_subtitle),
+                onClick = onParentsClick,
             )
 
             MoreMenuItem(
@@ -211,7 +211,7 @@ fun MoreScreenPreview() {
     MaterialTheme {
         MoreScreen(
             onKidsClick = {},
-            onAddParentClick = {},
+            onParentsClick = {},
             onSchoolOverridesClick = {},
             onConflictsClick = {},
             onShareClick = {},

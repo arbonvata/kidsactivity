@@ -22,6 +22,7 @@ import com.arbonvata.kidstrackeractivity.data.repository.ScheduleOverrideReposit
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.AddActivityViewModel
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.AddKidViewModel
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.AddParentViewModel
+import com.arbonvata.kidstrackeractivity.presentation.viewmodels.EditParentViewModel
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.CalendarShareViewModel
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.ConflictViewModel
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.DailyScheduleViewModel
@@ -30,6 +31,7 @@ import com.arbonvata.kidstrackeractivity.presentation.viewmodels.EditKidViewMode
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.KidDetailViewModel
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.KidsViewModel
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.MonthViewModel
+import com.arbonvata.kidstrackeractivity.presentation.viewmodels.ParentsViewModel
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.SchoolOverridesViewModel
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.SettingsViewModel
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.ShareViewModel
@@ -86,6 +88,13 @@ val appModule =
         viewModel { KidsViewModel(get()) }
         viewModel { AddKidViewModel(get()) }
         viewModel { AddParentViewModel(get()) }
+        viewModel { ParentsViewModel(get()) }
+        viewModel { (parentId: Long) ->
+            EditParentViewModel(
+                parentId = parentId,
+                parentRepository = get(),
+            )
+        }
         viewModel { TodayViewModel(get(), get(), get(), get()) }
         viewModel { WeekViewModel(get(), get(), get()) }
         viewModel { MonthViewModel(get(), get(), get()) }
