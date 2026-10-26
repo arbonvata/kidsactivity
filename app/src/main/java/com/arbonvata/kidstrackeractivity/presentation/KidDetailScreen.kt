@@ -1,5 +1,6 @@
 package com.arbonvata.kidstrackeractivity.presentation
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -40,6 +41,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -72,6 +74,7 @@ fun KidDetailScreen(
     val isKidDeleted by viewModel.isKidDeleted.collectAsState()
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showCopyDialog by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
     LaunchedEffect(isKidDeleted) {
         if (isKidDeleted) {
@@ -86,7 +89,19 @@ fun KidDetailScreen(
         onDeleteKidClick = { showDeleteDialog = true },
         onDeleteAllClick = viewModel::deleteAllActivities,
         onActivityClick = onActivityClick,
-        onActivityEnabledChange = viewModel::setActivityEnabled,
+        onActivityEnabledChange = { activityId, enabled ->
+            viewModel.setActivityEnabled(activityId, enabled)
+            // Confirm the toggle — the row's dimming is subtle, and the
+            // switch also silences every reminder for that activity.
+            uiState.activities.firstOrNull { it.id == activityId }?.let { activity ->
+                val message =
+                    context.getString(
+                        if (enabled) R.string.kid_detail_reminders_enabled_toast else R.string.kid_detail_reminders_disabled_toast,
+                        activity.name,
+                    )
+                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+            }
+        },
         onAddActivityClick = onAddActivityClick,
         onNavigateBack = onNavigateBack,
         onCopySchedule = { showCopyDialog = true },

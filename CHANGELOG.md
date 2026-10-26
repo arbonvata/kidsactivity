@@ -5,6 +5,9 @@ in-app About screen); this file records what each release shipped.
 
 ## Unreleased
 
+- **Added**: toggling an activity's reminder switch on the kid detail screen
+  shows a toast confirming "Reminders on/off for \<activity\>".
+
 - **Added**: saved parents appear as one-tap choices above the "Adult
   responsible for pickup" field when creating or editing an activity; tapping
   one fills the field with their name (free text still available).

@@ -71,6 +71,8 @@
     <string name="kid_detail_recurrence_weekly">weekly</string>
     <string name="kid_detail_recurrence_once">once</string>
     <string name="kid_detail_marker_school">school</string>
+    <string name="kid_detail_reminders_enabled_toast" tools:ignore="MissingTranslation">Reminders on for %1$s</string>
+    <string name="kid_detail_reminders_disabled_toast" tools:ignore="MissingTranslation">Reminders off for %1$s</string>
 
     <!-- More screen (MoreScreen.kt) -->
     <string name="more_title">More</string>
