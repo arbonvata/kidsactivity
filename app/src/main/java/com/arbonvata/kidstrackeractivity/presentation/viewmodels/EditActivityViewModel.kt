@@ -4,8 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.arbonvata.kidstrackeractivity.data.objectbox.Activity
 import com.arbonvata.kidstrackeractivity.data.objectbox.Kid
+import com.arbonvata.kidstrackeractivity.data.objectbox.Parent
 import com.arbonvata.kidstrackeractivity.data.repository.ActivityRepository
 import com.arbonvata.kidstrackeractivity.data.repository.KidRepository
+import com.arbonvata.kidstrackeractivity.data.repository.ParentRepository
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -39,6 +41,7 @@ class EditActivityViewModel(
     private val activityId: Long,
     private val activityRepository: ActivityRepository,
     kidRepository: KidRepository,
+    parentRepository: ParentRepository,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(EditActivityUiState())
     val uiState: StateFlow<EditActivityUiState> = _uiState.asStateFlow()
@@ -46,6 +49,12 @@ class EditActivityViewModel(
     val kids: StateFlow<List<Kid>> =
         kidRepository
             .getAllKidsFlow()
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    /** One-tap choices for the pickup-adult field. */
+    val parents: StateFlow<List<Parent>> =
+        parentRepository
+            .getAllParentsFlow()
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     private var original: Activity? = null

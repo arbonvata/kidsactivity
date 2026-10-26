@@ -98,6 +98,7 @@ val appModule =
                 kidId = kidId,
                 activityRepository = get(),
                 kidRepository = get(),
+                parentRepository = get(),
             )
         }
         viewModel { (kidId: Long) ->
@@ -118,6 +119,7 @@ val appModule =
                 activityId = activityId,
                 activityRepository = get(),
                 kidRepository = get(),
+                parentRepository = get(),
             )
         }
         viewModel { (kidIds: Set<Long>) ->

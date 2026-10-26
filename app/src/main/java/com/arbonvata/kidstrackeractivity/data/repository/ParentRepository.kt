@@ -1,9 +1,11 @@
 package com.arbonvata.kidstrackeractivity.data.repository
 
 import com.arbonvata.kidstrackeractivity.data.objectbox.Parent
+import com.arbonvata.kidstrackeractivity.data.objectbox.Parent_
 import io.objectbox.BoxStore
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 
 interface ParentRepository {
@@ -12,6 +14,9 @@ interface ParentRepository {
         relation: String,
         phone: String,
     ): Parent
+
+    /** Reactive: all parents ordered by name, now and on every parent-table change. */
+    fun getAllParentsFlow(): Flow<List<Parent>>
 }
 
 class ParentRepositoryImpl(
@@ -29,5 +34,13 @@ class ParentRepositoryImpl(
             val parent = Parent(name = name, relation = relation, phone = phone)
             parent.id = parentBox.put(parent)
             parent
+        }
+
+    override fun getAllParentsFlow(): Flow<List<Parent>> =
+        queryFlow {
+            parentBox
+                .query()
+                .order(Parent_.name)
+                .build()
         }
 }

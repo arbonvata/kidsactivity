@@ -58,6 +58,7 @@ import androidx.compose.ui.unit.dp
 import com.arbonvata.kidstrackeractivity.R
 import com.arbonvata.kidstrackeractivity.data.DebugTestData
 import com.arbonvata.kidstrackeractivity.data.objectbox.Kid
+import com.arbonvata.kidstrackeractivity.data.objectbox.Parent
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.AddActivityUiState
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.AddActivityViewModel
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.EditActivityViewModel
@@ -82,6 +83,7 @@ fun AddActivityScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val kids by viewModel.kids.collectAsState()
+    val parents by viewModel.parents.collectAsState()
 
     LaunchedEffect(uiState.isSaved) {
         if (uiState.isSaved) {
@@ -93,6 +95,7 @@ fun AddActivityScreen(
     AddActivityContent(
         uiState = uiState,
         kids = kids,
+        parents = parents,
         isKidPickerEnabled = kidId == 0L,
         onKidSelected = viewModel::onKidSelected,
         onNameChange = viewModel::onNameChange,
@@ -124,6 +127,7 @@ fun EditActivityScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val kids by viewModel.kids.collectAsState()
+    val parents by viewModel.parents.collectAsState()
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showCopyDialog by remember { mutableStateOf(false) }
 
@@ -164,6 +168,7 @@ fun EditActivityScreen(
             AddActivityContent(
                 uiState = form.copy(isSaving = uiState.isSaving, saveError = uiState.saveError),
                 kids = kids,
+                parents = parents,
                 isKidPickerEnabled = false,
                 onKidSelected = {},
                 onNameChange = viewModel::onNameChange,
@@ -238,6 +243,8 @@ fun AddActivityContent(
     onLocationChange: (String) -> Unit = {},
     onPickupAdultChange: (String) -> Unit = {},
     onPickupNotesChange: (String) -> Unit = {},
+    /** Saved parents offered as one-tap choices for the pickup adult. */
+    parents: List<Parent> = emptyList(),
 ) {
     var showStartTimePicker by remember { mutableStateOf(false) }
     var showEndTimePicker by remember { mutableStateOf(false) }
@@ -377,6 +384,25 @@ fun AddActivityContent(
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
             )
+            if (parents.isNotEmpty()) {
+                Text(
+                    stringResource(R.string.pickup_adult_pick_parent),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    parents.forEach { parent ->
+                        FilterChip(
+                            selected = uiState.pickupAdult == parent.name,
+                            onClick = { onPickupAdultChange(parent.name) },
+                            label = { Text(parent.name) },
+                        )
+                    }
+                }
+            }
             OutlinedTextField(
                 value = uiState.pickupAdult,
                 onValueChange = onPickupAdultChange,

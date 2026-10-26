@@ -14,6 +14,7 @@
     <string name="pickup_details_title">Location and pickup arrangements</string>
     <string name="pickup_location">Location (optional)</string>
     <string name="pickup_adult">Adult responsible for pickup (optional)</string>
+    <string name="pickup_adult_pick_parent" tools:ignore="MissingTranslation">Pick a saved parent:</string>
     <string name="pickup_notes">Pickup notes (optional)</string>
     <string name="pickup_location_format">Location: %1$s</string>
     <string name="pickup_adult_format">Pickup: %1$s</string>

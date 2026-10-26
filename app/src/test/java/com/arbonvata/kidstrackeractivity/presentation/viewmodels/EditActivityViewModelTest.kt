@@ -3,6 +3,7 @@ package com.arbonvata.kidstrackeractivity.presentation.viewmodels
 import com.arbonvata.kidstrackeractivity.data.objectbox.Activity
 import com.arbonvata.kidstrackeractivity.data.repository.ActivityRepository
 import com.arbonvata.kidstrackeractivity.data.repository.KidRepository
+import com.arbonvata.kidstrackeractivity.data.repository.ParentRepository
 import com.arbonvata.kidstrackeractivity.testutil.MainDispatcherRule
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -30,12 +31,14 @@ class EditActivityViewModelTest {
 
     private val activityRepository = mockk<ActivityRepository>(relaxUnitFun = true)
     private val kidRepository = mockk<KidRepository>()
+    private val parentRepository = mockk<ParentRepository>()
 
     @BeforeEach
     fun setUpKidsFlow() {
         // The constructor reads getAllKidsFlow() for the kids StateFlow, so a
         // strict mock needs an answer before the ViewModel is built.
         every { kidRepository.getAllKidsFlow() } returns emptyFlow()
+        every { parentRepository.getAllParentsFlow() } returns emptyFlow()
     }
 
     private fun storedActivity() =
@@ -58,7 +61,7 @@ class EditActivityViewModelTest {
             coEvery { activityRepository.getActivity(5L) } returns storedActivity()
             val updated = slot<Activity>()
             coEvery { activityRepository.updateActivity(capture(updated)) } returns Unit
-            val viewModel = EditActivityViewModel(5L, activityRepository, kidRepository)
+            val viewModel = EditActivityViewModel(5L, activityRepository, kidRepository, parentRepository)
             viewModel.onStartTimeChange(LocalTime.of(19, 0))
             viewModel.saveActivity()
             assertTrue(
@@ -84,7 +87,7 @@ class EditActivityViewModelTest {
         runTest {
             coEvery { activityRepository.getActivity(5L) } returns storedActivity()
             coEvery { activityRepository.updateActivity(any()) } throws IllegalStateException("Database unavailable")
-            val viewModel = EditActivityViewModel(5L, activityRepository, kidRepository)
+            val viewModel = EditActivityViewModel(5L, activityRepository, kidRepository, parentRepository)
             viewModel.onEndTimeChange(LocalTime.of(20, 30))
             viewModel.saveActivity()
             assertTrue(viewModel.uiState.value.saveError)
@@ -110,7 +113,7 @@ class EditActivityViewModelTest {
             coEvery { activityRepository.getActivity(5L) } returns storedActivity()
             val write = CompletableDeferred<Unit>()
             coEvery { activityRepository.updateActivity(any()) } coAnswers { write.await() }
-            val viewModel = EditActivityViewModel(5L, activityRepository, kidRepository)
+            val viewModel = EditActivityViewModel(5L, activityRepository, kidRepository, parentRepository)
             viewModel.onEndTimeChange(LocalTime.of(20, 30))
             viewModel.saveActivity()
             viewModel.saveActivity()
@@ -136,7 +139,7 @@ class EditActivityViewModelTest {
             coEvery { activityRepository.getActivity(5L) } returns original
             val updated = slot<Activity>()
             coEvery { activityRepository.updateActivity(capture(updated)) } returns Unit
-            val viewModel = EditActivityViewModel(5L, activityRepository, kidRepository)
+            val viewModel = EditActivityViewModel(5L, activityRepository, kidRepository, parentRepository)
             viewModel.onEndTimeChange(LocalTime.of(20, 30))
             viewModel.saveActivity()
             assertEquals("20:30", updated.captured.endTime)
@@ -152,7 +155,7 @@ class EditActivityViewModelTest {
         runTest {
             coEvery { activityRepository.getActivity(5L) } returns storedActivity()
 
-            val viewModel = EditActivityViewModel(5L, activityRepository, kidRepository)
+            val viewModel = EditActivityViewModel(5L, activityRepository, kidRepository, parentRepository)
 
             val form = viewModel.uiState.value.form
             assertNotNull(form)
@@ -174,7 +177,7 @@ class EditActivityViewModelTest {
     fun saveActivityWithEndBeforeStartFlagsErrorAndSkipsRepository() =
         runTest {
             coEvery { activityRepository.getActivity(5L) } returns storedActivity()
-            val viewModel = EditActivityViewModel(5L, activityRepository, kidRepository)
+            val viewModel = EditActivityViewModel(5L, activityRepository, kidRepository, parentRepository)
             viewModel.onStartTimeChange(LocalTime.of(19, 0))
             viewModel.onEndTimeChange(LocalTime.of(18, 0))
 
@@ -195,7 +198,7 @@ class EditActivityViewModelTest {
             // treated like a missing activity (it stays listed for deletion).
             coEvery { activityRepository.getActivity(5L) } returns storedActivity().copy(startTime = "9:00")
 
-            val viewModel = EditActivityViewModel(5L, activityRepository, kidRepository)
+            val viewModel = EditActivityViewModel(5L, activityRepository, kidRepository, parentRepository)
 
             assertTrue(viewModel.uiState.value.isNotFound)
         }
@@ -205,7 +208,7 @@ class EditActivityViewModelTest {
         runTest {
             coEvery { activityRepository.getActivity(9L) } returns null
 
-            val viewModel = EditActivityViewModel(9L, activityRepository, kidRepository)
+            val viewModel = EditActivityViewModel(9L, activityRepository, kidRepository, parentRepository)
 
             assertTrue(viewModel.uiState.value.isNotFound)
             assertEquals(null, viewModel.uiState.value.form)
@@ -217,7 +220,7 @@ class EditActivityViewModelTest {
             coEvery { activityRepository.getActivity(5L) } returns storedActivity()
             val updated = slot<Activity>()
             coEvery { activityRepository.updateActivity(capture(updated)) } returns Unit
-            val viewModel = EditActivityViewModel(5L, activityRepository, kidRepository)
+            val viewModel = EditActivityViewModel(5L, activityRepository, kidRepository, parentRepository)
             viewModel.onNameChange("  Swimming  ")
             viewModel.onToggleDay(4)
             viewModel.onStartTimeChange(LocalTime.of(18, 0))
@@ -249,7 +252,7 @@ class EditActivityViewModelTest {
             coEvery { activityRepository.getActivity(5L) } returns storedActivity()
             val updated = slot<Activity>()
             coEvery { activityRepository.updateActivity(capture(updated)) } returns Unit
-            val viewModel = EditActivityViewModel(5L, activityRepository, kidRepository)
+            val viewModel = EditActivityViewModel(5L, activityRepository, kidRepository, parentRepository)
 
             // Wednesday 2026-11-04 snaps to its Monday, 2026-11-02.
             viewModel.onFirstDateChange(LocalDate.of(2026, 11, 4))
@@ -265,7 +268,7 @@ class EditActivityViewModelTest {
             coEvery { activityRepository.getActivity(5L) } returns storedActivity()
             val updated = slot<Activity>()
             coEvery { activityRepository.updateActivity(capture(updated)) } returns Unit
-            val viewModel = EditActivityViewModel(5L, activityRepository, kidRepository)
+            val viewModel = EditActivityViewModel(5L, activityRepository, kidRepository, parentRepository)
 
             viewModel.onSchoolActivityChange(true)
 
@@ -282,7 +285,7 @@ class EditActivityViewModelTest {
     fun saveWithBlankNameFlagsErrorAndSkipsRepository() =
         runTest {
             coEvery { activityRepository.getActivity(5L) } returns storedActivity()
-            val viewModel = EditActivityViewModel(5L, activityRepository, kidRepository)
+            val viewModel = EditActivityViewModel(5L, activityRepository, kidRepository, parentRepository)
             viewModel.onNameChange("   ")
 
             viewModel.saveActivity()
@@ -299,7 +302,7 @@ class EditActivityViewModelTest {
     fun deleteRemovesTheActivityAndSignalsDeleted() =
         runTest {
             coEvery { activityRepository.getActivity(5L) } returns storedActivity()
-            val viewModel = EditActivityViewModel(5L, activityRepository, kidRepository)
+            val viewModel = EditActivityViewModel(5L, activityRepository, kidRepository, parentRepository)
 
             viewModel.deleteActivity()
 

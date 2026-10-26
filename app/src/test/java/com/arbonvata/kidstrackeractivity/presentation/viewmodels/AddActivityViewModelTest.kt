@@ -4,6 +4,7 @@ import com.arbonvata.kidstrackeractivity.data.objectbox.Activity
 import com.arbonvata.kidstrackeractivity.data.objectbox.Kid
 import com.arbonvata.kidstrackeractivity.data.repository.ActivityRepository
 import com.arbonvata.kidstrackeractivity.data.repository.KidRepository
+import com.arbonvata.kidstrackeractivity.data.repository.ParentRepository
 import com.arbonvata.kidstrackeractivity.testutil.MainDispatcherRule
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -34,6 +35,7 @@ class AddActivityViewModelTest {
 
     private val activityRepository = mockk<ActivityRepository>()
     private val kidRepository = mockk<KidRepository>()
+    private val parentRepository = mockk<ParentRepository>()
     private val todaysDayOfWeek = LocalDate.now().dayOfWeek.value
 
     @BeforeEach
@@ -41,6 +43,7 @@ class AddActivityViewModelTest {
         // The constructor reads getAllKidsFlow() for the kids StateFlow, so a
         // strict mock needs an answer before the ViewModel is built.
         every { kidRepository.getAllKidsFlow() } returns emptyFlow()
+        every { parentRepository.getAllParentsFlow() } returns emptyFlow()
     }
 
     @Test
@@ -48,7 +51,7 @@ class AddActivityViewModelTest {
         runTest {
             val captured = slot<Activity>()
             coEvery { activityRepository.addActivity(capture(captured)) } answers { captured.captured }
-            val viewModel = AddActivityViewModel(5L, activityRepository, kidRepository)
+            val viewModel = AddActivityViewModel(5L, activityRepository, kidRepository, parentRepository)
             viewModel.onNameChange("Swim")
             viewModel.onLocationChange("  Pool entrance  ")
             viewModel.onPickupAdultChange("  Alex  ")
@@ -62,7 +65,7 @@ class AddActivityViewModelTest {
     @Test
     fun initialStatePreselectsTodaysWeekdayForTheScopedKid() =
         runTest {
-            val viewModel = AddActivityViewModel(kidId = 5L, activityRepository, kidRepository)
+            val viewModel = AddActivityViewModel(kidId = 5L, activityRepository, kidRepository, parentRepository)
 
             val state = viewModel.uiState.value
 
@@ -78,7 +81,7 @@ class AddActivityViewModelTest {
     @Test
     fun onToggleDayAddsAndRemovesDaysAroundThePreselection() =
         runTest {
-            val viewModel = AddActivityViewModel(kidId = 5L, activityRepository, kidRepository)
+            val viewModel = AddActivityViewModel(kidId = 5L, activityRepository, kidRepository, parentRepository)
             // Pick two weekdays that never collide with the preselected one.
             val extraDays = (1..7).filter { it != todaysDayOfWeek }.take(2)
 
@@ -95,7 +98,7 @@ class AddActivityViewModelTest {
     @Test
     fun onNameChangeFlagsBlankNameAndClearsTheFlagOnceValid() =
         runTest {
-            val viewModel = AddActivityViewModel(kidId = 5L, activityRepository, kidRepository)
+            val viewModel = AddActivityViewModel(kidId = 5L, activityRepository, kidRepository, parentRepository)
 
             viewModel.onNameChange("   ")
 
@@ -109,7 +112,7 @@ class AddActivityViewModelTest {
     @Test
     fun timeChangeHandlersUpdateStartAndEndTime() =
         runTest {
-            val viewModel = AddActivityViewModel(kidId = 5L, activityRepository, kidRepository)
+            val viewModel = AddActivityViewModel(kidId = 5L, activityRepository, kidRepository, parentRepository)
 
             viewModel.onStartTimeChange(LocalTime.of(18, 0))
             viewModel.onEndTimeChange(LocalTime.of(19, 30))
@@ -121,7 +124,7 @@ class AddActivityViewModelTest {
     @Test
     fun onKidSelectedUpdatesSelectedKidId() =
         runTest {
-            val viewModel = AddActivityViewModel(kidId = 0L, activityRepository, kidRepository)
+            val viewModel = AddActivityViewModel(kidId = 0L, activityRepository, kidRepository, parentRepository)
 
             viewModel.onKidSelected(9L)
 
@@ -131,7 +134,7 @@ class AddActivityViewModelTest {
     @Test
     fun saveActivityWithoutSelectedKidSkipsRepository() =
         runTest {
-            val viewModel = AddActivityViewModel(kidId = 0L, activityRepository, kidRepository)
+            val viewModel = AddActivityViewModel(kidId = 0L, activityRepository, kidRepository, parentRepository)
             viewModel.onNameChange("Football")
 
             viewModel.saveActivity()
@@ -144,7 +147,7 @@ class AddActivityViewModelTest {
     @Test
     fun saveActivityWithBlankNameFlagsErrorAndSkipsRepository() =
         runTest {
-            val viewModel = AddActivityViewModel(kidId = 5L, activityRepository, kidRepository)
+            val viewModel = AddActivityViewModel(kidId = 5L, activityRepository, kidRepository, parentRepository)
             viewModel.onNameChange("   ")
 
             viewModel.saveActivity()
@@ -157,7 +160,7 @@ class AddActivityViewModelTest {
     @Test
     fun saveActivityWithNoDaysFlagsErrorAndSkipsRepository() =
         runTest {
-            val viewModel = AddActivityViewModel(kidId = 5L, activityRepository, kidRepository)
+            val viewModel = AddActivityViewModel(kidId = 5L, activityRepository, kidRepository, parentRepository)
             viewModel.onNameChange("Football")
             viewModel.onToggleDay(todaysDayOfWeek) // clears today's preselection
 
@@ -171,7 +174,7 @@ class AddActivityViewModelTest {
     @Test
     fun saveActivityWithEndBeforeStartFlagsErrorAndSkipsRepository() =
         runTest {
-            val viewModel = AddActivityViewModel(kidId = 5L, activityRepository, kidRepository)
+            val viewModel = AddActivityViewModel(kidId = 5L, activityRepository, kidRepository, parentRepository)
             viewModel.onNameChange("Football")
             viewModel.onStartTimeChange(LocalTime.of(19, 0))
             viewModel.onEndTimeChange(LocalTime.of(18, 0))
@@ -186,7 +189,7 @@ class AddActivityViewModelTest {
     @Test
     fun changingEitherTimeClearsTheTimeError() =
         runTest {
-            val viewModel = AddActivityViewModel(kidId = 5L, activityRepository, kidRepository)
+            val viewModel = AddActivityViewModel(kidId = 5L, activityRepository, kidRepository, parentRepository)
             viewModel.onNameChange("Football")
             viewModel.onStartTimeChange(LocalTime.of(19, 0))
             viewModel.onEndTimeChange(LocalTime.of(18, 0))
@@ -201,7 +204,7 @@ class AddActivityViewModelTest {
     @Test
     fun saveActivityInsertsFormattedActivityWithSortedDaysAndSignalsSaved() =
         runTest {
-            val viewModel = AddActivityViewModel(kidId = 5L, activityRepository, kidRepository)
+            val viewModel = AddActivityViewModel(kidId = 5L, activityRepository, kidRepository, parentRepository)
             val savedActivity = slot<Activity>()
             coEvery { activityRepository.addActivity(capture(savedActivity)) } returns Activity(id = 1L)
             // Pick two weekdays that never collide with the preselected one.
@@ -232,7 +235,7 @@ class AddActivityViewModelTest {
     @Test
     fun oneOffSavesThePickedWeeksMondayAsAnchor() =
         runTest {
-            val viewModel = AddActivityViewModel(kidId = 5L, activityRepository, kidRepository)
+            val viewModel = AddActivityViewModel(kidId = 5L, activityRepository, kidRepository, parentRepository)
             val savedActivity = slot<Activity>()
             coEvery { activityRepository.addActivity(capture(savedActivity)) } returns Activity(id = 1L)
             viewModel.onNameChange("Dentist")
@@ -250,7 +253,7 @@ class AddActivityViewModelTest {
     @Test
     fun saveActivityPersistsOneOffWhenPeriodicUnchecked() =
         runTest {
-            val viewModel = AddActivityViewModel(kidId = 5L, activityRepository, kidRepository)
+            val viewModel = AddActivityViewModel(kidId = 5L, activityRepository, kidRepository, parentRepository)
             val savedActivity = slot<Activity>()
             coEvery { activityRepository.addActivity(capture(savedActivity)) } returns Activity(id = 1L)
             viewModel.onNameChange("Dentist")
@@ -266,7 +269,7 @@ class AddActivityViewModelTest {
     @Test
     fun checkingSchoolActivityLocksTheFormToPeriodic() =
         runTest {
-            val viewModel = AddActivityViewModel(kidId = 5L, activityRepository, kidRepository)
+            val viewModel = AddActivityViewModel(kidId = 5L, activityRepository, kidRepository, parentRepository)
             val savedActivity = slot<Activity>()
             coEvery { activityRepository.addActivity(capture(savedActivity)) } returns Activity(id = 1L)
             viewModel.onNameChange("School")
@@ -285,7 +288,7 @@ class AddActivityViewModelTest {
     @Test
     fun saveActivityPersistsSchoolActivityFlagWhenChecked() =
         runTest {
-            val viewModel = AddActivityViewModel(kidId = 5L, activityRepository, kidRepository)
+            val viewModel = AddActivityViewModel(kidId = 5L, activityRepository, kidRepository, parentRepository)
             val savedActivity = slot<Activity>()
             coEvery { activityRepository.addActivity(capture(savedActivity)) } returns Activity(id = 1L)
             viewModel.onNameChange("School")
@@ -301,7 +304,7 @@ class AddActivityViewModelTest {
     @Test
     fun onSavedHandledResetsIsSaved() =
         runTest {
-            val viewModel = AddActivityViewModel(kidId = 5L, activityRepository, kidRepository)
+            val viewModel = AddActivityViewModel(kidId = 5L, activityRepository, kidRepository, parentRepository)
             coEvery { activityRepository.addActivity(any()) } returns Activity(id = 1L)
             viewModel.onNameChange("Football")
             viewModel.saveActivity()
@@ -317,7 +320,7 @@ class AddActivityViewModelTest {
         runTest {
             val kids = listOf(Kid(id = 1L, name = "Leo"))
             every { kidRepository.getAllKidsFlow() } returns flowOf(kids)
-            val viewModel = AddActivityViewModel(kidId = 5L, activityRepository, kidRepository)
+            val viewModel = AddActivityViewModel(kidId = 5L, activityRepository, kidRepository, parentRepository)
 
             // stateIn(WhileSubscribed) only starts the upstream flow once
             // somebody collects; keep a subscriber alive for the assertion.

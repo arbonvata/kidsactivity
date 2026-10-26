@@ -5,6 +5,10 @@ in-app About screen); this file records what each release shipped.
 
 ## Unreleased
 
+- **Added**: saved parents appear as one-tap choices above the "Adult
+  responsible for pickup" field when creating or editing an activity; tapping
+  one fills the field with their name (free text still available).
+
 - **Added**: save parents and guardians — More → Add Parent stores a name,
   relation (Father/Mother/Guardian/Other) and optional phone. First slice of
   parent management; lists, editing and integrations follow in later steps.
