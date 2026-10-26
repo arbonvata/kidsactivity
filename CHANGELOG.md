@@ -5,6 +5,10 @@ in-app About screen); this file records what each release shipped.
 
 ## Unreleased
 
+- **Added**: saved parents are one-tap choices when delegating a date — the
+  "Who picks up" field in Edit Activity's per-date changes offers them as
+  chips, with free text still available.
+
 - **Added**: full parent management — More → Parents lists saved parents and
   guardians (name, relation, phone), with add, edit and delete (with
   confirmation). Duplicate names are rejected case-insensitively; deleting a

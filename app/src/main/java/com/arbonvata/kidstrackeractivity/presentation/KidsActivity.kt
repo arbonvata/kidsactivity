@@ -190,7 +190,7 @@ fun EditActivityScreen(
                     OutlinedButton(onClick = { showCopyDialog = true }) {
                         Text(stringResource(R.string.copy_activity))
                     }
-                    OccurrenceExceptionEditor(form, viewModel::onExceptionChange, viewModel::onExceptionRemoved)
+                    OccurrenceExceptionEditor(form, viewModel::onExceptionChange, viewModel::onExceptionRemoved, parents)
                 },
             )
         }

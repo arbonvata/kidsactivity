@@ -8,6 +8,7 @@
     <string name="occurrence_delegated_times_on_format" tools:ignore="MissingTranslation">%1$s: %2$s–%3$s — picked by %4$s</string>
     <string name="occurrence_delegate" tools:ignore="MissingTranslation">Someone else picks up on this date</string>
     <string name="occurrence_delegate_name" tools:ignore="MissingTranslation">Who picks up (optional)</string>
+    <string name="occurrence_delegate_pick_parent" tools:ignore="MissingTranslation">Pick a saved parent:</string>
     <string name="occurrence_reset">Restore usual schedule</string>
     <string name="occurrence_cancel">Cancel on this date</string>
     <string name="occurrence_change">Use these times on this date</string>
