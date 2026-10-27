@@ -15,6 +15,9 @@
     <string name="add_activity_start_time">Start: %1$s</string>
     <string name="add_activity_end_time">End: %1$s</string>
     <string name="add_activity_end_before_start_error">End time must be after the start time</string>
+    <string name="add_activity_end_date_format" tools:ignore="MissingTranslation">End date: %1$s</string>
+    <string name="add_activity_end_date_none" tools:ignore="MissingTranslation">End date: none</string>
+    <string name="add_activity_remove_end_date" tools:ignore="MissingTranslation">Remove end date</string>
     <string name="add_activity_save">Save Activity</string>
     <string name="add_activity_kid_label">Kid</string>
     <string name="add_activity_no_kids_yet">No kids yet — add a kid first</string>
@@ -79,6 +82,7 @@
     <string name="kid_detail_recurrence_weekly">weekly</string>
     <string name="kid_detail_recurrence_once">once</string>
     <string name="kid_detail_marker_school">school</string>
+    <string name="kid_detail_until_format" tools:ignore="MissingTranslation">until %1$s</string>
     <string name="kid_detail_reminders_enabled_toast" tools:ignore="MissingTranslation">Reminders on for %1$s</string>
     <string name="kid_detail_reminders_disabled_toast" tools:ignore="MissingTranslation">Reminders off for %1$s</string>
 

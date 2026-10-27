@@ -63,6 +63,23 @@ class AddActivityViewModelTest {
         }
 
     @Test
+    fun savesEndDateWhenSetAndOmitsItWhenNot() =
+        runTest {
+            val captured = slot<Activity>()
+            coEvery { activityRepository.addActivity(capture(captured)) } answers { captured.captured }
+            val viewModel = AddActivityViewModel(5L, activityRepository, kidRepository, parentRepository)
+            viewModel.onNameChange("Swim")
+
+            viewModel.onLastDateChange(LocalDate.of(2026, 12, 13))
+            viewModel.saveActivity()
+            assertEquals("2026-12-13", captured.captured.lastDate)
+
+            viewModel.onLastDateChange(null)
+            viewModel.saveActivity()
+            assertEquals(null, captured.captured.lastDate)
+        }
+
+    @Test
     fun initialStatePreselectsTodaysWeekdayForTheScopedKid() =
         runTest {
             val viewModel = AddActivityViewModel(kidId = 5L, activityRepository, kidRepository, parentRepository)

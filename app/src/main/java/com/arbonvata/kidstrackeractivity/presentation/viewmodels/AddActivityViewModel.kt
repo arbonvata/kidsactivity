@@ -37,6 +37,8 @@ data class AddActivityUiState(
     val isSchoolActivity: Boolean = false,
     // Monday of the calendar week a one-off belongs to (see [weekStartOf]).
     val firstDate: LocalDate = LocalDate.now(),
+    // Last occurrence date inclusive; null = repeats forever.
+    val lastDate: LocalDate? = null,
     val nameError: Boolean = false,
     val daysError: Boolean = false,
     val timeError: Boolean = false,
@@ -135,6 +137,10 @@ class AddActivityViewModel(
         _uiState.update { it.copy(firstDate = weekStartOf(date)) }
     }
 
+    fun onLastDateChange(date: LocalDate?) {
+        _uiState.update { it.copy(lastDate = date) }
+    }
+
     private fun isValidName(name: String) = name.isNotBlank()
 
     fun saveActivity() {
@@ -164,6 +170,7 @@ class AddActivityViewModel(
                     isPeriodic = state.isPeriodic,
                     isSchoolActivity = state.isSchoolActivity,
                     firstDate = state.firstDate.format(DateTimeFormatter.ISO_DATE),
+                    lastDate = state.lastDate?.format(DateTimeFormatter.ISO_DATE),
                 ),
             )
             _uiState.update { it.copy(isSaved = true, isSaving = false) }

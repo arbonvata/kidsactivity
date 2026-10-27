@@ -100,6 +100,8 @@ class EditActivityViewModel(
 
     fun onFirstDateChange(date: LocalDate) = updateForm { it.copy(firstDate = AddActivityViewModel.weekStartOf(date)) }
 
+    fun onLastDateChange(date: LocalDate?) = updateForm { it.copy(lastDate = date) }
+
     fun onSchoolActivityChange(isSchoolActivity: Boolean) =
         updateForm {
             // School schedules repeat every week, so the school flag locks the
@@ -148,6 +150,7 @@ class EditActivityViewModel(
                         isPeriodic = form.isPeriodic,
                         isSchoolActivity = form.isSchoolActivity,
                         firstDate = form.firstDate.format(DateTimeFormatter.ISO_DATE),
+                        lastDate = form.lastDate?.format(DateTimeFormatter.ISO_DATE),
                     ),
                 )
                 _uiState.update { it.copy(isSaved = true) }
@@ -206,6 +209,10 @@ class EditActivityViewModel(
                             ?.let(LocalDate::parse)
                             ?: LocalDate.now(),
                     ),
+                lastDate =
+                    activity.lastDate
+                        ?.takeIf { it.isNotBlank() }
+                        ?.let(LocalDate::parse),
             )
         }.getOrNull()
 }

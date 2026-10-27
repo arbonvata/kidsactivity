@@ -44,6 +44,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
+import java.time.LocalDate
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -296,6 +297,10 @@ fun KidActivityRow(
                             "${dayLabels(activity.daysOfWeek, weekdayAbbreviations)} · ${activity.startTime} – ${activity.endTime}",
                             if (activity.isPeriodic) weeklyLabel else onceLabel,
                             if (activity.isSchoolActivity) schoolLabel else null,
+                            activity.lastDate
+                                ?.takeIf { it.isNotBlank() }
+                                ?.let { runCatching { LocalDate.parse(it).format(weekdayDateFormatter) }.getOrNull() }
+                                ?.let { stringResource(R.string.kid_detail_until_format, it) },
                         ).joinToString(" · "),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,

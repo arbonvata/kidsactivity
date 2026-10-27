@@ -83,6 +83,26 @@ class EditActivityViewModelTest {
         }
 
     @Test
+    fun endDateLoadsFromStoragePersistsOnSaveAndCanBeCleared() =
+        runTest {
+            coEvery { activityRepository.getActivity(5L) } returns storedActivity().copy(lastDate = "2026-12-13")
+            val updated = slot<Activity>()
+            coEvery { activityRepository.updateActivity(capture(updated)) } returns Unit
+            val viewModel = EditActivityViewModel(5L, activityRepository, kidRepository, parentRepository)
+
+            assertEquals(LocalDate.of(2026, 12, 13), viewModel.uiState.value.form?.lastDate)
+
+            // Untouched, the end date survives a save.
+            viewModel.saveActivity()
+            assertEquals("2026-12-13", updated.captured.lastDate)
+
+            viewModel.onSavedHandled()
+            viewModel.onLastDateChange(null)
+            viewModel.saveActivity()
+            assertEquals(null, updated.captured.lastDate)
+        }
+
+    @Test
     fun saveFailureKeepsEditsAndAllowsRetry() =
         runTest {
             coEvery { activityRepository.getActivity(5L) } returns storedActivity()
