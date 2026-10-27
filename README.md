@@ -62,6 +62,10 @@ keep showing muted activities dimmed.
 - **Individual-date changes** — in Edit Activity, cancel a scheduled date or
   change its start/end times, then Save. Restore the usual schedule by removing
   the exception. Changes apply to views, conflicts, reminders and JSON backups.
+- **Activity end dates** — term-based activities stop on a chosen end date
+  (inclusive) instead of repeating forever: views, conflicts, reminders, the
+  widget and calendar exports all respect it. Optional per activity; carried
+  by JSON backups, schedule copies and .ics exports (RRULE UNTIL).
 - **Delegated pickups** — hand a single date to someone else ("picked by
   Grandma"): the row is dimmed with a person icon on Today, Week and Daily,
   reminders stay silent for that date, and it never counts as your "up next".

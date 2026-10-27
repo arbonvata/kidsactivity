@@ -92,7 +92,16 @@ object CalendarCodec {
                 details()
                 if (weekly) {
                     val weekdays = activity.daysOfWeek.sorted().joinToString(",") { dayCodes[it - 1] }
-                    lines += "RRULE:FREQ=WEEKLY;BYDAY=$weekdays"
+                    // A term end date rides on the RRULE as a DATE-valued
+                    // UNTIL (inclusive of that whole day); corrupt values are
+                    // dropped rather than corrupting the rule.
+                    val until =
+                        activity.lastDate
+                            ?.takeIf { it.isNotEmpty() }
+                            ?.let { runCatching { LocalDate.parse(it) }.getOrNull() }
+                            ?.let { ";UNTIL=" + it.format(java.time.format.DateTimeFormatter.BASIC_ISO_DATE) }
+                            .orEmpty()
+                    lines += "RRULE:FREQ=WEEKLY;BYDAY=$weekdays$until"
                 }
                 val relevant =
                     exceptions.values.filter {
@@ -256,6 +265,14 @@ object CalendarCodec {
                 "Recurring events must use local time or this device's time zone"
             }
         }
+        val until =
+            rule?.get("UNTIL")?.let {
+                if (it.length == 8) {
+                    LocalDate.parse(it, DateTimeFormatter.BASIC_ISO_DATE).atTime(LocalTime.MAX)
+                } else {
+                    readTime(Property("UNTIL", emptyMap(), it), zone)
+                }
+            }
         val days =
             rule
                 ?.get("BYDAY")
@@ -279,6 +296,14 @@ object CalendarCodec {
                 pickupAdult = base.text("X-KIDSTRACKER-PICKUP"),
                 pickupNotes = base.one("X-KIDSTRACKER-NOTES")?.let { unescape(it.value) } ?: base.text("DESCRIPTION"),
                 occurrenceExceptions = encodeExceptions(exceptions.values.toList()),
+                // Our own exports mark an end date with UNTIL; re-import keeps
+                // the activity weekly instead of expanding it date by date.
+                lastDate =
+                    if (base.one("X-KIDSTRACKER-SCHOOL") != null || base.one("X-KIDSTRACKER-ENABLED") != null) {
+                        until?.toLocalDate()?.toString()
+                    } else {
+                        null
+                    },
             )
         if (rule == null) {
             val exception = exceptions[start.toLocalDate()]
@@ -292,15 +317,12 @@ object CalendarCodec {
             )
         }
         val count = rule["COUNT"]?.toInt()?.also { require(it in 1..2000) { "Recurrence count must be between 1 and 2000" } }
-        val until =
-            rule["UNTIL"]?.let {
-                if (it.length == 8) {
-                    LocalDate.parse(it, DateTimeFormatter.BASIC_ISO_DATE).atTime(LocalTime.MAX)
-                } else {
-                    readTime(Property("UNTIL", emptyMap(), it), zone)
-                }
-            }
         if (count == null && until == null) return listOf(activity)
+        // Our own bounded recurrences carry the bound as an end date already;
+        // only foreign files need the date-by-date expansion below.
+        if (base.one("X-KIDSTRACKER-SCHOOL") != null || base.one("X-KIDSTRACKER-ENABLED") != null) {
+            return listOf(activity)
+        }
         val result = mutableListOf<Activity>()
         var date = start.toLocalDate()
         var seen = 0

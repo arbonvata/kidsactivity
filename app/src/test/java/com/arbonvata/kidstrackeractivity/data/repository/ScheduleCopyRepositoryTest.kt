@@ -43,6 +43,7 @@ class ScheduleCopyRepositoryTest {
             pickupAdult = "Alex",
             pickupNotes = "Side door",
             occurrenceExceptions = "2026-10-19||",
+            lastDate = "2026-12-13",
         )
 
     @BeforeEach
@@ -73,6 +74,7 @@ class ScheduleCopyRepositoryTest {
             assertEquals("Side door", copy.pickupNotes)
             assertEquals(false, copy.isEnabled)
             assertNull(copy.occurrenceExceptions)
+            assertEquals("2026-12-13", copy.lastDate)
             assertNotSame(original.daysOfWeek, copy.daysOfWeek)
             assertEquals(10L, original.id)
             assertEquals("2026-10-19||", original.occurrenceExceptions)

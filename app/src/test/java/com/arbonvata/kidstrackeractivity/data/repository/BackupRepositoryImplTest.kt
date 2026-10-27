@@ -261,6 +261,23 @@ class BackupRepositoryImplTest {
             verify { parentBox.removeAll() }
         }
 
+    @Test
+    fun importPreservesTheActivityEndDateAndDefaultsMissingToNull() =
+        runTest {
+            every { kidBox.put(any<Kid>()) } returns 100L
+            val captured = slot<Activity>()
+            every { activityBox.put(capture(captured)) } returns 200L
+            every { scheduleBox.put(any<DailySchedule>()) } returns 300L
+            val json = validBackupJson.replace("\"firstDate\": \"\"", "\"firstDate\": \"\", \"lastDate\": \"2026-12-13\"")
+
+            repository.importAll(json, replaceExisting = false)
+            assertEquals("2026-12-13", captured.captured.lastDate)
+
+            // Documents written before end dates existed have no key at all.
+            repository.importAll(validBackupJson, replaceExisting = false)
+            assertEquals(null, captured.captured.lastDate)
+        }
+
     /** JUnit's assertThrows cannot wrap a suspend call, so catch manually. */
     private suspend fun assertImportThrows(json: String): Throwable? =
         runCatching { repository.importAll(json, replaceExisting = true) }.exceptionOrNull()

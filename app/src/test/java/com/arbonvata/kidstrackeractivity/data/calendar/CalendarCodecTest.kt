@@ -60,6 +60,22 @@ class CalendarCodecTest {
     }
 
     @Test
+    fun `our end date rides the RRULE as UNTIL and survives the round trip`() {
+        val seasonal = swim.copy(lastDate = "2026-12-13")
+
+        val text = CalendarCodec.export(kid, listOf(seasonal), emptyList(), monday)
+
+        // DATE-valued UNTIL, inclusive of the whole last day.
+        assertTrue(text.contains("RRULE:FREQ=WEEKLY;BYDAY=MO,WE;UNTIL=20261213"))
+        // Our own file re-imports as ONE weekly activity with the end date —
+        // not the date-by-date expansion foreign bounded files get.
+        val parsed = CalendarCodec.parse(text, zone)
+        assertEquals(1, parsed.activities.size)
+        assertEquals("2026-12-13", parsed.activities.single().lastDate)
+        assertTrue(parsed.activities.single().isPeriodic)
+    }
+
+    @Test
     fun `school overrides transfer as activity date exceptions and no school wins`() {
         val school =
             swim.copy(

@@ -153,6 +153,7 @@ class BackupRepositoryImpl(
                             isPeriodic = parsed.isPeriodic,
                             isSchoolActivity = parsed.isSchoolActivity,
                             firstDate = parsed.firstDate,
+                            lastDate = parsed.lastDate,
                             occurrenceExceptions = parsed.exceptions,
                             calendarStartDate = parsed.calendarStartDate,
                         ),
@@ -192,6 +193,7 @@ class BackupRepositoryImpl(
         val firstDate: String,
         val exceptions: String,
         val calendarStartDate: String?,
+        val lastDate: String?,
         val location: String,
         val pickupAdult: String,
         val pickupNotes: String,
@@ -223,6 +225,7 @@ class BackupRepositoryImpl(
             kidId = json.optLong("kidId"),
             name = json.optString("name"),
             calendarStartDate = requireOptionalDate(json.optString("calendarStartDate"), "calendar start date").ifBlank { null },
+            lastDate = requireOptionalDate(json.optString("lastDate"), "activity lastDate").ifBlank { null },
             location = json.optString("location"),
             pickupAdult = json.optString("pickupAdult"),
             pickupNotes = json.optString("pickupNotes"),
@@ -323,6 +326,7 @@ class BackupRepositoryImpl(
             .put("isPeriodic", activity.isPeriodic)
             .put("isSchoolActivity", activity.isSchoolActivity)
             .put("calendarStartDate", activity.calendarStartDate.orEmpty())
+            .put("lastDate", activity.lastDate.orEmpty())
             .put("firstDate", activity.firstDate)
             .put("occurrenceExceptions", activity.occurrenceExceptions.orEmpty())
 

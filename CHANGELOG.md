@@ -5,6 +5,14 @@ in-app About screen); this file records what each release shipped.
 
 ## Unreleased
 
+- **Added**: activity end dates — set an optional "End date" when creating or
+  editing an activity and it stops after that date (inclusive) everywhere:
+  views, conflicts, reminders, the widget and calendar exports. Shown as
+  "until \<date\>" on the kid's activity list, carried by schedule copies,
+  JSON backups and as an RRULE UNTIL in .ics files (re-importing our own
+  files restores the end date instead of expanding the activity date by
+  date).
+
 - **Added**: call button on Today — when an activity's pickup adult (or the
   person a date is delegated to) matches a saved parent with a phone number,
   the row shows a call icon that opens the dialer pre-filled. No permission
