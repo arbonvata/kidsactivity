@@ -70,9 +70,11 @@ keep showing muted activities dimmed.
 - **Parents & guardians** — manage parents and guardians from More → Parents:
   name, relation (Father/Mother/Guardian/Other) and optional phone, with add,
   edit and delete. Saved parents appear as one-tap choices for the activity
-  form's pickup adult. Delegations and pickup adults store the name, so
-  deleting a parent never breaks a marked date. Included in JSON backups
-  (format v5; older files import with no parents).
+  form's pickup adult and when delegating a date; on Today, a call button
+  appears when the pickup adult matches a saved parent with a phone.
+  Delegations and pickup adults store the name, so deleting a parent never
+  breaks a marked date. Included in JSON backups (format v5; older files
+  import with no parents).
 - **Conflict detection** — same-kid activity overlaps across the next 30 days,
   with one tap from a conflict to the editor. Respects one-off weeks and
   school overrides. Today's conflicts are also marked directly on the Today

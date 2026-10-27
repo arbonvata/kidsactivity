@@ -1,5 +1,7 @@
 package com.arbonvata.kidstrackeractivity.presentation
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,6 +18,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.HowToReg
@@ -48,6 +51,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -59,6 +63,7 @@ import com.arbonvata.kidstrackeractivity.data.ActivityOccurrence
 import com.arbonvata.kidstrackeractivity.data.DebugTestData
 import com.arbonvata.kidstrackeractivity.data.objectbox.Activity
 import com.arbonvata.kidstrackeractivity.data.objectbox.Kid
+import com.arbonvata.kidstrackeractivity.data.objectbox.Parent
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.TodayViewModel
 import org.koin.androidx.compose.koinViewModel
 import java.time.Duration
@@ -80,6 +85,7 @@ fun TodayScreen(
     onActivityClick: (Activity) -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val parents by viewModel.parents.collectAsState()
     val reminderPromptShown by viewModel.reminderPromptShown.collectAsState()
     val permissions = rememberReminderPermissions()
 
@@ -128,6 +134,7 @@ fun TodayScreen(
                 kids = uiState.kids,
                 todayOccurrences = uiState.todayOccurrences,
                 conflictedActivityIds = uiState.conflictedActivityIds,
+                parents = parents,
                 today = uiState.today,
                 now = uiState.now,
                 showPermissionsBanner = permissions.remindersBlocked && !bannerDismissed,
@@ -252,6 +259,8 @@ fun DashboardScreen(
     kids: List<Kid>,
     todayOccurrences: List<ActivityOccurrence>,
     conflictedActivityIds: Set<Long>,
+    /** Saved parents; rows whose pickup adult matches one with a phone show a call button. */
+    parents: List<Parent> = emptyList(),
     today: LocalDate,
     now: LocalTime,
     showPermissionsBanner: Boolean,
@@ -261,6 +270,7 @@ fun DashboardScreen(
     onSettingsClick: () -> Unit,
     onActivityClick: (Activity) -> Unit,
 ) {
+    val context = LocalContext.current
     val nextActivity =
         todayOccurrences
             // A delegated date is somebody else's to handle — never "up next".
@@ -441,6 +451,21 @@ fun DashboardScreen(
                                 PickupDetails(occurrence.activity)
                                 if (occurrence.activity.isSchoolActivity || !occurrence.activity.pickupAdult.isNullOrBlank()) {
                                     Text(stringResource(R.string.pickup_time_format, occurrence.endTime.format(shortTimeFormatter)))
+                                }
+                            }
+                            pickupContactParent(occurrence, parents)?.let { contactParent ->
+                                IconButton(onClick = {
+                                    // ACTION_DIAL opens the dialer pre-filled; no call is placed
+                                    // and no permission is needed.
+                                    context.startActivity(
+                                        Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + Uri.encode(contactParent.phone))),
+                                    )
+                                }) {
+                                    Icon(
+                                        Icons.Default.Call,
+                                        contentDescription = stringResource(R.string.dashboard_call_parent_format, contactParent.name),
+                                        tint = MaterialTheme.colorScheme.primary,
+                                    )
                                 }
                             }
                             if (hasConflict) {

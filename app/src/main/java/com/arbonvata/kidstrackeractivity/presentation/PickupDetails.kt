@@ -7,6 +7,7 @@ import androidx.compose.ui.res.stringResource
 import com.arbonvata.kidstrackeractivity.R
 import com.arbonvata.kidstrackeractivity.data.ActivityOccurrence
 import com.arbonvata.kidstrackeractivity.data.objectbox.Activity
+import com.arbonvata.kidstrackeractivity.data.objectbox.Parent
 
 @Composable
 fun PickupDetails(activity: Activity) {
@@ -36,5 +37,23 @@ fun delegatedPickupLabel(occurrence: ActivityOccurrence): String? {
         stringResource(R.string.dashboard_picked_by_someone_else)
     } else {
         stringResource(R.string.dashboard_picked_by_format, name)
+    }
+}
+
+/**
+ * The saved parent who covers this occurrence's pickup and has a phone — the
+ * call button's target. A name marked on the date wins over the activity's
+ * usual pickup adult; parents without a phone never match.
+ */
+fun pickupContactParent(
+    occurrence: ActivityOccurrence,
+    parents: List<Parent>,
+): Parent? {
+    val name =
+        occurrence.delegatedTo?.takeIf { it.isNotBlank() }
+            ?: occurrence.activity.pickupAdult?.takeIf { it.isNotBlank() }
+            ?: return null
+    return parents.firstOrNull {
+        it.name.equals(name.trim(), ignoreCase = true) && it.phone.isNotBlank()
     }
 }

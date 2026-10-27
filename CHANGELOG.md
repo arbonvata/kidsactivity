@@ -5,6 +5,11 @@ in-app About screen); this file records what each release shipped.
 
 ## Unreleased
 
+- **Added**: call button on Today — when an activity's pickup adult (or the
+  person a date is delegated to) matches a saved parent with a phone number,
+  the row shows a call icon that opens the dialer pre-filled. No permission
+  needed; nothing is dialled automatically.
+
 - **Added**: saved parents are one-tap choices when delegating a date — the
   "Who picks up" field in Edit Activity's per-date changes offers them as
   chips, with free text still available.

@@ -6,9 +6,11 @@ import com.arbonvata.kidstrackeractivity.data.ActivityOccurrence
 import com.arbonvata.kidstrackeractivity.data.expandActivitiesForDateRange
 import com.arbonvata.kidstrackeractivity.data.findConflicts
 import com.arbonvata.kidstrackeractivity.data.objectbox.Kid
+import com.arbonvata.kidstrackeractivity.data.objectbox.Parent
 import com.arbonvata.kidstrackeractivity.data.repository.ActivityRepository
 import com.arbonvata.kidstrackeractivity.data.repository.AlarmSettingsRepository
 import com.arbonvata.kidstrackeractivity.data.repository.KidRepository
+import com.arbonvata.kidstrackeractivity.data.repository.ParentRepository
 import com.arbonvata.kidstrackeractivity.data.repository.ScheduleOverrideRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.SharingStarted
@@ -43,8 +45,15 @@ class TodayViewModel(
     kidRepository: KidRepository,
     activityRepository: ActivityRepository,
     scheduleOverrideRepository: ScheduleOverrideRepository,
+    parentRepository: ParentRepository,
     private val alarmSettingsRepository: AlarmSettingsRepository,
 ) : ViewModel() {
+    /** Saved parents, matched by name for the rows' call button. */
+    val parents: StateFlow<List<Parent>> =
+        parentRepository
+            .getAllParentsFlow()
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
     val uiState: StateFlow<TodayUiState> =
         combine(
             kidRepository.getAllKidsFlow(),

@@ -5,6 +5,7 @@ import com.arbonvata.kidstrackeractivity.data.objectbox.Kid
 import com.arbonvata.kidstrackeractivity.data.repository.ActivityRepository
 import com.arbonvata.kidstrackeractivity.data.repository.AlarmSettingsRepository
 import com.arbonvata.kidstrackeractivity.data.repository.KidRepository
+import com.arbonvata.kidstrackeractivity.data.repository.ParentRepository
 import com.arbonvata.kidstrackeractivity.data.repository.ScheduleOverrideRepository
 import com.arbonvata.kidstrackeractivity.testutil.MainDispatcherRule
 import io.mockk.coVerify
@@ -33,6 +34,7 @@ class TodayViewModelTest {
     private val kidRepository = mockk<KidRepository>()
     private val activityRepository = mockk<ActivityRepository>()
     private val scheduleOverrideRepository = mockk<ScheduleOverrideRepository>()
+    private val parentRepository = mockk<ParentRepository>()
     private val alarmSettingsRepository = mockk<AlarmSettingsRepository>(relaxUnitFun = true)
 
     @BeforeEach
@@ -41,6 +43,7 @@ class TodayViewModelTest {
         // combine/stateIn property initializers), so each test needs an
         // answer for all of them; tests override the ones they care about.
         every { scheduleOverrideRepository.getAllOverridesFlow() } returns flowOf(emptyList())
+        every { parentRepository.getAllParentsFlow() } returns flowOf(emptyList())
         every { kidRepository.getAllKidsFlow() } returns flowOf(emptyList())
         every { activityRepository.getAllActivitiesFlow() } returns flowOf(emptyList())
         every { alarmSettingsRepository.reminderPromptShown } returns flowOf(false)
@@ -62,7 +65,7 @@ class TodayViewModelTest {
                 )
             every { kidRepository.getAllKidsFlow() } returns flowOf(listOf(kid))
             every { activityRepository.getAllActivitiesFlow() } returns flowOf(listOf(activity))
-            val viewModel = TodayViewModel(kidRepository, activityRepository, scheduleOverrideRepository, alarmSettingsRepository)
+            val viewModel = TodayViewModel(kidRepository, activityRepository, scheduleOverrideRepository, parentRepository, alarmSettingsRepository)
 
             backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
                 viewModel.uiState.collect()
@@ -95,7 +98,7 @@ class TodayViewModelTest {
                 )
             every { kidRepository.getAllKidsFlow() } returns flowOf(listOf(kid))
             every { activityRepository.getAllActivitiesFlow() } returns flowOf(listOf(muted))
-            val viewModel = TodayViewModel(kidRepository, activityRepository, scheduleOverrideRepository, alarmSettingsRepository)
+            val viewModel = TodayViewModel(kidRepository, activityRepository, scheduleOverrideRepository, parentRepository, alarmSettingsRepository)
 
             backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
                 viewModel.uiState.collect()
@@ -133,7 +136,7 @@ class TodayViewModelTest {
                 )
             every { kidRepository.getAllKidsFlow() } returns flowOf(listOf(kid))
             every { activityRepository.getAllActivitiesFlow() } returns flowOf(listOf(football, piano))
-            val viewModel = TodayViewModel(kidRepository, activityRepository, scheduleOverrideRepository, alarmSettingsRepository)
+            val viewModel = TodayViewModel(kidRepository, activityRepository, scheduleOverrideRepository, parentRepository, alarmSettingsRepository)
 
             backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
                 viewModel.uiState.collect()
@@ -171,7 +174,7 @@ class TodayViewModelTest {
                 )
             every { kidRepository.getAllKidsFlow() } returns flowOf(listOf(kid))
             every { activityRepository.getAllActivitiesFlow() } returns flowOf(listOf(muted, piano))
-            val viewModel = TodayViewModel(kidRepository, activityRepository, scheduleOverrideRepository, alarmSettingsRepository)
+            val viewModel = TodayViewModel(kidRepository, activityRepository, scheduleOverrideRepository, parentRepository, alarmSettingsRepository)
 
             backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
                 viewModel.uiState.collect()
@@ -184,7 +187,7 @@ class TodayViewModelTest {
     fun reminderPromptFlagComesFromTheRepository() =
         runTest {
             every { alarmSettingsRepository.reminderPromptShown } returns flowOf(true)
-            val viewModel = TodayViewModel(kidRepository, activityRepository, scheduleOverrideRepository, alarmSettingsRepository)
+            val viewModel = TodayViewModel(kidRepository, activityRepository, scheduleOverrideRepository, parentRepository, alarmSettingsRepository)
 
             backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
                 viewModel.reminderPromptShown.collect()
@@ -197,7 +200,7 @@ class TodayViewModelTest {
     fun dismissingTheReminderPromptPersistsTheFlag() =
         runTest {
             every { alarmSettingsRepository.reminderPromptShown } returns flowOf(false)
-            val viewModel = TodayViewModel(kidRepository, activityRepository, scheduleOverrideRepository, alarmSettingsRepository)
+            val viewModel = TodayViewModel(kidRepository, activityRepository, scheduleOverrideRepository, parentRepository, alarmSettingsRepository)
 
             viewModel.onReminderPromptDismissed()
 

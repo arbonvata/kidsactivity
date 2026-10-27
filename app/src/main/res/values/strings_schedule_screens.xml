@@ -16,6 +16,7 @@
     <string name="dashboard_picked_by_format" tools:ignore="MissingTranslation">Picked by %1$s</string>
     <string name="dashboard_picked_by_someone_else" tools:ignore="MissingTranslation">Picked by someone else</string>
     <string name="dashboard_delegated_content_description" tools:ignore="MissingTranslation">Someone else picks up</string>
+    <string name="dashboard_call_parent_format" tools:ignore="MissingTranslation">Call %1$s</string>
     <string name="dashboard_view_full_week">View Full Week</string>
     <string name="dashboard_permissions_banner_title">Reminders are off</string>
     <string name="dashboard_permissions_banner_message">Required permissions are missing — tap to grant them</string>
