@@ -109,6 +109,13 @@ private fun isWithinActivePeriod(
     activity: Activity,
     date: LocalDate,
 ): Boolean {
+    // An end date cuts every kind of activity — school, weekly and one-off
+    // alike — and the end date itself still occurs. A corrupt value (a
+    // hand-edited backup) hides the activity rather than crashing.
+    activity.lastDate?.takeIf { it.isNotEmpty() }?.let {
+        val last = runCatching { LocalDate.parse(it) }.getOrNull() ?: return false
+        if (date.isAfter(last)) return false
+    }
     if (activity.isPeriodic || activity.isSchoolActivity) {
         activity.calendarStartDate?.takeIf { it.isNotBlank() }?.let {
             val start = runCatching { LocalDate.parse(it) }.getOrNull() ?: return false

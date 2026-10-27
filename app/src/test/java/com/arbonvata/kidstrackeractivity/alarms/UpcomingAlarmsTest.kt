@@ -143,6 +143,27 @@ class UpcomingAlarmsTest {
     }
 
     @Test
+    fun alarmsStopAfterTheActivitysEndDate() {
+        // Season ends Oct 19: within the 10-day horizon (Oct 14..23 is widened
+        // here to Oct 19+9 = Oct 28) both Mondays would fire without the end
+        // date; with it, only Oct 19 remains.
+        val seasonal = footballActivity().copy(lastDate = "2026-10-19")
+        val now = LocalDateTime.of(2026, 10, 14, 7, 0)
+
+        val alarms =
+            computeUpcomingAlarms(
+                kids,
+                listOf(seasonal),
+                schoolAlarmMinutes = 10,
+                activityAlarmMinutes = 15,
+                now = now,
+                horizonDays = 15,
+            )
+
+        assertEquals(listOf(LocalDateTime.of(2026, 10, 19, 16, 45)), alarms.map { it.triggerAt })
+    }
+
+    @Test
     fun invertedRangesProduceNoAlarms() {
         // End at or before start (not representable — the form rejects it)
         // must not produce a nonsense pickup or start reminder.

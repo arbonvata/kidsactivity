@@ -50,6 +50,52 @@ class ActivityOccurrenceTest {
     }
 
     @Test
+    fun lastDateCutsWeeklyActivitiesAfterThatDateInclusive() {
+        // Term-based: Mondays until Oct 19 (inclusive), then nothing — even
+        // though the activity stays weekly and enabled.
+        val activity =
+            activity(intArrayOf(DayOfWeek.MONDAY.value), isPeriodic = true, firstDate = "2026-10-05")
+                .copy(lastDate = "2026-10-19")
+
+        val occurrences = expandActivitiesForDateRange(kids, listOf(activity), LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 31))
+
+        assertEquals(
+            listOf("2026-10-05", "2026-10-12", "2026-10-19"),
+            occurrences.map { it.date.toString() },
+        )
+    }
+
+    @Test
+    fun lastDateAlsoCutsOneOffsAndSchoolActivities() {
+        val oneOff =
+            activity(intArrayOf(DayOfWeek.TUESDAY.value), isPeriodic = false, firstDate = "2026-10-19")
+                .copy(lastDate = "2026-10-21")
+        val school =
+            activity(intArrayOf(DayOfWeek.WEDNESDAY.value), isPeriodic = true, firstDate = "2026-10-19")
+                .copy(isSchoolActivity = true, lastDate = "2026-10-21")
+
+        val occurrences = expandActivitiesForDateRange(kids, listOf(oneOff, school), LocalDate.of(2026, 10, 19), LocalDate.of(2026, 10, 31))
+
+        // Tue Oct 20 and Wed Oct 21 fall on/before the end date; the next
+        // week's occurrences (Oct 27/28) are gone.
+        assertEquals(
+            listOf("2026-10-20", "2026-10-21"),
+            occurrences.sortedBy { it.date }.map { it.date.toString() },
+        )
+    }
+
+    @Test
+    fun corruptLastDateHidesTheActivityInsteadOfCrashing() {
+        val corrupt =
+            activity(intArrayOf(DayOfWeek.MONDAY.value), isPeriodic = true, firstDate = "2026-10-19")
+                .copy(lastDate = "Oct 26")
+
+        val occurrences = expandActivitiesForDateRange(kids, listOf(corrupt), LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 31))
+
+        assertTrue(occurrences.isEmpty())
+    }
+
+    @Test
     fun corruptTimeRowIsSkippedInsteadOfCrashingTheExpansion() {
         // A hand-edited backup written before import validation existed can
         // hold unparseable times; the row is skipped, the schedule survives.

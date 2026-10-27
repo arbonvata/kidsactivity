@@ -29,6 +29,9 @@ data class Activity(
     // written before this column existed read null from the DB (ObjectBox
     // does not apply Kotlin defaults to stored rows).
     var firstDate: String? = null,
+    // Last occurrence date inclusive, ISO-8601; term-based activities end
+    // here instead of repeating forever. Null/blank = no end date.
+    var lastDate: String? = null,
     // School activities remind AFTER they end (pickup); everything else
     // reminds before it starts. Consumed by the future alarm scheduler.
     var isSchoolActivity: Boolean = false,
@@ -50,6 +53,7 @@ data class Activity(
 
         if (location != other.location || pickupAdult != other.pickupAdult || pickupNotes != other.pickupNotes) return false
         if (calendarStartDate != other.calendarStartDate) return false
+        if (lastDate != other.lastDate) return false
         if (occurrenceExceptions != other.occurrenceExceptions) return false
         if (id != other.id) return false
         if (kidId != other.kidId) return false
@@ -68,6 +72,7 @@ data class Activity(
     override fun hashCode(): Int {
         var result = id.hashCode()
         result = 31 * result + (calendarStartDate?.hashCode() ?: 0)
+        result = 31 * result + (lastDate?.hashCode() ?: 0)
         result = 31 * result + (location?.hashCode() ?: 0)
         result = 31 * result + (pickupAdult?.hashCode() ?: 0)
         result = 31 * result + (pickupNotes?.hashCode() ?: 0)
