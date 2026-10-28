@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.arbonvata.kidstrackeractivity.data.ActivityOccurrence
 import com.arbonvata.kidstrackeractivity.data.expandActivitiesForDateRange
+import com.arbonvata.kidstrackeractivity.data.findConflicts
 import com.arbonvata.kidstrackeractivity.data.objectbox.Kid
 import com.arbonvata.kidstrackeractivity.data.repository.ActivityRepository
 import com.arbonvata.kidstrackeractivity.data.repository.KidRepository
@@ -22,6 +23,8 @@ data class WeekUiState(
     val isLoading: Boolean = true,
     val kids: List<Kid> = emptyList(),
     val weekOccurrences: List<ActivityOccurrence> = emptyList(),
+    /** Activities in this week that overlap another of the same kid's. */
+    val conflictedActivityIds: Set<Long> = emptySet(),
     val weekStart: LocalDate = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)),
 )
 
@@ -46,18 +49,26 @@ class WeekViewModel(
             scheduleOverrideRepository.getAllOverridesFlow(),
             weekStart,
         ) { kids, activities, overrides, start ->
+            val occurrences =
+                expandActivitiesForDateRange(
+                    kids,
+                    activities,
+                    start,
+                    start.plusDays(6),
+                    includeDisabled = true,
+                    overrides = overrides,
+                )
+            // Same findConflicts and same muted exclusion as the Conflicts
+            // screen and Today, so all three agree on what a conflict is.
+            val conflictedActivityIds =
+                findConflicts(occurrences.filter { it.activity.isEnabled })
+                    .flatMap { conflict -> listOf(conflict.activity1.activity.id, conflict.activity2.activity.id) }
+                    .toSet()
             WeekUiState(
                 isLoading = false,
                 kids = kids,
-                weekOccurrences =
-                    expandActivitiesForDateRange(
-                        kids,
-                        activities,
-                        start,
-                        start.plusDays(6),
-                        includeDisabled = true,
-                        overrides = overrides,
-                    ),
+                weekOccurrences = occurrences,
+                conflictedActivityIds = conflictedActivityIds,
                 weekStart = start,
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), WeekUiState())

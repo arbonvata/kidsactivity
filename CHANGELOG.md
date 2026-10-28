@@ -47,8 +47,8 @@ in-app About screen); this file records what each release shipped.
   backward-compatible exception encoding and included in JSON backups.
 
 - **Added**: conflicting activities (same kid, overlapping times) are marked
-  directly on the Today screen with an error-colored time and a warning icon,
-  using the same conflict definition as the Conflicts screen — muted
+  on the Today and Week screens with an error-colored time and a warning
+  icon, using the same conflict definition as the Conflicts screen — muted
   activities never conflict.
 
 - **Fixed**: invalid activity times now show an explanation beside the pinned

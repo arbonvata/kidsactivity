@@ -40,6 +40,78 @@ class WeekViewModelTest {
     }
 
     @Test
+    fun overlappingSameKidActivitiesAreFlaggedForTheVisibleWeek() =
+        runTest {
+            // Today is always inside the current visible week.
+            val today = LocalDate.now()
+            val kid = Kid(id = 1L, name = "Leo")
+            val football =
+                Activity(
+                    id = 1L,
+                    kidId = 1L,
+                    name = "Football",
+                    startTime = "17:00",
+                    endTime = "18:30",
+                    daysOfWeek = intArrayOf(today.dayOfWeek.value),
+                )
+            val piano =
+                Activity(
+                    id = 2L,
+                    kidId = 1L,
+                    name = "Piano",
+                    startTime = "18:00",
+                    endTime = "19:00",
+                    daysOfWeek = intArrayOf(today.dayOfWeek.value),
+                )
+            every { kidRepository.getAllKidsFlow() } returns flowOf(listOf(kid))
+            every { activityRepository.getAllActivitiesFlow() } returns flowOf(listOf(football, piano))
+            val viewModel = WeekViewModel(kidRepository, activityRepository, scheduleOverrideRepository)
+
+            backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+                viewModel.uiState.collect()
+            }
+
+            assertEquals(setOf(1L, 2L), viewModel.uiState.value.conflictedActivityIds)
+        }
+
+    @Test
+    fun mutedActivitiesNeverConflictOnTheWeekScreen() =
+        runTest {
+            // Matches the Conflicts screen and Today: muted activities are
+            // excluded from conflict detection entirely.
+            val today = LocalDate.now()
+            val kid = Kid(id = 1L, name = "Leo")
+            val muted =
+                Activity(
+                    id = 1L,
+                    kidId = 1L,
+                    name = "Football",
+                    startTime = "17:00",
+                    endTime = "18:30",
+                    isEnabled = false,
+                    daysOfWeek = intArrayOf(today.dayOfWeek.value),
+                )
+            val piano =
+                Activity(
+                    id = 2L,
+                    kidId = 1L,
+                    name = "Piano",
+                    startTime = "18:00",
+                    endTime = "19:00",
+                    daysOfWeek = intArrayOf(today.dayOfWeek.value),
+                )
+            every { kidRepository.getAllKidsFlow() } returns flowOf(listOf(kid))
+            every { activityRepository.getAllActivitiesFlow() } returns flowOf(listOf(muted, piano))
+            val viewModel = WeekViewModel(kidRepository, activityRepository, scheduleOverrideRepository)
+
+            backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+                viewModel.uiState.collect()
+            }
+
+            assertTrue(viewModel.uiState.value.conflictedActivityIds.isEmpty())
+        }
+
+    @Test
     fun initialStateExpandsCurrentWeekOccurrencesWithKidNames() =
         runTest {
             val monday = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))

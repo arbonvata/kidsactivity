@@ -18,6 +18,7 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.HowToReg
 import androidx.compose.material.icons.filled.NotificationsOff
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -76,6 +77,7 @@ fun WeekScreen(
                 kids = uiState.kids,
                 weekStart = uiState.weekStart,
                 occurrences = uiState.weekOccurrences,
+                conflictedActivityIds = uiState.conflictedActivityIds,
                 onPreviousWeekClick = viewModel::previousWeek,
                 onNextWeekClick = viewModel::nextWeek,
                 onEditActivityClick = onEditActivityClick,
@@ -90,6 +92,7 @@ fun WeeklyScheduleScreen(
     kids: List<Kid>,
     weekStart: LocalDate,
     occurrences: List<ActivityOccurrence>,
+    conflictedActivityIds: Set<Long> = emptySet(),
     onPreviousWeekClick: () -> Unit,
     onNextWeekClick: () -> Unit,
     onEditActivityClick: (Activity) -> Unit,
@@ -156,6 +159,7 @@ fun WeeklyScheduleScreen(
                             kidOccurrences.forEach { occurrence ->
                                 WeeklyActivityRow(
                                     occurrence = occurrence,
+                                    hasConflict = occurrence.activity.id in conflictedActivityIds,
                                     onClick = { onEditActivityClick(occurrence.activity) },
                                 )
                             }
@@ -170,6 +174,7 @@ fun WeeklyScheduleScreen(
 @Composable
 fun WeeklyActivityRow(
     occurrence: ActivityOccurrence,
+    hasConflict: Boolean = false,
     onClick: () -> Unit,
 ) {
     val alarmsDisabled = !occurrence.activity.isEnabled
@@ -198,7 +203,12 @@ fun WeeklyActivityRow(
             Text(
                 text = occurrence.startTime.format(shortTimeFormatter),
                 style = MaterialTheme.typography.bodyMedium,
-                color = if (alarmsDisabled || delegated) dimmed else MaterialTheme.colorScheme.primary,
+                color =
+                    when {
+                        hasConflict -> MaterialTheme.colorScheme.error
+                        alarmsDisabled || delegated -> dimmed
+                        else -> MaterialTheme.colorScheme.primary
+                    },
                 modifier = Modifier.width(50.dp),
             )
 
@@ -218,7 +228,13 @@ fun WeeklyActivityRow(
                 }
             }
 
-            if (delegated) {
+            if (hasConflict) {
+                Icon(
+                    Icons.Default.Warning,
+                    contentDescription = stringResource(R.string.dashboard_conflict_present),
+                    tint = MaterialTheme.colorScheme.error,
+                )
+            } else if (delegated) {
                 Icon(
                     Icons.Default.HowToReg,
                     contentDescription = stringResource(R.string.dashboard_delegated_content_description),
