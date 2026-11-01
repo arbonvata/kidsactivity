@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="occurrence_delegated_on_format">%1$s — elegido por %2$s</string>
+    <string name="occurrence_delegated_times_on_format">%1$s: %2$s–%3$s — seleccionados por %4$s</string>
+    <string name="occurrence_delegate">Otra persona queda en esa fecha</string>
+    <string name="occurrence_delegate_name">¿Quién recoge? (opcional)</string>
+    <string name="occurrence_delegate_pick_parent">Elige un elemento principal guardado:</string>
+    <string name="pickup_adult_pick_parent">Elige un elemento principal guardado:</string>
+</resources>

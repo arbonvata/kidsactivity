@@ -108,4 +108,14 @@
     <!-- Delete All Activities Dialog: Confirm destructive action button -->
     <string name="delete_all_activities_confirm">Slet</string>
     <!-- Delete All Activities Dialog: Cancel action button -->
-    <string name="delete_all_activities_cancel">Annuller</string></resources>
+    <string name="delete_all_activities_cancel">Annuller</string>
+    <string name="dashboard_picked_by_format">Udvalgt af %1$s</string>
+    <string name="dashboard_picked_by_someone_else">Udvalgt af en anden</string>
+    <string name="dashboard_delegated_content_description">En anden tager over</string>
+    <string name="dashboard_call_parent_format">Ring til %1$s</string>
+    <!-- Parents management screen -->
+    <string name="parents_management_title">Forældre</string>
+    <string name="parents_management_back">Tilbage</string>
+    <string name="parents_management_add_parent">Tilføj forælder</string>
+    <string name="parents_management_no_parents_added_yet">Der er endnu ikke tilføjet nogen forældre.</string>
+    <string name="parents_management_subtitle_format">%1$s · %2$s</string></resources>

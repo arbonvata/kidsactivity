@@ -174,4 +174,32 @@
     <string name="add_activity_date_picker_cancel">Avbryt</string>
     <string name="edit_activity_save_error">Det gick inte att spara aktiviteten. Dina ändringar finns kvar. Försök igen.</string>
     <string name="edit_activity_saving">Sparar…</string>
+    <string name="add_activity_end_date_format">Slutdatum: %1$s</string>
+    <string name="add_activity_end_date_none">Slutdatum: inget</string>
+    <string name="add_activity_remove_end_date">Ta bort slutdatum</string>
+    <!-- Add Parent form (AddParentScreen.kt) -->
+    <string name="add_parent_title">Lägg till överordnad</string>
+    <string name="add_parent_back_content_description">Tillbaka</string>
+    <string name="add_parent_name_label">Namn</string>
+    <string name="add_parent_name_error_blank">Ange ett namn</string>
+    <string name="add_parent_name_error_duplicate">%1$s är redan sparat</string>
+    <string name="add_parent_relation_label">Relation</string>
+    <string name="add_parent_phone_label">Telefon (valfritt)</string>
+    <string name="add_parent_save">Spara överordnad</string>
+    <string name="edit_parent_title">Redigera överordnad</string>
+    <string name="edit_parent_not_found">Denna överordnade post finns inte längre.</string>
+    <string name="parent_delete_content_description">Ta bort överordnad</string>
+    <string name="parent_delete_dialog_title">Ta bort överordnad?</string>
+    <string name="parent_delete_dialog_message">Vill du ta bort %1$s? Datum som redan är markerade som hämtade behåller det sparade namnet.</string>
+    <string name="parent_delete_dialog_confirm">Ta bort</string>
+    <string name="parent_delete_dialog_cancel">Avbryt</string>
+    <string name="parent_relation_father">Far</string>
+    <string name="parent_relation_mother">Mamma</string>
+    <string name="parent_relation_guardian">Guardian</string>
+    <string name="parent_relation_other">Övrigt</string>
+    <string name="more_parents_management_title">Föräldrar</string>
+    <string name="more_parents_management_subtitle">Hantera föräldrar och vårdnadshavare</string>
+    <string name="kid_detail_until_format">tills %1$s</string>
+    <string name="kid_detail_reminders_enabled_toast">Påminnelser aktiverade för %1$s</string>
+    <string name="kid_detail_reminders_disabled_toast">Påminnelser avaktiverade för %1$s</string>
 </resources>

@@ -109,4 +109,14 @@
     <!-- Delete All Activities Dialog: Confirm destructive action button -->
     <string name="delete_all_activities_confirm">Eliminar</string>
     <!-- Delete All Activities Dialog: Cancel action button -->
-    <string name="delete_all_activities_cancel">Cancelar</string></resources>
+    <string name="delete_all_activities_cancel">Cancelar</string>
+    <string name="dashboard_picked_by_format">Seleccionado por %1$s</string>
+    <string name="dashboard_picked_by_someone_else">Lo ha elegido otra persona</string>
+    <string name="dashboard_delegated_content_description">Contesta otra persona</string>
+    <string name="dashboard_call_parent_format">Llama a %1$s</string>
+    <!-- Parents management screen -->
+    <string name="parents_management_title">Padres</string>
+    <string name="parents_management_back">Atrás</string>
+    <string name="parents_management_add_parent">Añadir padre</string>
+    <string name="parents_management_no_parents_added_yet">Aún no se ha añadido ningún padre.</string>
+    <string name="parents_management_subtitle_format">%1$s · %2$s</string></resources>

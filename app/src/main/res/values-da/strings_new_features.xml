@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="occurrence_delegated_on_format">%1$s — valgt af %2$s</string>
+    <string name="occurrence_delegated_times_on_format">%1$s: %2$s–%3$s — udvalgt af %4$s</string>
+    <string name="occurrence_delegate">En anden tager denne dato</string>
+    <string name="occurrence_delegate_name">Hvem henter (valgfrit)</string>
+    <string name="occurrence_delegate_pick_parent">Vælg en gemt overordnet:</string>
+    <string name="pickup_adult_pick_parent">Vælg en gemt overordnet:</string>
+</resources>

@@ -174,4 +174,32 @@
     <string name="add_activity_date_picker_cancel">Abbrechen</string>
     <string name="edit_activity_save_error">Die Aktivität konnte nicht gespeichert werden. Deine Änderungen bleiben erhalten. Bitte versuche es erneut.</string>
     <string name="edit_activity_saving">Wird gespeichert…</string>
+    <string name="add_activity_end_date_format">Enddatum: %1$s</string>
+    <string name="add_activity_end_date_none">Enddatum: keine Angabe</string>
+    <string name="add_activity_remove_end_date">Enddatum entfernen</string>
+    <!-- Add Parent form (AddParentScreen.kt) -->
+    <string name="add_parent_title">Eltern hinzufügen</string>
+    <string name="add_parent_back_content_description">Zurück</string>
+    <string name="add_parent_name_label">Name</string>
+    <string name="add_parent_name_error_blank">Bitte geben Sie einen Namen ein</string>
+    <string name="add_parent_name_error_duplicate">%1$s ist bereits gespeichert</string>
+    <string name="add_parent_relation_label">Beziehung</string>
+    <string name="add_parent_phone_label">Telefonnummer (optional)</string>
+    <string name="add_parent_save">Übergeordnetes Element speichern</string>
+    <string name="edit_parent_title">Übergeordnetes Element bearbeiten</string>
+    <string name="edit_parent_not_found">Dieser übergeordnete Eintrag existiert nicht mehr.</string>
+    <string name="parent_delete_content_description">Übergeordnetes Element löschen</string>
+    <string name="parent_delete_dialog_title">Übergeordnetes Element löschen?</string>
+    <string name="parent_delete_dialog_message">%1$s löschen? Bei Terminen, die bereits als abgeholt markiert sind, bleibt der gespeicherte Name erhalten.</string>
+    <string name="parent_delete_dialog_confirm">Löschen</string>
+    <string name="parent_delete_dialog_cancel">Abbrechen</string>
+    <string name="parent_relation_father">Vater</string>
+    <string name="parent_relation_mother">Mutter</string>
+    <string name="parent_relation_guardian">Wächter</string>
+    <string name="parent_relation_other">Sonstiges</string>
+    <string name="more_parents_management_title">Eltern</string>
+    <string name="more_parents_management_subtitle">Eltern und Erziehungsberechtigte verwalten</string>
+    <string name="kid_detail_until_format">bis %1$s</string>
+    <string name="kid_detail_reminders_enabled_toast">Erinnerungen für %1$s aktiviert</string>
+    <string name="kid_detail_reminders_disabled_toast">Erinnerungen für %1$s deaktiviert</string>
 </resources>

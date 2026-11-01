@@ -175,4 +175,32 @@
     <string name="add_activity_date_picker_cancel">Annuler</string>
     <string name="edit_activity_save_error">Impossible d’enregistrer l’activité. Vos modifications sont conservées. Réessayez.</string>
     <string name="edit_activity_saving">Enregistrement…</string>
+    <string name="add_activity_end_date_format">Date de fin : %1$s</string>
+    <string name="add_activity_end_date_none">Date de fin : aucune</string>
+    <string name="add_activity_remove_end_date">Supprimer la date de fin</string>
+    <!-- Add Parent form (AddParentScreen.kt) -->
+    <string name="add_parent_title">Ajouter un parent</string>
+    <string name="add_parent_back_content_description">Retour</string>
+    <string name="add_parent_name_label">Nom</string>
+    <string name="add_parent_name_error_blank">Veuillez saisir un nom</string>
+    <string name="add_parent_name_error_duplicate">%1$s est déjà enregistré</string>
+    <string name="add_parent_relation_label">Relation</string>
+    <string name="add_parent_phone_label">Téléphone (facultatif)</string>
+    <string name="add_parent_save">Enregistrer le parent</string>
+    <string name="edit_parent_title">Modifier l\'élément parent</string>
+    <string name="edit_parent_not_found">Cet élément parent n\'existe plus.</string>
+    <string name="parent_delete_content_description">Supprimer l\'élément parent</string>
+    <string name="parent_delete_dialog_title">Supprimer l\'élément parent ?</string>
+    <string name="parent_delete_dialog_message">Supprimer %1$s ? Les dates déjà marquées comme « récupérées » conservent le nom enregistré.</string>
+    <string name="parent_delete_dialog_confirm">Supprimer</string>
+    <string name="parent_delete_dialog_cancel">Annuler</string>
+    <string name="parent_relation_father">Père</string>
+    <string name="parent_relation_mother">Maman</string>
+    <string name="parent_relation_guardian">Guardian</string>
+    <string name="parent_relation_other">Autres</string>
+    <string name="more_parents_management_title">Parents</string>
+    <string name="more_parents_management_subtitle">Gérer les parents et tuteurs</string>
+    <string name="kid_detail_until_format">jusqu\'à %1$s</string>
+    <string name="kid_detail_reminders_enabled_toast">Rappels activés pour %1$s</string>
+    <string name="kid_detail_reminders_disabled_toast">Rappels désactivés pour %1$s</string>
 </resources>

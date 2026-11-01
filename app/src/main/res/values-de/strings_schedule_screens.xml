@@ -108,4 +108,14 @@
     <!-- Delete All Activities Dialog: Confirm destructive action button -->
     <string name="delete_all_activities_confirm">Löschen</string>
     <!-- Delete All Activities Dialog: Cancel action button -->
-    <string name="delete_all_activities_cancel">Abbrechen</string></resources>
+    <string name="delete_all_activities_cancel">Abbrechen</string>
+    <string name="dashboard_picked_by_format">Ausgewählt von %1$s</string>
+    <string name="dashboard_picked_by_someone_else">Von jemand anderem ausgewählt</string>
+    <string name="dashboard_delegated_content_description">Jemand anderes nimmt den Anruf entgegen</string>
+    <string name="dashboard_call_parent_format">%1$s anrufen</string>
+    <!-- Parents management screen -->
+    <string name="parents_management_title">Eltern</string>
+    <string name="parents_management_back">Zurück</string>
+    <string name="parents_management_add_parent">Eltern hinzufügen</string>
+    <string name="parents_management_no_parents_added_yet">Es wurden noch keine Eltern hinzugefügt.</string>
+    <string name="parents_management_subtitle_format">%1$s · %2$s</string></resources>

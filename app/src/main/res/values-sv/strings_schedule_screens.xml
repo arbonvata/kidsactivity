@@ -108,4 +108,14 @@
     <!-- Delete All Activities Dialog: Confirm destructive action button -->
     <string name="delete_all_activities_confirm">Ta bort</string>
     <!-- Delete All Activities Dialog: Cancel action button -->
-    <string name="delete_all_activities_cancel">Avbryt</string></resources>
+    <string name="delete_all_activities_cancel">Avbryt</string>
+    <string name="dashboard_picked_by_format">Valt av %1$s</string>
+    <string name="dashboard_picked_by_someone_else">Valt av någon annan</string>
+    <string name="dashboard_delegated_content_description">Någon annan tar över</string>
+    <string name="dashboard_call_parent_format">Ring %1$s</string>
+    <!-- Parents management screen -->
+    <string name="parents_management_title">Föräldrar</string>
+    <string name="parents_management_back">Tillbaka</string>
+    <string name="parents_management_add_parent">Lägg till förälder</string>
+    <string name="parents_management_no_parents_added_yet">Inga föräldrar har lagts till ännu.</string>
+    <string name="parents_management_subtitle_format">%1$s · %2$s</string></resources>

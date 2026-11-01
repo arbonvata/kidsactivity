@@ -174,4 +174,32 @@
     <string name="add_activity_date_picker_cancel">Annuller</string>
     <string name="edit_activity_save_error">Aktiviteten kunne ikke gemmes. Dine ændringer er bevaret. Prøv igen.</string>
     <string name="edit_activity_saving">Gemmer…</string>
+    <string name="add_activity_end_date_format">Slutdato: %1$s</string>
+    <string name="add_activity_end_date_none">Slutdato: ingen</string>
+    <string name="add_activity_remove_end_date">Fjern slutdato</string>
+    <!-- Add Parent form (AddParentScreen.kt) -->
+    <string name="add_parent_title">Tilføj overordnet</string>
+    <string name="add_parent_back_content_description">Tilbage</string>
+    <string name="add_parent_name_label">Navn</string>
+    <string name="add_parent_name_error_blank">Indtast venligst et navn</string>
+    <string name="add_parent_name_error_duplicate">%1$s er allerede gemt</string>
+    <string name="add_parent_relation_label">Forhold</string>
+    <string name="add_parent_phone_label">Telefonnummer (valgfrit)</string>
+    <string name="add_parent_save">Gem overordnet element</string>
+    <string name="edit_parent_title">Rediger overordnet element</string>
+    <string name="edit_parent_not_found">Denne overordnet eksisterer ikke længere.</string>
+    <string name="parent_delete_content_description">Slet overordnet element</string>
+    <string name="parent_delete_dialog_title">Skal overordnet element slettes?</string>
+    <string name="parent_delete_dialog_message">Skal %1$s slettes? Datoer, der allerede er markeret som afhentet, beholder det gemte navn.</string>
+    <string name="parent_delete_dialog_confirm">Slet</string>
+    <string name="parent_delete_dialog_cancel">Annuller</string>
+    <string name="parent_relation_father">Far</string>
+    <string name="parent_relation_mother">Mor</string>
+    <string name="parent_relation_guardian">Guardian</string>
+    <string name="parent_relation_other">Andet</string>
+    <string name="more_parents_management_title">Forældre</string>
+    <string name="more_parents_management_subtitle">Administrer forældre og værger</string>
+    <string name="kid_detail_until_format">indtil %1$s</string>
+    <string name="kid_detail_reminders_enabled_toast">Påmindelser er aktiveret for %1$s</string>
+    <string name="kid_detail_reminders_disabled_toast">Påmindelser er slået fra for %1$s</string>
 </resources>

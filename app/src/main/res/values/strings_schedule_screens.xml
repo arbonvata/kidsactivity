@@ -13,10 +13,10 @@
     <string name="today_no_activities">🎉 No activities today!</string>
     <string name="dashboard_alarms_disabled">Alarms disabled</string>
     <string name="dashboard_conflict_present">Schedule conflict</string>
-    <string name="dashboard_picked_by_format" tools:ignore="MissingTranslation">Picked by %1$s</string>
-    <string name="dashboard_picked_by_someone_else" tools:ignore="MissingTranslation">Picked by someone else</string>
-    <string name="dashboard_delegated_content_description" tools:ignore="MissingTranslation">Someone else picks up</string>
-    <string name="dashboard_call_parent_format" tools:ignore="MissingTranslation">Call %1$s</string>
+    <string name="dashboard_picked_by_format">Picked by %1$s</string>
+    <string name="dashboard_picked_by_someone_else">Picked by someone else</string>
+    <string name="dashboard_delegated_content_description">Someone else picks up</string>
+    <string name="dashboard_call_parent_format">Call %1$s</string>
     <string name="dashboard_view_full_week">View Full Week</string>
     <string name="dashboard_permissions_banner_title">Reminders are off</string>
     <string name="dashboard_permissions_banner_message">Required permissions are missing — tap to grant them</string>
@@ -29,7 +29,6 @@
         <item quantity="one">%1$d activity today</item>
         <item quantity="other">%1$d activities today</item>
     </plurals>
-
     <!-- Week screen -->
     <string name="week_range_title_format">%1$s - %2$s</string>
     <string name="week_previous_week">Previous week</string>
@@ -37,20 +36,17 @@
     <string name="week_add_kid_to_get_started">Add a kid to get started!</string>
     <string name="week_no_activities_this_week">No activities this week</string>
     <string name="week_alarms_disabled">Alarms disabled</string>
-
     <!-- Month screen -->
     <string name="month_previous_month">Previous month</string>
     <string name="month_next_month">Next month</string>
     <string name="month_no_activities">No activities</string>
     <string name="month_alarms_disabled">Alarms disabled</string>
-
     <!-- Daily schedule screen -->
     <string name="daily_back">Back</string>
     <string name="daily_previous_day">Previous day</string>
     <string name="daily_next_day">Next day</string>
     <string name="daily_no_activities_scheduled">No activities scheduled for this day</string>
     <string name="daily_alarms_disabled">Alarms disabled</string>
-
     <!-- Kid selection screen -->
     <string name="kid_selection_title">Select Kids</string>
     <string name="kid_selection_add_kid">Add Kid</string>
@@ -59,21 +55,18 @@
     <string name="kid_selection_view_schedule_format">View Schedule (%1$d selected)</string>
     <string name="kid_selection_no_kids_added_yet">No kids added yet.</string>
     <string name="kid_selection_school_format">School: %1$s</string>
-
     <!-- Kids management screen -->
     <string name="kids_management_title">Kids</string>
     <string name="kids_management_back">Back</string>
     <string name="kids_management_add_kid">Add Kid</string>
     <string name="kids_management_no_kids_added_yet">No kids added yet.</string>
     <string name="kids_management_school_format">School: %1$s</string>
-
     <!-- Parents management screen -->
-    <string name="parents_management_title" tools:ignore="MissingTranslation">Parents</string>
-    <string name="parents_management_back" tools:ignore="MissingTranslation">Back</string>
-    <string name="parents_management_add_parent" tools:ignore="MissingTranslation">Add Parent</string>
-    <string name="parents_management_no_parents_added_yet" tools:ignore="MissingTranslation">No parents added yet.</string>
-    <string name="parents_management_subtitle_format" tools:ignore="MissingTranslation">%1$s · %2$s</string>
-
+    <string name="parents_management_title">Parents</string>
+    <string name="parents_management_back">Back</string>
+    <string name="parents_management_add_parent">Add Parent</string>
+    <string name="parents_management_no_parents_added_yet">No parents added yet.</string>
+    <string name="parents_management_subtitle_format">%1$s · %2$s</string>
     <!-- Delete all activities dialog -->
     <string name="delete_all_activities_button">Delete All Activities</string>
     <string name="delete_all_activities_dialog_title">Delete All Activities?</string>

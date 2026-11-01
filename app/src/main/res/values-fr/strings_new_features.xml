@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="occurrence_delegated_on_format">%1$s — choisi par %2$s</string>
+    <string name="occurrence_delegated_times_on_format">%1$s : %2$s–%3$s — sélectionné par %4$s</string>
+    <string name="occurrence_delegate">C\'est quelqu\'un d\'autre qui prend ce rendez-vous</string>
+    <string name="occurrence_delegate_name">Qui vient chercher (facultatif)</string>
+    <string name="occurrence_delegate_pick_parent">Choisissez un parent enregistré :</string>
+    <string name="pickup_adult_pick_parent">Choisissez un parent enregistré :</string>
+</resources>
