@@ -39,6 +39,7 @@ data class AddActivityUiState(
     val firstDate: LocalDate = LocalDate.now(),
     // Last occurrence date inclusive; null = repeats forever.
     val lastDate: LocalDate? = null,
+    val calendarStartDate: LocalDate? = null,
     val nameError: Boolean = false,
     val daysError: Boolean = false,
     val timeError: Boolean = false,
@@ -47,6 +48,9 @@ data class AddActivityUiState(
     val isSaved: Boolean = false,
 ) {
     /** Inverted or zero-length ranges are not representable (no overnight activities). */
+    val hasInvalidRecurrenceEndDate: Boolean get() =
+        (isPeriodic || isSchoolActivity) && lastDate != null && calendarStartDate != null && lastDate.isBefore(calendarStartDate)
+
     val hasInvertedTimeRange: Boolean get() = !endTime.isAfter(startTime)
 }
 
@@ -149,7 +153,7 @@ class AddActivityViewModel(
         val nameError = !isValidName(state.name)
         val daysError = state.selectedDays.isEmpty()
         val timeError = state.hasInvertedTimeRange
-        if (nameError || daysError || timeError || state.selectedKidId == 0L) {
+        if (nameError || daysError || timeError || state.hasInvalidRecurrenceEndDate || state.selectedKidId == 0L) {
             _uiState.update { it.copy(nameError = nameError, daysError = daysError, timeError = timeError) }
             return
         }

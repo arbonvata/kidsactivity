@@ -298,7 +298,6 @@ class BackupRepositoryImplTest {
         }
         """.trimIndent()
 
-
     private val backupJsonWithParents =
         """
         {

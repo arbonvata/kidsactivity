@@ -5,6 +5,10 @@ in-app About screen); this file records what each release shipped.
 
 ## Unreleased
 
+- **Fixed**: sharing ended schedules preserves their final dates, excludes later
+  exceptions and validates imported start/end ranges. Saved the feature backlog
+  in ROADMAP.md.
+
 - **Added**: activity end dates — set an optional "End date" when creating or
   editing an activity and it stops after that date (inclusive) everywhere:
   views, conflicts, reminders, the widget and calendar exports. Shown as

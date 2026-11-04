@@ -121,7 +121,7 @@ class EditActivityViewModel(
         val nameError = form.name.isBlank()
         val daysError = form.selectedDays.isEmpty()
         val timeError = form.hasInvertedTimeRange
-        if (nameError || daysError || timeError) {
+        if (nameError || daysError || timeError || form.hasInvalidRecurrenceEndDate) {
             _uiState.update { state ->
                 state.copy(form = form.copy(nameError = nameError, daysError = daysError, timeError = timeError))
             }
@@ -191,6 +191,7 @@ class EditActivityViewModel(
             AddActivityUiState(
                 selectedKidId = activity.kidId,
                 name = activity.name,
+                calendarStartDate = activity.calendarStartDate?.takeIf { it.isNotBlank() }?.let(LocalDate::parse),
                 location = activity.location.orEmpty(),
                 pickupAdult = activity.pickupAdult.orEmpty(),
                 pickupNotes = activity.pickupNotes.orEmpty(),

@@ -23,6 +23,8 @@ keep showing muted activities dimmed.
 
 ### Features
 
+Future suggestions are saved in [ROADMAP.md](ROADMAP.md).
+
 - **Today / Week / Month / Daily views** across all kids, updated live
   (reactive ObjectBox queries — no manual refresh anywhere).
 - **School-day overrides** — mark No-School days (holidays, trips) and custom

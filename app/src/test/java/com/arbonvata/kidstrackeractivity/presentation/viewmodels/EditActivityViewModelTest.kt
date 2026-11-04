@@ -56,6 +56,24 @@ class EditActivityViewModelTest {
         )
 
     @Test
+    fun importedScheduleRejectsEndBeforeItsStartAndCanBeCorrected() =
+        runTest {
+            coEvery { activityRepository.getActivity(5L) } returns
+                storedActivity().copy(isPeriodic = true, calendarStartDate = "2026-12-01")
+            val vm = EditActivityViewModel(5L, activityRepository, kidRepository, parentRepository)
+            vm.onLastDateChange(LocalDate.of(2026, 11, 30))
+            vm.saveActivity()
+            assertTrue(
+                vm.uiState.value.form
+                    ?.hasInvalidRecurrenceEndDate == true,
+            )
+            coVerify(exactly = 0) { activityRepository.updateActivity(any()) }
+            vm.onLastDateChange(LocalDate.of(2026, 12, 1))
+            vm.saveActivity()
+            assertTrue(vm.uiState.value.isSaved)
+        }
+
+    @Test
     fun correctingInvalidTimesThenSavingPersistsTheEditedTimes() =
         runTest {
             coEvery { activityRepository.getActivity(5L) } returns storedActivity()
@@ -90,7 +108,11 @@ class EditActivityViewModelTest {
             coEvery { activityRepository.updateActivity(capture(updated)) } returns Unit
             val viewModel = EditActivityViewModel(5L, activityRepository, kidRepository, parentRepository)
 
-            assertEquals(LocalDate.of(2026, 12, 13), viewModel.uiState.value.form?.lastDate)
+            assertEquals(
+                LocalDate.of(2026, 12, 13),
+                viewModel.uiState.value.form
+                    ?.lastDate,
+            )
 
             // Untouched, the end date survives a save.
             viewModel.saveActivity()

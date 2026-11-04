@@ -76,8 +76,13 @@ fun OccurrenceExceptionEditor(
         Text(date?.format(weekdayDateFormatter) ?: stringResource(R.string.occurrence_choose_date))
     }
     date?.let { selected ->
+        val withinEnd = form.lastDate == null || !selected.isAfter(form.lastDate)
+        val withinStart =
+            !(form.isPeriodic || form.isSchoolActivity) || form.calendarStartDate == null || !selected.isBefore(form.calendarStartDate)
         val matches =
-            selected.dayOfWeek.value in form.selectedDays &&
+            withinEnd &&
+                withinStart &&
+                selected.dayOfWeek.value in form.selectedDays &&
                 (
                     form.isPeriodic ||
                         form.isSchoolActivity ||

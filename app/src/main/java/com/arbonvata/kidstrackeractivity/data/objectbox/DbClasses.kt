@@ -113,11 +113,14 @@ data class Parent(
 )
 
 /** Entries are always listed by name; the relation is a subtitle. */
-enum class ParentRelation(val key: String) {
+enum class ParentRelation(
+    val key: String,
+) {
     FATHER("father"),
     MOTHER("mother"),
     GUARDIAN("guardian"),
-    OTHER("other");
+    OTHER("other"),
+    ;
 
     companion object {
         /** Unknown keys (a hand-edited backup) degrade to OTHER, never crash. */

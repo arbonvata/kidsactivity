@@ -55,7 +55,9 @@ class AddParentViewModelTest {
     fun saveParentInsertsTrimmedFieldsWithRelationKeyAndSignalsSaved() =
         runTest {
             coEvery { parentRepository.getAllParents() } returns emptyList()
-            coEvery { parentRepository.addParent(any(), any(), any()) } returns com.arbonvata.kidstrackeractivity.data.objectbox.Parent(id = 42L)
+            coEvery { parentRepository.addParent(any(), any(), any()) } returns
+                com.arbonvata.kidstrackeractivity.data.objectbox
+                    .Parent(id = 42L)
             viewModel.onNameChange("  Anna  ")
             viewModel.onRelationChange(ParentRelation.MOTHER)
             viewModel.onPhoneChange("  +46 70 111 22 33  ")
@@ -83,7 +85,9 @@ class AddParentViewModelTest {
     fun onSavedHandledResetsIsSaved() =
         runTest {
             coEvery { parentRepository.getAllParents() } returns emptyList()
-            coEvery { parentRepository.addParent(any(), any(), any()) } returns com.arbonvata.kidstrackeractivity.data.objectbox.Parent()
+            coEvery { parentRepository.addParent(any(), any(), any()) } returns
+                com.arbonvata.kidstrackeractivity.data.objectbox
+                    .Parent()
             viewModel.onNameChange("Anna")
             viewModel.saveParent()
             assertTrue(viewModel.uiState.value.isSaved)

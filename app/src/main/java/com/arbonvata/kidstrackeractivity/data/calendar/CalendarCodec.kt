@@ -46,13 +46,33 @@ object CalendarCodec {
             val end = LocalTime.parse(activity.endTime)
             require(end.isAfter(start)) { "Activity must end after it starts" }
             val weekly = activity.isPeriodic || activity.isSchoolActivity
+            val recurrenceEnd = activity.lastDate?.takeIf { weekly && it.isNotBlank() }?.let(LocalDate::parse)
+            val recurrenceStart = activity.calendarStartDate?.let(LocalDate::parse)
+            require(recurrenceEnd == null || recurrenceStart == null || !recurrenceEnd.isBefore(recurrenceStart)) {
+                "Recurrence end date is before its start date"
+            }
             val anchor =
                 if (weekly) {
-                    maxOf(today, activity.calendarStartDate?.let(LocalDate::parse) ?: today)
+                    val first = if (recurrenceEnd != null && recurrenceEnd.isBefore(today)) recurrenceEnd.minusDays(6) else today
+                    maxOf(first, recurrenceStart ?: first)
                 } else {
                     LocalDate.parse(requireNotNull(activity.firstDate))
                 }
-            val dates = (0L..6L).map { anchor.plusDays(it) }.filter { it.dayOfWeek.value in activity.daysOfWeek }
+
+            fun scheduledDates(from: LocalDate) =
+                (0L..6L).map { from.plusDays(it) }.filter {
+                    it.dayOfWeek.value in activity.daysOfWeek && (recurrenceEnd == null || !it.isAfter(recurrenceEnd))
+                }
+            val dates =
+                scheduledDates(anchor).ifEmpty {
+                    // An ended series still needs a valid DTSTART at or before UNTIL.
+                    if (weekly && recurrenceEnd != null) {
+                        scheduledDates(maxOf(recurrenceEnd.minusDays(6), recurrenceStart ?: LocalDate.MIN))
+                    } else {
+                        emptyList()
+                    }
+                }
+            require(dates.isNotEmpty()) { "No scheduled dates occur before the activity end date" }
             val exceptions = linkedMapOf<LocalDate, OccurrenceException>()
             if (activity.isSchoolActivity) {
                 overrides.filter { it.kidId == kid.id }.forEach {
@@ -92,20 +112,20 @@ object CalendarCodec {
                 details()
                 if (weekly) {
                     val weekdays = activity.daysOfWeek.sorted().joinToString(",") { dayCodes[it - 1] }
-                    // A term end date rides on the RRULE as a DATE-valued
-                    // UNTIL (inclusive of that whole day); corrupt values are
-                    // dropped rather than corrupting the rule.
                     val until =
-                        activity.lastDate
-                            ?.takeIf { it.isNotEmpty() }
-                            ?.let { runCatching { LocalDate.parse(it) }.getOrNull() }
-                            ?.let { ";UNTIL=" + it.format(java.time.format.DateTimeFormatter.BASIC_ISO_DATE) }
+                        recurrenceEnd
+                            ?.atTime(23, 59, 59)
+                            ?.format(dateTime)
+                            ?.let { ";UNTIL=$it" }
                             .orEmpty()
                     lines += "RRULE:FREQ=WEEKLY;BYDAY=$weekdays$until"
                 }
                 val relevant =
                     exceptions.values.filter {
-                        !it.date.isBefore(date) && (weekly || it.date == date) && it.date.dayOfWeek.value in activity.daysOfWeek
+                        !it.date.isBefore(date) &&
+                            (weekly || it.date == date) &&
+                            it.date.dayOfWeek.value in activity.daysOfWeek &&
+                            (recurrenceEnd == null || !it.date.isAfter(recurrenceEnd))
                     }
                 relevant.filter { it.isCancelled }.forEach { lines += "EXDATE:${it.date.atTime(start).format(dateTime)}" }
                 lines += "END:VEVENT"
@@ -300,7 +320,17 @@ object CalendarCodec {
                 // the activity weekly instead of expanding it date by date.
                 lastDate =
                     if (base.one("X-KIDSTRACKER-SCHOOL") != null || base.one("X-KIDSTRACKER-ENABLED") != null) {
-                        until?.toLocalDate()?.toString()
+                        until
+                            ?.let {
+                                if (it.toLocalTime().isBefore(
+                                        start.toLocalTime(),
+                                    )
+                                ) {
+                                    it.toLocalDate().minusDays(1)
+                                } else {
+                                    it.toLocalDate()
+                                }
+                            }?.toString()
                     } else {
                         null
                     },

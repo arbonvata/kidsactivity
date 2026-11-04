@@ -1,0 +1,3 @@
+<resources>
+    <string name="activity_recurrence_end_error">Slutdatumet måste vara samma som eller efter kalenderns startdatum.</string>
+</resources>

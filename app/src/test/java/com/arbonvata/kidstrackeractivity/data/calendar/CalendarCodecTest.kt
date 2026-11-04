@@ -239,6 +239,60 @@ class CalendarCodecTest {
         assertEquals(2, until.activities.size)
     }
 
+    @Test
+    fun `weekly end date survives export import and excludes later exceptions`() {
+        val end = monday.plusWeeks(1)
+        val source =
+            swim.copy(
+                lastDate = end.toString(),
+                isSchoolActivity = true,
+                occurrenceExceptions = encodeExceptions(listOf(OccurrenceException(end.plusDays(2)))),
+            )
+        val text = CalendarCodec.export(kid, listOf(source), emptyList(), monday)
+        assertTrue(text.contains("UNTIL=20261026T235959"))
+        assertFalse(text.contains("EXDATE"))
+        val imported =
+            CalendarCodec
+                .parse(text, zone)
+                .activities
+                .single()
+                .copy(id = 4, kidId = 1)
+        assertTrue(imported.isPeriodic)
+        assertTrue(imported.isSchoolActivity)
+        assertEquals(end.toString(), imported.lastDate)
+        val dates = expandActivitiesForDateRange(listOf(kid), listOf(imported), monday, end.plusWeeks(3)).map { it.date }
+        assertEquals(listOf(monday, monday.plusDays(2), end), dates)
+    }
+
+    @Test
+    fun `expired recurring activity can be shared without reviving its recurrence`() {
+        val source = swim.copy(lastDate = monday.toString())
+        val imported =
+            CalendarCodec
+                .parse(CalendarCodec.export(kid, listOf(source), emptyList(), monday.plusMonths(1)), zone)
+                .activities
+                .single()
+                .copy(id = 4, kidId = 1)
+        assertEquals(monday.toString(), imported.lastDate)
+        assertTrue(expandActivitiesForDateRange(listOf(kid), listOf(imported), monday.plusDays(1), monday.plusMonths(2)).isEmpty())
+    }
+
+    @Test
+    fun `sharing after the final occurrence but before the cutoff retains the ended series`() {
+        val source = swim.copy(daysOfWeek = intArrayOf(1), lastDate = monday.plusDays(6).toString())
+        val imported =
+            CalendarCodec
+                .parse(CalendarCodec.export(kid, listOf(source), emptyList(), monday.plusDays(2)), zone)
+                .activities
+                .single()
+                .copy(id = 4, kidId = 1)
+        assertEquals(monday.plusDays(6).toString(), imported.lastDate)
+        assertEquals(
+            listOf(monday),
+            expandActivitiesForDateRange(listOf(kid), listOf(imported), monday, monday.plusWeeks(2)).map { it.date },
+        )
+    }
+
     private fun calendar(extra: String = "") =
         listOf(
             "BEGIN:VCALENDAR",

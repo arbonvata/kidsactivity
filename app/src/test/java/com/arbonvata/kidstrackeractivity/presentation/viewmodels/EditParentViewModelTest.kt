@@ -34,9 +34,21 @@ class EditParentViewModelTest {
 
             val viewModel = EditParentViewModel(7L, parentRepository)
 
-            assertEquals("Anna", viewModel.uiState.value.form?.name)
-            assertEquals(ParentRelation.MOTHER, viewModel.uiState.value.form?.relation)
-            assertEquals("+46 70 111 22 33", viewModel.uiState.value.form?.phone)
+            assertEquals(
+                "Anna",
+                viewModel.uiState.value.form
+                    ?.name,
+            )
+            assertEquals(
+                ParentRelation.MOTHER,
+                viewModel.uiState.value.form
+                    ?.relation,
+            )
+            assertEquals(
+                "+46 70 111 22 33",
+                viewModel.uiState.value.form
+                    ?.phone,
+            )
             assertFalse(viewModel.uiState.value.isNotFound)
         }
 
@@ -60,8 +72,14 @@ class EditParentViewModelTest {
 
             viewModel.saveParent()
 
-            assertNull(viewModel.uiState.value.form?.nameError)
-            assertTrue(viewModel.uiState.value.form?.isSaved == true)
+            assertNull(
+                viewModel.uiState.value.form
+                    ?.nameError,
+            )
+            assertTrue(
+                viewModel.uiState.value.form
+                    ?.isSaved == true,
+            )
         }
 
     @Test
@@ -81,7 +99,10 @@ class EditParentViewModelTest {
             assertEquals("Anna", saved.captured.name)
             assertEquals("guardian", saved.captured.relation)
             assertEquals("+46 70 999 88 77", saved.captured.phone)
-            assertTrue(viewModel.uiState.value.form?.isSaved == true)
+            assertTrue(
+                viewModel.uiState.value.form
+                    ?.isSaved == true,
+            )
         }
 
     @Test
@@ -108,6 +129,10 @@ class EditParentViewModelTest {
 
             val viewModel = EditParentViewModel(7L, parentRepository)
 
-            assertEquals(ParentRelation.OTHER, viewModel.uiState.value.form?.relation)
+            assertEquals(
+                ParentRelation.OTHER,
+                viewModel.uiState.value.form
+                    ?.relation,
+            )
         }
 }

@@ -68,8 +68,16 @@ class BackupRepositoryImpl(
                 .put("kids", JSONArray(kids.map(::kidToJson)))
                 .put("activities", JSONArray(activities.map(::activityToJson)))
                 .put("overrides", JSONArray(overrides.map(::overrideToJson)))
-                .put("parents", JSONArray(parentBox.query().build().find().map(::parentToJson)))
-                .toString(2)
+                .put(
+                    "parents",
+                    JSONArray(
+                        parentBox
+                            .query()
+                            .build()
+                            .find()
+                            .map(::parentToJson),
+                    ),
+                ).toString(2)
         }
 
     override suspend fun importAll(
@@ -250,7 +258,15 @@ class BackupRepositoryImpl(
                     }
                 },
             firstDate = requireOptionalDate(json.optString("firstDate"), "activity firstDate"),
-        )
+        ).also {
+            if ((it.isPeriodic || it.isSchoolActivity) &&
+                it.calendarStartDate != null &&
+                it.lastDate != null &&
+                it.lastDate < it.calendarStartDate
+            ) {
+                throw JSONException("Recurrence end date is before calendar start date")
+            }
+        }
 
     /**
      * Null for a meaningless override (neither a custom end nor No School),

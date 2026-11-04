@@ -182,7 +182,7 @@ fun EditActivityScreen(
                 onPeriodicChange = viewModel::onPeriodicChange,
                 onSchoolActivityChange = viewModel::onSchoolActivityChange,
                 onFirstDateChange = viewModel::onFirstDateChange,
-        onLastDateChange = viewModel::onLastDateChange,
+                onLastDateChange = viewModel::onLastDateChange,
                 onSaveClick = viewModel::saveActivity,
                 onNavigateBack = onNavigateBack,
                 screenTitle = stringResource(R.string.edit_activity_title),
@@ -293,6 +293,7 @@ fun AddActivityContent(
                 // Keep feedback beside Save even when the time fields are off-screen.
                 val error =
                     when {
+                        uiState.hasInvalidRecurrenceEndDate -> R.string.activity_recurrence_end_error
                         uiState.hasInvertedTimeRange -> R.string.add_activity_end_before_start_error
                         uiState.nameError -> R.string.add_activity_name_error
                         uiState.daysError -> R.string.add_activity_days_error
@@ -308,6 +309,7 @@ fun AddActivityContent(
                     enabled =
                         !uiState.isSaving &&
                             !uiState.hasInvertedTimeRange &&
+                            !uiState.hasInvalidRecurrenceEndDate &&
                             uiState.selectedKidId != 0L &&
                             uiState.name.isNotBlank() &&
                             uiState.selectedDays.isNotEmpty(),

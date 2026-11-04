@@ -40,7 +40,14 @@ class EditParentViewModel(
                 _uiState.update { it.copy(isNotFound = true) }
             } else {
                 _uiState.update {
-                    it.copy(form = AddParentUiState(name = parent.name, relation = ParentRelation.fromKey(parent.relation), phone = parent.phone))
+                    it.copy(
+                        form =
+                            AddParentUiState(
+                                name = parent.name,
+                                relation = ParentRelation.fromKey(parent.relation),
+                                phone = parent.phone,
+                            ),
+                    )
                 }
             }
         }

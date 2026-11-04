@@ -108,7 +108,10 @@ class WeekViewModelTest {
                 viewModel.uiState.collect()
             }
 
-            assertTrue(viewModel.uiState.value.conflictedActivityIds.isEmpty())
+            assertTrue(
+                viewModel.uiState.value.conflictedActivityIds
+                    .isEmpty(),
+            )
         }
 
     @Test

@@ -17,8 +17,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Call
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.HowToReg
@@ -531,7 +531,14 @@ fun DashboardScreenPreview() {
         val todayOccurrences =
             listOf(
                 ActivityOccurrence(DebugTestData.mockActivities[0], "Leo", today, LocalTime.of(17, 0), LocalTime.of(18, 30)),
-                ActivityOccurrence(DebugTestData.mockActivities[1], "Mia", today, LocalTime.of(16, 0), LocalTime.of(17, 0), delegatedTo = "Grandma"),
+                ActivityOccurrence(
+                    DebugTestData.mockActivities[1],
+                    "Mia",
+                    today,
+                    LocalTime.of(16, 0),
+                    LocalTime.of(17, 0),
+                    delegatedTo = "Grandma",
+                ),
                 ActivityOccurrence(DebugTestData.mockActivities[2], "Leo", today, LocalTime.of(15, 0), LocalTime.of(16, 0)),
             )
         DashboardScreen(

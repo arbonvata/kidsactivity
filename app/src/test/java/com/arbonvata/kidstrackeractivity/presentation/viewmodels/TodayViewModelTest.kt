@@ -65,7 +65,8 @@ class TodayViewModelTest {
                 )
             every { kidRepository.getAllKidsFlow() } returns flowOf(listOf(kid))
             every { activityRepository.getAllActivitiesFlow() } returns flowOf(listOf(activity))
-            val viewModel = TodayViewModel(kidRepository, activityRepository, scheduleOverrideRepository, parentRepository, alarmSettingsRepository)
+            val viewModel =
+                TodayViewModel(kidRepository, activityRepository, scheduleOverrideRepository, parentRepository, alarmSettingsRepository)
 
             backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
                 viewModel.uiState.collect()
@@ -98,7 +99,8 @@ class TodayViewModelTest {
                 )
             every { kidRepository.getAllKidsFlow() } returns flowOf(listOf(kid))
             every { activityRepository.getAllActivitiesFlow() } returns flowOf(listOf(muted))
-            val viewModel = TodayViewModel(kidRepository, activityRepository, scheduleOverrideRepository, parentRepository, alarmSettingsRepository)
+            val viewModel =
+                TodayViewModel(kidRepository, activityRepository, scheduleOverrideRepository, parentRepository, alarmSettingsRepository)
 
             backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
                 viewModel.uiState.collect()
@@ -136,7 +138,8 @@ class TodayViewModelTest {
                 )
             every { kidRepository.getAllKidsFlow() } returns flowOf(listOf(kid))
             every { activityRepository.getAllActivitiesFlow() } returns flowOf(listOf(football, piano))
-            val viewModel = TodayViewModel(kidRepository, activityRepository, scheduleOverrideRepository, parentRepository, alarmSettingsRepository)
+            val viewModel =
+                TodayViewModel(kidRepository, activityRepository, scheduleOverrideRepository, parentRepository, alarmSettingsRepository)
 
             backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
                 viewModel.uiState.collect()
@@ -174,20 +177,25 @@ class TodayViewModelTest {
                 )
             every { kidRepository.getAllKidsFlow() } returns flowOf(listOf(kid))
             every { activityRepository.getAllActivitiesFlow() } returns flowOf(listOf(muted, piano))
-            val viewModel = TodayViewModel(kidRepository, activityRepository, scheduleOverrideRepository, parentRepository, alarmSettingsRepository)
+            val viewModel =
+                TodayViewModel(kidRepository, activityRepository, scheduleOverrideRepository, parentRepository, alarmSettingsRepository)
 
             backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
                 viewModel.uiState.collect()
             }
 
-            assertTrue(viewModel.uiState.value.conflictedActivityIds.isEmpty())
+            assertTrue(
+                viewModel.uiState.value.conflictedActivityIds
+                    .isEmpty(),
+            )
         }
 
     @Test
     fun reminderPromptFlagComesFromTheRepository() =
         runTest {
             every { alarmSettingsRepository.reminderPromptShown } returns flowOf(true)
-            val viewModel = TodayViewModel(kidRepository, activityRepository, scheduleOverrideRepository, parentRepository, alarmSettingsRepository)
+            val viewModel =
+                TodayViewModel(kidRepository, activityRepository, scheduleOverrideRepository, parentRepository, alarmSettingsRepository)
 
             backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
                 viewModel.reminderPromptShown.collect()
@@ -200,7 +208,8 @@ class TodayViewModelTest {
     fun dismissingTheReminderPromptPersistsTheFlag() =
         runTest {
             every { alarmSettingsRepository.reminderPromptShown } returns flowOf(false)
-            val viewModel = TodayViewModel(kidRepository, activityRepository, scheduleOverrideRepository, parentRepository, alarmSettingsRepository)
+            val viewModel =
+                TodayViewModel(kidRepository, activityRepository, scheduleOverrideRepository, parentRepository, alarmSettingsRepository)
 
             viewModel.onReminderPromptDismissed()
 

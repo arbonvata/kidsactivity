@@ -1,0 +1,3 @@
+<resources>
+    <string name="activity_recurrence_end_error">Das Enddatum muss am oder nach dem Startdatum des importierten Kalenders liegen.</string>
+</resources>
