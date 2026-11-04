@@ -1,5 +1,6 @@
 package com.arbonvata.kidstrackeractivity.data.repository
 
+import com.arbonvata.kidstrackeractivity.data.ActivityDateRange
 import com.arbonvata.kidstrackeractivity.data.objectbox.Activity
 import com.arbonvata.kidstrackeractivity.data.objectbox.DailySchedule
 import com.arbonvata.kidstrackeractivity.data.objectbox.Kid
@@ -260,9 +261,10 @@ class BackupRepositoryImpl(
             firstDate = requireOptionalDate(json.optString("firstDate"), "activity firstDate"),
         ).also {
             if ((it.isPeriodic || it.isSchoolActivity) &&
-                it.calendarStartDate != null &&
-                it.lastDate != null &&
-                it.lastDate < it.calendarStartDate
+                !ActivityDateRange(
+                    it.calendarStartDate?.let(LocalDate::parse),
+                    it.lastDate?.let(LocalDate::parse),
+                ).isValid
             ) {
                 throw JSONException("Recurrence end date is before calendar start date")
             }

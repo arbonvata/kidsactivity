@@ -5,6 +5,12 @@ in-app About screen); this file records what each release shipped.
 
 ## Unreleased
 
+- **Fixed**: calendar sharing respects end dates for one-offs, retains named and
+  unnamed pickup delegation (including changed times and early school pickup),
+  and honors COUNT limits even when app metadata is present.
+- **Changed**: scheduling, form validation and file import/export share one
+  inclusive date-range rule; both calendar-sharing actions share file handling.
+
 - **Fixed**: sharing ended schedules preserves their final dates, excludes later
   exceptions and validates imported start/end ranges. Saved the feature backlog
   in ROADMAP.md.

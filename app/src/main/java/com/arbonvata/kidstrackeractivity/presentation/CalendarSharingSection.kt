@@ -1,7 +1,5 @@
 package com.arbonvata.kidstrackeractivity.presentation
 
-import android.content.ClipData
-import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -25,7 +23,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.core.content.FileProvider
 import com.arbonvata.kidstrackeractivity.R
 import com.arbonvata.kidstrackeractivity.data.calendar.CalendarCodec
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.CalendarShareViewModel
@@ -35,8 +32,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.androidx.compose.koinViewModel
 import java.io.ByteArrayOutputStream
-import java.io.File
-import java.util.UUID
 
 @Composable
 fun CalendarSharingSection(viewModel: CalendarShareViewModel = koinViewModel()) {
@@ -107,19 +102,7 @@ fun CalendarSharingSection(viewModel: CalendarShareViewModel = koinViewModel()) 
             scope.launch {
                 try {
                     val calendar = viewModel.export() ?: return@launch
-                    val file =
-                        withContext(Dispatchers.IO) {
-                            File(context.cacheDir, "calendar-${UUID.randomUUID()}.ics").apply { writeText(calendar, Charsets.UTF_8) }
-                        }
-                    val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
-                    val send =
-                        Intent(Intent.ACTION_SEND).apply {
-                            type = "text/calendar"
-                            putExtra(Intent.EXTRA_STREAM, uri)
-                            clipData = ClipData.newRawUri(fileName, uri)
-                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                        }
-                    context.startActivity(Intent.createChooser(send, chooserTitle))
+                    shareCalendarFile(context, calendar, chooserTitle, fileName)
                 } catch (e: CancellationException) {
                     throw e
                 } catch (e: Exception) {

@@ -1,5 +1,6 @@
 package com.arbonvata.kidstrackeractivity.data.calendar
 
+import com.arbonvata.kidstrackeractivity.data.ActivityDateRange
 import com.arbonvata.kidstrackeractivity.data.OccurrenceException
 import com.arbonvata.kidstrackeractivity.data.decodeExceptions
 import com.arbonvata.kidstrackeractivity.data.encodeExceptions
@@ -48,7 +49,7 @@ object CalendarCodec {
             val weekly = activity.isPeriodic || activity.isSchoolActivity
             val recurrenceEnd = activity.lastDate?.takeIf { it.isNotBlank() }?.let(LocalDate::parse)
             val recurrenceStart = activity.calendarStartDate?.takeIf { weekly && it.isNotBlank() }?.let(LocalDate::parse)
-            require(recurrenceEnd == null || recurrenceStart == null || !recurrenceEnd.isBefore(recurrenceStart)) {
+            require(ActivityDateRange(recurrenceStart, recurrenceEnd).isValid) {
                 "Recurrence end date is before its start date"
             }
             val anchor =
@@ -321,6 +322,7 @@ object CalendarCodec {
                 "Recurring events must use local time or this device's time zone"
             }
         }
+        val fromApp = base.one("X-KIDSTRACKER-SCHOOL") != null || base.one("X-KIDSTRACKER-ENABLED") != null
         val until =
             rule?.get("UNTIL")?.let {
                 if (it.length == 8) {
@@ -329,6 +331,11 @@ object CalendarCodec {
                     readTime(Property("UNTIL", emptyMap(), it), zone)
                 }
             }
+        val inclusiveEnd =
+            until?.let {
+                if (it.toLocalTime() < start.toLocalTime()) it.toLocalDate().minusDays(1) else it.toLocalDate()
+            }
+        require(ActivityDateRange(start.toLocalDate(), inclusiveEnd).isValid) { "Recurrence ends before its start date" }
         val days =
             rule
                 ?.get("BYDAY")
@@ -354,22 +361,7 @@ object CalendarCodec {
                 occurrenceExceptions = encodeExceptions(exceptions.values.toList()),
                 // Our own exports mark an end date with UNTIL; re-import keeps
                 // the activity weekly instead of expanding it date by date.
-                lastDate =
-                    if (base.one("X-KIDSTRACKER-SCHOOL") != null || base.one("X-KIDSTRACKER-ENABLED") != null) {
-                        until
-                            ?.let {
-                                if (it.toLocalTime().isBefore(
-                                        start.toLocalTime(),
-                                    )
-                                ) {
-                                    it.toLocalDate().minusDays(1)
-                                } else {
-                                    it.toLocalDate()
-                                }
-                            }?.toString()
-                    } else {
-                        null
-                    },
+                lastDate = if (fromApp) inclusiveEnd?.toString() else null,
             )
         if (rule == null) {
             val exception = exceptions[start.toLocalDate()]
@@ -392,7 +384,7 @@ object CalendarCodec {
         val count = rule["COUNT"]?.toInt()?.also { require(it in 1..2000) { "Recurrence count must be between 1 and 2000" } }
         if (count == null && until == null) return listOf(activity)
         // Keep app metadata (including school pickup behavior), but never let it bypass a recurrence limit.
-        if (base.one("X-KIDSTRACKER-SCHOOL") != null || base.one("X-KIDSTRACKER-ENABLED") != null) {
+        if (fromApp) {
             if (count != null) {
                 var last = start.toLocalDate()
                 var remaining = count - 1
@@ -402,9 +394,6 @@ object CalendarCodec {
                 }
                 // COUNT includes excluded dates; retain exceptions and cap the underlying series.
                 return listOf(activity.copy(lastDate = last.toString()))
-            }
-            require(activity.lastDate == null || !LocalDate.parse(activity.lastDate).isBefore(start.toLocalDate())) {
-                "Recurrence ends before its start date"
             }
             return listOf(activity)
         }

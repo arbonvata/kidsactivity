@@ -37,7 +37,7 @@ Future suggestions are saved in [ROADMAP.md](ROADMAP.md).
   the same screen and choose Import calendar. Preview the activities and select
   an existing child or enter a new child’s name before confirming. Imports add
   activities and skip matching duplicates; they never replace existing data.
-  Weekly patterns, locations, pickup details, reminder mute flags and date
+  Weekly patterns, locations, pickup details, delegated pickups, reminder mute flags and date
   exceptions transfer between copies of this app. School-day overrides become
   exceptions on the exported school activities. Weekly sharing starts from the
   export date (or an imported future start date); dated activities retain their

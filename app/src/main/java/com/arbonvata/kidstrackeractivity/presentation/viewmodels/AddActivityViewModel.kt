@@ -2,6 +2,7 @@ package com.arbonvata.kidstrackeractivity.presentation.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.arbonvata.kidstrackeractivity.data.ActivityDateRange
 import com.arbonvata.kidstrackeractivity.data.objectbox.Activity
 import com.arbonvata.kidstrackeractivity.data.objectbox.Kid
 import com.arbonvata.kidstrackeractivity.data.objectbox.Parent
@@ -47,10 +48,10 @@ data class AddActivityUiState(
     val saveError: Boolean = false,
     val isSaved: Boolean = false,
 ) {
-    /** Inverted or zero-length ranges are not representable (no overnight activities). */
     val hasInvalidRecurrenceEndDate: Boolean get() =
-        (isPeriodic || isSchoolActivity) && lastDate != null && calendarStartDate != null && lastDate.isBefore(calendarStartDate)
+        (isPeriodic || isSchoolActivity) && !ActivityDateRange(calendarStartDate, lastDate).isValid
 
+    /** Inverted or zero-length ranges are not representable (no overnight activities). */
     val hasInvertedTimeRange: Boolean get() = !endTime.isAfter(startTime)
 }
 

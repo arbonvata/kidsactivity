@@ -109,20 +109,16 @@ private fun isWithinActivePeriod(
     activity: Activity,
     date: LocalDate,
 ): Boolean {
-    // An end date cuts every kind of activity — school, weekly and one-off
-    // alike — and the end date itself still occurs. A corrupt value (a
-    // hand-edited backup) hides the activity rather than crashing.
-    activity.lastDate?.takeIf { it.isNotEmpty() }?.let {
-        val last = runCatching { LocalDate.parse(it) }.getOrNull() ?: return false
-        if (date.isAfter(last)) return false
-    }
-    if (activity.isPeriodic || activity.isSchoolActivity) {
-        activity.calendarStartDate?.takeIf { it.isNotBlank() }?.let {
-            val start = runCatching { LocalDate.parse(it) }.getOrNull() ?: return false
-            if (date.isBefore(start)) return false
-        }
-        return true
-    }
+    val weekly = activity.isPeriodic || activity.isSchoolActivity
+    val bounds =
+        runCatching {
+            ActivityDateRange(
+                if (weekly) activity.calendarStartDate?.takeIf { it.isNotBlank() }?.let(LocalDate::parse) else null,
+                activity.lastDate?.takeIf { it.isNotEmpty() }?.let(LocalDate::parse),
+            )
+        }.getOrNull() ?: return false
+    if (!bounds.contains(date)) return false
+    if (weekly) return true
     val anchorString = activity.firstDate?.takeIf { it.isNotEmpty() } ?: return true
     // A corrupt anchor hides the one-off (its week is unknowable) instead of
     // crashing; blank is the legacy unbounded case.
