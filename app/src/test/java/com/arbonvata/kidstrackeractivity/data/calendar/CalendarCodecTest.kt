@@ -320,6 +320,85 @@ class CalendarCodecTest {
         assertThrows(IllegalArgumentException::class.java) { CalendarCodec.export(kid, listOf(expired), emptyList(), monday) }
     }
 
+    @Test
+    fun `named and unnamed pickup delegations keep their inherited times through sharing`() {
+        for (name in listOf("Åsa, junior; helper", "")) {
+            val original = OccurrenceException(monday, delegatedTo = name)
+            val source = swim.copy(pickupAdult = "Usual parent", occurrenceExceptions = encodeExceptions(listOf(original)))
+            val text = CalendarCodec.export(kid, listOf(source), emptyList(), monday)
+            assertTrue(text.contains("X-KIDSTRACKER-DELEGATED-TO:"))
+            val imported = CalendarCodec.parse(text, zone).activities.single()
+            assertEquals(listOf(original), decodeExceptions(imported.occurrenceExceptions))
+            assertEquals("Usual parent", imported.pickupAdult)
+            assertEquals(
+                name,
+                expandActivitiesForDateRange(
+                    listOf(kid),
+                    listOf(imported.copy(id = 1, kidId = kid.id)),
+                    monday,
+                    monday,
+                ).single().delegatedTo,
+            )
+        }
+    }
+
+    @Test
+    fun `delegation with changed times and school early release both survive sharing`() {
+        val changed = OccurrenceException(monday, LocalTime.of(18, 0), LocalTime.of(19, 0), "Alex")
+        val regular = swim.copy(occurrenceExceptions = encodeExceptions(listOf(changed)))
+        assertEquals(
+            listOf(changed),
+            decodeExceptions(
+                CalendarCodec
+                    .parse(CalendarCodec.export(kid, listOf(regular), emptyList(), monday), zone)
+                    .activities
+                    .single()
+                    .occurrenceExceptions,
+            ),
+        )
+        val school =
+            swim.copy(
+                isSchoolActivity = true,
+                startTime = "08:00",
+                endTime = "14:00",
+                occurrenceExceptions = encodeExceptions(listOf(OccurrenceException(monday, delegatedTo = "Alex"))),
+            )
+        val overrides = listOf(DailySchedule(kidId = kid.id, date = monday.toString(), endTime = "13:00"))
+        val imported = CalendarCodec.parse(CalendarCodec.export(kid, listOf(school), overrides, monday), zone).activities.single()
+        val occurrence = expandActivitiesForDateRange(listOf(kid), listOf(imported.copy(id = 1, kidId = kid.id)), monday, monday).single()
+        assertEquals("Alex", occurrence.delegatedTo)
+        assertEquals(LocalTime.of(13, 0), occurrence.endTime)
+    }
+
+    @Test
+    fun `one-off delegation is retained without turning it into cancellation`() {
+        val source =
+            swim.copy(
+                isPeriodic = false,
+                firstDate = monday.toString(),
+                daysOfWeek = intArrayOf(1),
+                occurrenceExceptions = encodeExceptions(listOf(OccurrenceException(monday, delegatedTo = "Alex"))),
+            )
+        val imported = CalendarCodec.parse(CalendarCodec.export(kid, listOf(source), emptyList(), monday), zone).activities.single()
+        val occurrences =
+            expandActivitiesForDateRange(listOf(kid), listOf(imported.copy(id = 1, kidId = kid.id)), monday, monday.plusWeeks(1))
+        assertEquals(1, occurrences.size)
+        assertEquals("Alex", occurrences.single().delegatedTo)
+        assertEquals(LocalTime.of(17, 0), occurrences.single().startTime)
+    }
+
+    @Test
+    fun `no school still overrides a delegated pickup`() {
+        val school =
+            swim.copy(
+                isSchoolActivity = true,
+                occurrenceExceptions = encodeExceptions(listOf(OccurrenceException(monday, delegatedTo = "Alex"))),
+            )
+        val overrides = listOf(DailySchedule(kidId = kid.id, date = monday.toString(), isNoSchool = true))
+        val imported = CalendarCodec.parse(CalendarCodec.export(kid, listOf(school), overrides, monday), zone).activities.single()
+        assertTrue(decodeExceptions(imported.occurrenceExceptions).single().isCancelled)
+    }
+
     private fun calendar(extra: String = "") =
         listOf(
             "BEGIN:VCALENDAR",

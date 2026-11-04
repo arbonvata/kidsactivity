@@ -86,18 +86,34 @@ object CalendarCodec {
             }
             // No-school wins over an activity exception, matching occurrence expansion.
             decodeExceptions(activity.occurrenceExceptions).forEach {
-                if (exceptions[it.date]?.start != null || !exceptions.containsKey(it.date)) exceptions[it.date] = it
+                val schoolException = exceptions[it.date]
+                if (schoolException?.isCancelled != true) {
+                    exceptions[it.date] =
+                        if (it.start == null && it.delegatedTo != null && schoolException?.start != null) {
+                            it.copy(start = schoolException.start, end = schoolException.end)
+                        } else {
+                            it
+                        }
+                }
             }
             val bases = if (weekly) dates.take(1) else dates
             bases.forEach { date ->
                 val uid = "$namespace-${activity.id}-${if (weekly) "weekly" else date}@kidstracker"
 
-                fun details() {
+                fun details(exception: OccurrenceException? = null) {
                     lines += "SUMMARY:${escape(activity.name)}"
                     lines += "LOCATION:${escape(activity.location.orEmpty())}"
                     val description =
                         listOfNotNull(
-                            activity.pickupAdult?.takeIf { it.isNotBlank() }?.let { "Pickup: $it" },
+                            (exception?.delegatedTo ?: activity.pickupAdult)?.let {
+                                if (it.isNotBlank()) {
+                                    "Pickup: $it"
+                                } else if (exception?.delegatedTo != null) {
+                                    "Pickup delegated"
+                                } else {
+                                    null
+                                }
+                            },
                             activity.pickupNotes?.takeIf { it.isNotBlank() },
                         ).joinToString("\n")
                     lines += "DESCRIPTION:${escape(description)}"
@@ -105,6 +121,10 @@ object CalendarCodec {
                     lines += "X-KIDSTRACKER-NOTES:${escape(activity.pickupNotes.orEmpty())}"
                     lines += "X-KIDSTRACKER-SCHOOL:${activity.isSchoolActivity}"
                     lines += "X-KIDSTRACKER-ENABLED:${activity.isEnabled}"
+                    exception?.delegatedTo?.let {
+                        lines += "X-KIDSTRACKER-DELEGATED-TO:${escape(it)}"
+                        if (exception.start == null) lines += "X-KIDSTRACKER-INHERIT-TIMES:true"
+                    }
                 }
                 lines += listOf("BEGIN:VEVENT", "UID:$uid", "DTSTAMP:$stamp")
                 lines += "DTSTART:${date.atTime(start).format(dateTime)}"
@@ -129,12 +149,12 @@ object CalendarCodec {
                     }
                 relevant.filter { it.isCancelled }.forEach { lines += "EXDATE:${it.date.atTime(start).format(dateTime)}" }
                 lines += "END:VEVENT"
-                relevant.filter { it.start != null }.forEach {
+                relevant.filterNot { it.isCancelled }.forEach {
                     lines += listOf("BEGIN:VEVENT", "UID:$uid", "DTSTAMP:$stamp")
                     lines += "RECURRENCE-ID:${it.date.atTime(start).format(dateTime)}"
-                    lines += "DTSTART:${it.date.atTime(it.start).format(dateTime)}"
-                    lines += "DTEND:${it.date.atTime(it.end).format(dateTime)}"
-                    details()
+                    lines += "DTSTART:${it.date.atTime(it.start ?: start).format(dateTime)}"
+                    lines += "DTEND:${it.date.atTime(it.end ?: end).format(dateTime)}"
+                    details(it)
                     lines += "END:VEVENT"
                 }
             }
@@ -263,7 +283,22 @@ object CalendarCodec {
                     val movedEnd = readTime(requireNotNull(event.one("DTEND")), zone)
                     requireSameDay(movedStart, movedEnd)
                     require(movedStart.toLocalDate() == date) { "Moving an event to another date is not supported" }
-                    OccurrenceException(date, movedStart.toLocalTime(), movedEnd.toLocalTime())
+                    val delegatedTo = event.one("X-KIDSTRACKER-DELEGATED-TO")?.value?.let(::unescape)
+                    val inheritTimes = event.text("X-KIDSTRACKER-INHERIT-TIMES").equals("true", ignoreCase = true)
+                    require(
+                        !inheritTimes ||
+                            (
+                                delegatedTo != null &&
+                                    movedStart.toLocalTime() == start.toLocalTime() &&
+                                    movedEnd.toLocalTime() == end.toLocalTime()
+                            ),
+                    ) { "Invalid inherited delegation times" }
+                    OccurrenceException(
+                        date,
+                        if (inheritTimes) null else movedStart.toLocalTime(),
+                        if (inheritTimes) null else movedEnd.toLocalTime(),
+                        delegatedTo,
+                    )
                 }
         }
         val rule =
@@ -343,7 +378,14 @@ object CalendarCodec {
                 activity.copy(
                     startTime = (exception?.start ?: start.toLocalTime()).toString(),
                     endTime = (exception?.end ?: end.toLocalTime()).toString(),
-                    occurrenceExceptions = null,
+                    occurrenceExceptions =
+                        encodeExceptions(
+                            listOfNotNull(
+                                exception?.delegatedTo?.let {
+                                    OccurrenceException(start.toLocalDate(), delegatedTo = it)
+                                },
+                            ),
+                        ),
                 ),
             )
         }
@@ -363,7 +405,7 @@ object CalendarCodec {
             if (date.dayOfWeek.value in days) {
                 seen++
                 val exception = exceptions[date]
-                if (exception == null || exception.start != null) {
+                if (exception == null || !exception.isCancelled) {
                     result +=
                         activity.copy(
                             isPeriodic = false,
@@ -371,7 +413,14 @@ object CalendarCodec {
                             calendarStartDate = null,
                             daysOfWeek = intArrayOf(date.dayOfWeek.value),
                             firstDate = date.toString(),
-                            occurrenceExceptions = null,
+                            occurrenceExceptions =
+                                encodeExceptions(
+                                    listOfNotNull(
+                                        exception?.delegatedTo?.let {
+                                            OccurrenceException(date, delegatedTo = it)
+                                        },
+                                    ),
+                                ),
                             startTime = (exception?.start ?: start.toLocalTime()).toString(),
                             endTime = (exception?.end ?: end.toLocalTime()).toString(),
                         )
