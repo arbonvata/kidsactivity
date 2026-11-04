@@ -399,6 +399,53 @@ class CalendarCodecTest {
         assertTrue(decodeExceptions(imported.occurrenceExceptions).single().isCancelled)
     }
 
+    @Test
+    fun `app metadata cannot bypass COUNT and school pickup behavior is retained`() {
+        for (flag in listOf("X-KIDSTRACKER-ENABLED:true", "X-KIDSTRACKER-SCHOOL:true")) {
+            val imported = CalendarCodec.parse(calendar("RRULE:FREQ=WEEKLY;COUNT=2\n$flag"), zone).activities.single()
+            assertEquals(monday.plusWeeks(1).toString(), imported.lastDate)
+            val occurrences =
+                expandActivitiesForDateRange(listOf(kid), listOf(imported.copy(id = 1, kidId = kid.id)), monday, monday.plusMonths(2))
+            assertEquals(listOf(monday, monday.plusWeeks(1)), occurrences.map { it.date })
+            assertEquals(flag.startsWith("X-KIDSTRACKER-SCHOOL"), imported.isSchoolActivity)
+        }
+    }
+
+    @Test
+    fun `COUNT includes cancelled dates and handles several weekdays and count one`() {
+        val parsed =
+            CalendarCodec.parse(
+                calendar("RRULE:FREQ=WEEKLY;COUNT=3;BYDAY=MO,WE\nX-KIDSTRACKER-ENABLED:true\nEXDATE:20261021T170000"),
+                zone,
+            )
+        val activity = parsed.activities.single().copy(id = 1, kidId = kid.id)
+        assertEquals(monday.plusWeeks(1).toString(), activity.lastDate)
+        assertEquals(
+            listOf(
+                monday,
+                monday.plusWeeks(1),
+            ),
+            expandActivitiesForDateRange(listOf(kid), listOf(activity), monday, monday.plusMonths(2)).map {
+                it.date
+            },
+        )
+        val single = CalendarCodec.parse(calendar("RRULE:FREQ=WEEKLY;COUNT=1\nX-KIDSTRACKER-ENABLED:true"), zone).activities.single()
+        assertEquals(monday.toString(), single.lastDate)
+    }
+
+    @Test
+    fun `invalid app recurrence bounds are rejected before import`() {
+        for (extra in listOf(
+            "RRULE:FREQ=WEEKLY;COUNT=0",
+            "RRULE:FREQ=WEEKLY;COUNT=2001",
+            "RRULE:FREQ=WEEKLY;UNTIL=20261018T235959",
+        )) {
+            assertThrows(IllegalArgumentException::class.java) {
+                CalendarCodec.parse(calendar("$extra\nX-KIDSTRACKER-ENABLED:true"), zone)
+            }
+        }
+    }
+
     private fun calendar(extra: String = "") =
         listOf(
             "BEGIN:VCALENDAR",

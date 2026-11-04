@@ -391,9 +391,21 @@ object CalendarCodec {
         }
         val count = rule["COUNT"]?.toInt()?.also { require(it in 1..2000) { "Recurrence count must be between 1 and 2000" } }
         if (count == null && until == null) return listOf(activity)
-        // Our own bounded recurrences carry the bound as an end date already;
-        // only foreign files need the date-by-date expansion below.
+        // Keep app metadata (including school pickup behavior), but never let it bypass a recurrence limit.
         if (base.one("X-KIDSTRACKER-SCHOOL") != null || base.one("X-KIDSTRACKER-ENABLED") != null) {
+            if (count != null) {
+                var last = start.toLocalDate()
+                var remaining = count - 1
+                while (remaining > 0) {
+                    last = last.plusDays(1)
+                    if (last.dayOfWeek.value in days) remaining--
+                }
+                // COUNT includes excluded dates; retain exceptions and cap the underlying series.
+                return listOf(activity.copy(lastDate = last.toString()))
+            }
+            require(activity.lastDate == null || !LocalDate.parse(activity.lastDate).isBefore(start.toLocalDate())) {
+                "Recurrence ends before its start date"
+            }
             return listOf(activity)
         }
         val result = mutableListOf<Activity>()
