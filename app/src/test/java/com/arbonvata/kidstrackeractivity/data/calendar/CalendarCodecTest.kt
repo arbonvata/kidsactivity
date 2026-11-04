@@ -293,6 +293,33 @@ class CalendarCodecTest {
         )
     }
 
+    @Test
+    fun `one-off export respects the inclusive cutoff without restoring excluded weekdays`() {
+        val source = swim.copy(isPeriodic = false, firstDate = monday.toString(), lastDate = monday.toString())
+        val imported =
+            CalendarCodec
+                .parse(CalendarCodec.export(kid, listOf(source), emptyList(), monday), zone)
+                .activities
+                .mapIndexed { i, activity -> activity.copy(id = i + 1L, kidId = kid.id) }
+        val dates = expandActivitiesForDateRange(listOf(kid), imported, monday, monday.plusWeeks(2)).map { it.date }
+        assertEquals(listOf(monday), dates)
+    }
+
+    @Test
+    fun `fully expired one-offs are skipped when exporting a child with other activities`() {
+        val expired =
+            swim.copy(
+                id = 9,
+                name = "Expired",
+                isPeriodic = false,
+                firstDate = monday.toString(),
+                lastDate = monday.minusDays(1).toString(),
+            )
+        val imported = CalendarCodec.parse(CalendarCodec.export(kid, listOf(expired, swim), emptyList(), monday), zone)
+        assertEquals(listOf(swim.name), imported.activities.map { it.name })
+        assertThrows(IllegalArgumentException::class.java) { CalendarCodec.export(kid, listOf(expired), emptyList(), monday) }
+    }
+
     private fun calendar(extra: String = "") =
         listOf(
             "BEGIN:VCALENDAR",

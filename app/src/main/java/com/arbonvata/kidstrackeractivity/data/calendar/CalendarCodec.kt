@@ -46,8 +46,8 @@ object CalendarCodec {
             val end = LocalTime.parse(activity.endTime)
             require(end.isAfter(start)) { "Activity must end after it starts" }
             val weekly = activity.isPeriodic || activity.isSchoolActivity
-            val recurrenceEnd = activity.lastDate?.takeIf { weekly && it.isNotBlank() }?.let(LocalDate::parse)
-            val recurrenceStart = activity.calendarStartDate?.let(LocalDate::parse)
+            val recurrenceEnd = activity.lastDate?.takeIf { it.isNotBlank() }?.let(LocalDate::parse)
+            val recurrenceStart = activity.calendarStartDate?.takeIf { weekly && it.isNotBlank() }?.let(LocalDate::parse)
             require(recurrenceEnd == null || recurrenceStart == null || !recurrenceEnd.isBefore(recurrenceStart)) {
                 "Recurrence end date is before its start date"
             }
@@ -72,7 +72,7 @@ object CalendarCodec {
                         emptyList()
                     }
                 }
-            require(dates.isNotEmpty()) { "No scheduled dates occur before the activity end date" }
+            if (dates.isEmpty()) return@forEach
             val exceptions = linkedMapOf<LocalDate, OccurrenceException>()
             if (activity.isSchoolActivity) {
                 overrides.filter { it.kidId == kid.id }.forEach {
@@ -139,6 +139,7 @@ object CalendarCodec {
                 }
             }
         }
+        require("BEGIN:VEVENT" in lines) { "No scheduled dates to share" }
         lines += "END:VCALENDAR"
         return lines.joinToString("\r\n", postfix = "\r\n") { fold(it) }
     }
