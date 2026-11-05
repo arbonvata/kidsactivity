@@ -5,6 +5,10 @@ in-app About screen); this file records what each release shipped.
 
 ## Unreleased
 
+- **Added**: editable start dates for repeating activities and inclusive school
+  holiday ranges for one or all children, with confirmation, atomic writes,
+  retry feedback and restoration that keeps existing early-release times.
+
 - **Added**: per-activity reminder offsets with global fallback and optional
   pickup reminders for regular activities, preserved by backup/copy/calendar
   sharing. Reminder offsets crossing midnight are included correctly.

@@ -1,0 +1,17 @@
+<resources>
+    <string name="activity_start_date_format">Starts on %1$s</string>
+    <string name="activity_start_date_none">No start date — repeat from any date</string>
+    <string name="activity_start_date_remove">Remove start date</string>
+    <string name="activity_start_date_hint">The first date is included. No occurrences are scheduled before it.</string>
+    <string name="holiday_title">School holiday range</string>
+    <string name="holiday_hint">Mark up to 366 days at once. Only school activities are affected. Existing early-release times are kept for restoration.</string>
+    <string name="holiday_from">From %1$s</string>
+    <string name="holiday_to">Through %1$s (included)</string>
+    <string name="holiday_all_kids">Apply to all children</string>
+    <string name="holiday_apply">Mark range as No School</string>
+    <string name="holiday_restore">Restore school in this range</string>
+    <string name="holiday_confirm">%1$s through %2$s, including both dates. Children: %3$s. Regular activities are unaffected.</string>
+    <string name="holiday_invalid_range">End must be on or after start. Choose at most 366 days.</string>
+    <string name="holiday_error">Could not update the school dates. Please try again.</string>
+    <string name="holiday_done">School dates updated.</string>
+</resources>

@@ -1,0 +1,17 @@
+<resources>
+    <string name="activity_start_date_format">Commence le %1$s</string>
+    <string name="activity_start_date_none">Sans date de début</string>
+    <string name="activity_start_date_remove">Supprimer la date de début</string>
+    <string name="activity_start_date_hint">Le premier jour est inclus. Aucune séance n’est prévue avant cette date.</string>
+    <string name="holiday_title">Vacances scolaires : période</string>
+    <string name="holiday_hint">Marquez jusqu’à 366 jours à la fois. Seule l’école est concernée. Les horaires de sortie anticipée sont conservés pour la restauration.</string>
+    <string name="holiday_from">Du %1$s</string>
+    <string name="holiday_to">Au %1$s inclus</string>
+    <string name="holiday_all_kids">Appliquer à tous les enfants</string>
+    <string name="holiday_apply">Marquer la période sans école</string>
+    <string name="holiday_restore">Rétablir l’école pendant cette période</string>
+    <string name="holiday_confirm">Du %1$s au %2$s inclus. Enfants : %3$s. Les autres activités ne changent pas.</string>
+    <string name="holiday_invalid_range">La fin ne peut pas précéder le début. Choisissez au plus 366 jours.</string>
+    <string name="holiday_error">Impossible de modifier les jours d’école. Réessayez.</string>
+    <string name="holiday_done">Jours d’école mis à jour.</string>
+</resources>

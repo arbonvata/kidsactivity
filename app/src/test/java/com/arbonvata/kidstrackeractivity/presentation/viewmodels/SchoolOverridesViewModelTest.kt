@@ -7,6 +7,7 @@ import com.arbonvata.kidstrackeractivity.data.repository.ActivityRepository
 import com.arbonvata.kidstrackeractivity.data.repository.KidRepository
 import com.arbonvata.kidstrackeractivity.data.repository.ScheduleOverrideRepository
 import com.arbonvata.kidstrackeractivity.testutil.MainDispatcherRule
+import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
@@ -40,6 +41,27 @@ class SchoolOverridesViewModelTest {
     fun setUpActivitiesFlow() {
         every { activityRepository.getAllActivitiesFlow() } returns flowOf(emptyList())
     }
+
+    @Test
+    fun holidayRangeUsesSelectedOrAllChildrenAndCanRetryAfterFailure() =
+        runTest {
+            every { kidRepository.getAllKidsFlow() } returns flowOf(listOf(Kid(id = 1), Kid(id = 2)))
+            every { scheduleOverrideRepository.getAllOverridesFlow() } returns flowOf(emptyList())
+            val vm = SchoolOverridesViewModel(kidRepository, activityRepository, scheduleOverrideRepository)
+            backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.uiState.collect() }
+            val first = LocalDate.of(2026, 12, 21)
+            val last = LocalDate.of(2027, 1, 6)
+            vm.setHolidayRange(first, last, false, true)
+            coVerify { scheduleOverrideRepository.setNoSchoolRange(setOf(1), first, last, true) }
+            coEvery { scheduleOverrideRepository.setNoSchoolRange(any(), any(), any(), any()) } throws IllegalStateException("Unavailable")
+            vm.setHolidayRange(first, last, true, true)
+            assertTrue(vm.holidayState.value.error)
+            assertFalse(vm.holidayState.value.isWorking)
+            coEvery { scheduleOverrideRepository.setNoSchoolRange(any(), any(), any(), any()) } returns Unit
+            vm.setHolidayRange(first, last, true, false)
+            coVerify { scheduleOverrideRepository.setNoSchoolRange(setOf(1, 2), first, last, false) }
+            assertTrue(vm.holidayState.value.completed)
+        }
 
     @Test
     fun autoSelectsTheFirstKidAndExposesTheirOverrides() =

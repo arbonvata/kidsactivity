@@ -113,6 +113,7 @@ fun AddActivityScreen(
         onSchoolActivityChange = viewModel::onSchoolActivityChange,
         onFirstDateChange = viewModel::onFirstDateChange,
         onLastDateChange = viewModel::onLastDateChange,
+        onCalendarStartDateChange = viewModel::onCalendarStartDateChange,
         onSaveClick = viewModel::saveActivity,
         onNavigateBack = onNavigateBack,
     )
@@ -191,6 +192,7 @@ fun EditActivityScreen(
                 onSchoolActivityChange = viewModel::onSchoolActivityChange,
                 onFirstDateChange = viewModel::onFirstDateChange,
                 onLastDateChange = viewModel::onLastDateChange,
+                onCalendarStartDateChange = viewModel::onCalendarStartDateChange,
                 onSaveClick = viewModel::saveActivity,
                 onNavigateBack = onNavigateBack,
                 screenTitle = stringResource(R.string.edit_activity_title),
@@ -246,6 +248,7 @@ fun AddActivityContent(
     onSchoolActivityChange: (Boolean) -> Unit,
     onFirstDateChange: (LocalDate) -> Unit,
     onLastDateChange: (LocalDate?) -> Unit = {},
+    onCalendarStartDateChange: (LocalDate?) -> Unit = {},
     onSaveClick: () -> Unit,
     onNavigateBack: () -> Unit,
     screenTitle: String = stringResource(R.string.add_activity_title),
@@ -265,6 +268,7 @@ fun AddActivityContent(
     var showEndTimePicker by remember { mutableStateOf(false) }
     var showDatePicker by remember { mutableStateOf(false) }
     var showEndDatePicker by remember { mutableStateOf(false) }
+    var showStartDatePicker by remember { mutableStateOf(false) }
 
     val weekdayAbbreviations = stringArrayResource(R.array.weekday_abbreviations)
     val daysOfWeek = weekdayAbbreviations.mapIndexed { index, label -> label to index + 1 }
@@ -500,6 +504,20 @@ fun AddActivityContent(
                 )
             }
 
+            if (uiState.isPeriodic || uiState.isSchoolActivity) {
+                OutlinedButton(onClick = { showStartDatePicker = true }, modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        uiState.calendarStartDate?.let {
+                            stringResource(R.string.activity_start_date_format, it.format(weekdayDateFormatter))
+                        } ?: stringResource(R.string.activity_start_date_none),
+                    )
+                }
+                Text(stringResource(R.string.activity_start_date_hint), style = MaterialTheme.typography.bodySmall)
+                if (uiState.calendarStartDate != null) {
+                    TextButton(onClick = { onCalendarStartDateChange(null) }) { Text(stringResource(R.string.activity_start_date_remove)) }
+                }
+            }
+
             // Term-based activities end on a chosen date instead of repeating
             // forever; applies to school, weekly and one-off activities alike.
             OutlinedButton(
@@ -580,6 +598,16 @@ fun AddActivityContent(
                 showDatePicker = false
             },
             onDismiss = { showDatePicker = false },
+        )
+    }
+    if (showStartDatePicker) {
+        WeekPickerDialog(
+            initialDate = uiState.calendarStartDate ?: LocalDate.now(),
+            onConfirm = {
+                onCalendarStartDateChange(it)
+                showStartDatePicker = false
+            },
+            onDismiss = { showStartDatePicker = false },
         )
     }
     if (showEndDatePicker) {

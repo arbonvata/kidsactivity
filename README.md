@@ -23,6 +23,13 @@ keep showing muted activities dimmed.
 
 ### Features
 
+- **Terms and holidays** — optional inclusive start/end dates for repeating
+  activities. In School Overrides, choose a holiday range (up to 366 days),
+  review the dates/children and mark No School for one child or all children.
+  Restore the range to resume school; existing early-release times are retained.
+  Other activities are unaffected, and the existing backup/calendar flows
+  preserve the effective school exceptions.
+
 - **Per-activity reminders** — optionally override global timing (0–120 minutes
   before a regular activity or after school ends). Regular activities can also
   remind you 0–60 minutes before pickup/end time. Muted, cancelled and delegated

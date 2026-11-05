@@ -2,14 +2,17 @@ package com.arbonvata.kidstrackeractivity.presentation.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.arbonvata.kidstrackeractivity.data.SchoolHolidayRange
 import com.arbonvata.kidstrackeractivity.data.objectbox.DailySchedule
 import com.arbonvata.kidstrackeractivity.data.objectbox.Kid
 import com.arbonvata.kidstrackeractivity.data.repository.ActivityRepository
 import com.arbonvata.kidstrackeractivity.data.repository.KidRepository
 import com.arbonvata.kidstrackeractivity.data.repository.ScheduleOverrideRepository
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -28,6 +31,12 @@ data class SchoolOverridesUiState(
      */
     val schoolWeekdays: Set<Int> = emptySet(),
     val overrides: Map<LocalDate, DailySchedule> = emptyMap(),
+)
+
+data class HolidayRangeState(
+    val isWorking: Boolean = false,
+    val error: Boolean = false,
+    val completed: Boolean = false,
 )
 
 /**
@@ -80,7 +89,43 @@ class SchoolOverridesViewModel(
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), SchoolOverridesUiState())
 
+    private val _holidayState = MutableStateFlow(HolidayRangeState())
+    val holidayState = _holidayState.asStateFlow()
+
+    fun setHolidayRange(
+        start: LocalDate,
+        end: LocalDate,
+        allKids: Boolean,
+        noSchool: Boolean,
+    ) {
+        if (_holidayState.value.isWorking) return
+        val current = uiState.value
+        val ids = if (allKids) current.kids.map { it.id }.toSet() else setOfNotNull(current.selectedKidId)
+        if (ids.isEmpty() || runCatching { SchoolHolidayRange(start, end) }.isFailure) {
+            _holidayState.value = HolidayRangeState(error = true)
+            return
+        }
+        _holidayState.value = HolidayRangeState(isWorking = true)
+        viewModelScope.launch {
+            try {
+                scheduleOverrideRepository.setNoSchoolRange(ids, start, end, noSchool)
+                _holidayState.value = HolidayRangeState(completed = true)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                _holidayState.value = HolidayRangeState(error = true)
+            } finally {
+                _holidayState.value = _holidayState.value.copy(isWorking = false)
+            }
+        }
+    }
+
+    fun clearHolidayResult() {
+        if (!_holidayState.value.isWorking) _holidayState.value = HolidayRangeState()
+    }
+
     fun onKidSelected(kidId: Long) {
+        clearHolidayResult()
         selectedKidId.value = kidId
     }
 

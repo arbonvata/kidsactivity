@@ -56,6 +56,22 @@ class EditActivityViewModelTest {
         )
 
     @Test
+    fun termStartCanBeChangedAndRemovedWithoutReanchoringToMonday() =
+        runTest {
+            coEvery { activityRepository.getActivity(5) } returns storedActivity().copy(isPeriodic = true, calendarStartDate = "2026-11-02")
+            val captured = slot<Activity>()
+            coEvery { activityRepository.updateActivity(capture(captured)) } returns Unit
+            val vm = EditActivityViewModel(5, activityRepository, kidRepository, parentRepository)
+            vm.onCalendarStartDateChange(LocalDate.of(2027, 1, 12))
+            vm.saveActivity()
+            assertEquals("2027-01-12", captured.captured.calendarStartDate)
+            vm.onSavedHandled()
+            vm.onCalendarStartDateChange(null)
+            vm.saveActivity()
+            assertEquals(null, captured.captured.calendarStartDate)
+        }
+
+    @Test
     fun reminderSettingsLoadSaveAndCanReturnToGlobalTiming() =
         runTest {
             coEvery { activityRepository.getActivity(5L) } returns storedActivity().copy(hasCustomReminder = true, reminderMinutes = 30)

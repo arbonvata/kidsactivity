@@ -1,0 +1,17 @@
+<resources>
+    <string name="activity_start_date_format">Beginnt am %1$s</string>
+    <string name="activity_start_date_none">Kein Startdatum</string>
+    <string name="activity_start_date_remove">Startdatum entfernen</string>
+    <string name="activity_start_date_hint">Der erste Tag ist eingeschlossen. Davor werden keine Termine geplant.</string>
+    <string name="holiday_title">Schulferien: Zeitraum</string>
+    <string name="holiday_hint">Bis zu 366 Tage auf einmal markieren. Nur Schule ist betroffen. Frühere Schulschlusszeiten bleiben zum Wiederherstellen erhalten.</string>
+    <string name="holiday_from">Ab %1$s</string>
+    <string name="holiday_to">Bis einschließlich %1$s</string>
+    <string name="holiday_all_kids">Für alle Kinder anwenden</string>
+    <string name="holiday_apply">Zeitraum als schulfrei markieren</string>
+    <string name="holiday_restore">Schule in diesem Zeitraum wiederherstellen</string>
+    <string name="holiday_confirm">%1$s bis %2$s, beide Tage eingeschlossen. Kinder: %3$s. Andere Aktivitäten bleiben unverändert.</string>
+    <string name="holiday_invalid_range">Ende darf nicht vor Beginn liegen. Höchstens 366 Tage wählen.</string>
+    <string name="holiday_error">Schultage konnten nicht aktualisiert werden. Bitte erneut versuchen.</string>
+    <string name="holiday_done">Schultage aktualisiert.</string>
+</resources>

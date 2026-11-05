@@ -1,0 +1,17 @@
+<resources>
+    <string name="activity_start_date_format">Starter %1$s</string>
+    <string name="activity_start_date_none">Ingen startdato</string>
+    <string name="activity_start_date_remove">Fjern startdato</string>
+    <string name="activity_start_date_hint">Den første dato er inkluderet. Ingen aktiviteter planlægges før den.</string>
+    <string name="holiday_title">Skoleferie: datointerval</string>
+    <string name="holiday_hint">Markér op til 366 dage ad gangen. Kun skole påvirkes. Eksisterende tidlige sluttider bevares til gendannelse.</string>
+    <string name="holiday_from">Fra %1$s</string>
+    <string name="holiday_to">Til og med %1$s</string>
+    <string name="holiday_all_kids">Gælder alle børn</string>
+    <string name="holiday_apply">Markér intervallet som ingen skole</string>
+    <string name="holiday_restore">Gendan skole i intervallet</string>
+    <string name="holiday_confirm">%1$s til %2$s, begge datoer inkluderet. Børn: %3$s. Andre aktiviteter påvirkes ikke.</string>
+    <string name="holiday_invalid_range">Slut må ikke være før start. Vælg højst 366 dage.</string>
+    <string name="holiday_error">Skoledagene kunne ikke opdateres. Prøv igen.</string>
+    <string name="holiday_done">Skoledagene er opdateret.</string>
+</resources>

@@ -162,6 +162,10 @@ class AddActivityViewModel(
         _uiState.update { it.copy(firstDate = weekStartOf(date)) }
     }
 
+    fun onCalendarStartDateChange(date: LocalDate?) {
+        _uiState.update { it.copy(calendarStartDate = date) }
+    }
+
     fun onLastDateChange(date: LocalDate?) {
         _uiState.update { it.copy(lastDate = date) }
     }
@@ -200,6 +204,7 @@ class AddActivityViewModel(
                     isSchoolActivity = state.isSchoolActivity,
                     firstDate = state.firstDate.format(DateTimeFormatter.ISO_DATE),
                     lastDate = state.lastDate?.format(DateTimeFormatter.ISO_DATE),
+                    calendarStartDate = state.calendarStartDate?.takeIf { state.isPeriodic || state.isSchoolActivity }?.toString(),
                 ),
             )
             _uiState.update { it.copy(isSaved = true, isSaving = false) }

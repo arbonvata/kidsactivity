@@ -47,6 +47,26 @@ class AddActivityViewModelTest {
     }
 
     @Test
+    fun recurringTermStartIsSavedExactlyAndInvalidTermIsRejected() =
+        runTest {
+            val captured = slot<Activity>()
+            coEvery { activityRepository.addActivity(capture(captured)) } answers { captured.captured }
+            val vm = AddActivityViewModel(5, activityRepository, kidRepository, parentRepository)
+            vm.onNameChange("Swim")
+            val start = LocalDate.of(2027, 1, 12)
+            vm.onCalendarStartDateChange(start)
+            vm.onLastDateChange(start.minusDays(1))
+            vm.saveActivity()
+            coVerify(exactly = 0) { activityRepository.addActivity(any()) }
+            vm.onLastDateChange(start.plusMonths(3))
+            vm.saveActivity()
+            assertEquals("2027-01-12", captured.captured.calendarStartDate)
+            vm.onCalendarStartDateChange(null)
+            vm.saveActivity()
+            assertEquals(null, captured.captured.calendarStartDate)
+        }
+
+    @Test
     fun savesPickupArrangementsWithTrimmedValues() =
         runTest {
             val captured = slot<Activity>()

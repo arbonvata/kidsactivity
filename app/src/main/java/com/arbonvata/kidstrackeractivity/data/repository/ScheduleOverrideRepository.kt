@@ -1,7 +1,9 @@
 package com.arbonvata.kidstrackeractivity.data.repository
 
+import com.arbonvata.kidstrackeractivity.data.SchoolHolidayRange
 import com.arbonvata.kidstrackeractivity.data.objectbox.DailySchedule
 import com.arbonvata.kidstrackeractivity.data.objectbox.DailySchedule_
+import com.arbonvata.kidstrackeractivity.data.objectbox.Kid
 import io.objectbox.BoxStore
 import io.objectbox.query.QueryBuilder
 import kotlinx.coroutines.CoroutineDispatcher
@@ -11,6 +13,14 @@ import kotlinx.coroutines.withContext
 import java.time.LocalDate
 
 interface ScheduleOverrideRepository {
+    /** Atomic, inclusive holiday/restore operation. Existing custom end times are retained. */
+    suspend fun setNoSchoolRange(
+        kidIds: Set<Long>,
+        start: LocalDate,
+        end: LocalDate,
+        isNoSchool: Boolean,
+    )
+
     /**
      * Creates or updates the override for one kid on one date. An override
      * without an end time and without the no-school flag carries no meaning
@@ -51,10 +61,45 @@ interface ScheduleOverrideRepository {
 }
 
 class ScheduleOverrideRepositoryImpl(
-    store: BoxStore,
+    private val store: BoxStore,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : ScheduleOverrideRepository {
     private val scheduleBox = store.boxFor(DailySchedule::class.java)
+
+    override suspend fun setNoSchoolRange(
+        kidIds: Set<Long>,
+        start: LocalDate,
+        end: LocalDate,
+        isNoSchool: Boolean,
+    ) {
+        val range = SchoolHolidayRange(start, end)
+        require(kidIds.isNotEmpty())
+        withContext(ioDispatcher) {
+            store.runInTx {
+                val kids = store.boxFor(Kid::class.java)
+                require(kidIds.all { kids.get(it) != null }) { "Child no longer exists" }
+                val existing =
+                    scheduleBox.all
+                        .filter {
+                            it.kidId in kidIds && it.date >= start.toString() && it.date <= end.toString()
+                        }.associateBy { it.kidId to it.date }
+                for (kidId in kidIds) {
+                    for (date in range.dates()) {
+                        val current = existing[kidId to date.toString()]
+                        if (isNoSchool) {
+                            scheduleBox.put((current ?: DailySchedule(kidId = kidId, date = date.toString())).copy(isNoSchool = true))
+                        } else if (current?.isNoSchool == true) {
+                            if (current.endTime.isBlank()) {
+                                scheduleBox.remove(current.id)
+                            } else {
+                                scheduleBox.put(current.copy(isNoSchool = false))
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     override suspend fun setOverride(
         kidId: Long,

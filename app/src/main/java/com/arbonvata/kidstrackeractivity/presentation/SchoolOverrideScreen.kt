@@ -126,6 +126,7 @@ fun SchoolOverrideScreen(
                     )
                 },
                 onDayClick = { editingDate = it },
+                holidayControls = { SchoolHolidayControls(viewModel, uiState.kids, uiState.selectedKidId) },
                 onBackClick = onBackClick,
             )
         }
@@ -218,6 +219,7 @@ fun SchoolOverrideContent(
     kidPicker: @Composable () -> Unit = {},
     onDayClick: (LocalDate) -> Unit,
     onBackClick: () -> Unit,
+    holidayControls: @Composable () -> Unit = {},
 ) {
     var currentMonth by remember { mutableStateOf(YearMonth.now()) }
     val daysInMonth = currentMonth.lengthOfMonth()
@@ -246,6 +248,7 @@ fun SchoolOverrideContent(
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             kidPicker()
+            holidayControls()
 
             // Month Navigation
             Row(

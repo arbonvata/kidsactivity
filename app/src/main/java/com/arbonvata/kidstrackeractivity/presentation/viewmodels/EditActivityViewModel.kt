@@ -108,6 +108,8 @@ class EditActivityViewModel(
 
     fun onFirstDateChange(date: LocalDate) = updateForm { it.copy(firstDate = AddActivityViewModel.weekStartOf(date)) }
 
+    fun onCalendarStartDateChange(date: LocalDate?) = updateForm { it.copy(calendarStartDate = date) }
+
     fun onLastDateChange(date: LocalDate?) = updateForm { it.copy(lastDate = date) }
 
     fun onSchoolActivityChange(isSchoolActivity: Boolean) =
@@ -142,7 +144,7 @@ class EditActivityViewModel(
                 activityRepository.updateActivity(
                     Activity(
                         id = original.id,
-                        calendarStartDate = original.calendarStartDate,
+                        calendarStartDate = form.calendarStartDate?.toString(),
                         occurrenceExceptions =
                             com.arbonvata.kidstrackeractivity.data
                                 .encodeExceptions(form.exceptions),

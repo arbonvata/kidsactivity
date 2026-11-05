@@ -1,0 +1,17 @@
+<resources>
+    <string name="activity_start_date_format">Börjar %1$s</string>
+    <string name="activity_start_date_none">Inget startdatum</string>
+    <string name="activity_start_date_remove">Ta bort startdatum</string>
+    <string name="activity_start_date_hint">Det första datumet ingår. Inga tillfällen schemaläggs före det.</string>
+    <string name="holiday_title">Skollov: datumintervall</string>
+    <string name="holiday_hint">Markera högst 366 dagar samtidigt. Endast skolan påverkas. Befintliga tidigare sluttider sparas för återställning.</string>
+    <string name="holiday_from">Från %1$s</string>
+    <string name="holiday_to">Till och med %1$s</string>
+    <string name="holiday_all_kids">Gäller alla barn</string>
+    <string name="holiday_apply">Markera intervallet som ingen skola</string>
+    <string name="holiday_restore">Återställ skolan i intervallet</string>
+    <string name="holiday_confirm">%1$s till %2$s, båda datumen ingår. Barn: %3$s. Övriga aktiviteter påverkas inte.</string>
+    <string name="holiday_invalid_range">Slutet får inte vara före början. Välj högst 366 dagar.</string>
+    <string name="holiday_error">Det gick inte att uppdatera skoldagarna. Försök igen.</string>
+    <string name="holiday_done">Skoldagarna har uppdaterats.</string>
+</resources>
