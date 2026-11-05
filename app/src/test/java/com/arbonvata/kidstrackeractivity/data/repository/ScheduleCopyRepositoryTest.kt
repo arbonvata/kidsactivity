@@ -42,6 +42,10 @@ class ScheduleCopyRepositoryTest {
             location = "Pool",
             pickupAdult = "Alex",
             pickupNotes = "Side door",
+            hasCustomReminder = true,
+            reminderMinutes = 30,
+            hasPickupReminder = true,
+            pickupLeadMinutes = 10,
             occurrenceExceptions = "2026-10-19||",
             lastDate = "2026-12-13",
         )
@@ -72,6 +76,9 @@ class ScheduleCopyRepositoryTest {
             assertEquals("Pool", copy.location)
             assertEquals("Alex", copy.pickupAdult)
             assertEquals("Side door", copy.pickupNotes)
+            assertEquals(30, copy.reminderMinutes)
+            assertTrue(copy.hasCustomReminder && copy.hasPickupReminder)
+            assertEquals(10, copy.pickupLeadMinutes)
             assertEquals(false, copy.isEnabled)
             assertNull(copy.occurrenceExceptions)
             assertEquals("2026-12-13", copy.lastDate)

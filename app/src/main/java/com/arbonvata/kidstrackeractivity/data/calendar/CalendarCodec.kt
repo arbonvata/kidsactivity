@@ -122,6 +122,12 @@ object CalendarCodec {
                     lines += "X-KIDSTRACKER-NOTES:${escape(activity.pickupNotes.orEmpty())}"
                     lines += "X-KIDSTRACKER-SCHOOL:${activity.isSchoolActivity}"
                     lines += "X-KIDSTRACKER-ENABLED:${activity.isEnabled}"
+                    if (activity.hasCustomReminder) lines += "X-KIDSTRACKER-REMINDER-MINUTES:${activity.reminderMinutes.coerceIn(0, 120)}"
+                    if (activity.hasPickupReminder &&
+                        !activity.isSchoolActivity
+                    ) {
+                        lines += "X-KIDSTRACKER-PICKUP-LEAD:${activity.pickupLeadMinutes.coerceIn(0, 60)}"
+                    }
                     exception?.delegatedTo?.let {
                         lines += "X-KIDSTRACKER-DELEGATED-TO:${escape(it)}"
                         if (exception.start == null) lines += "X-KIDSTRACKER-INHERIT-TIMES:true"
@@ -357,6 +363,20 @@ object CalendarCodec {
                 isEnabled = !base.text("X-KIDSTRACKER-ENABLED").equals("false", true),
                 location = base.text("LOCATION"),
                 pickupAdult = base.text("X-KIDSTRACKER-PICKUP"),
+                hasCustomReminder = base.one("X-KIDSTRACKER-REMINDER-MINUTES") != null,
+                reminderMinutes =
+                    base
+                        .one("X-KIDSTRACKER-REMINDER-MINUTES")
+                        ?.value
+                        ?.toInt()
+                        ?.also { require(it in 0..120) } ?: 15,
+                hasPickupReminder = base.one("X-KIDSTRACKER-PICKUP-LEAD") != null,
+                pickupLeadMinutes =
+                    base
+                        .one("X-KIDSTRACKER-PICKUP-LEAD")
+                        ?.value
+                        ?.toInt()
+                        ?.also { require(it in 0..60) } ?: 0,
                 pickupNotes = base.one("X-KIDSTRACKER-NOTES")?.let { unescape(it.value) } ?: base.text("DESCRIPTION"),
                 occurrenceExceptions = encodeExceptions(exceptions.values.toList()),
                 // Our own exports mark an end date with UNTIL; re-import keeps

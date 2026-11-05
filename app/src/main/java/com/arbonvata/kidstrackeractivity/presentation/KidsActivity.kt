@@ -102,6 +102,10 @@ fun AddActivityScreen(
         onLocationChange = viewModel::onLocationChange,
         onPickupAdultChange = viewModel::onPickupAdultChange,
         onPickupNotesChange = viewModel::onPickupNotesChange,
+        onCustomReminderChange = viewModel::onCustomReminderChange,
+        onReminderMinutesChange = viewModel::onReminderMinutesChange,
+        onPickupReminderChange = viewModel::onPickupReminderChange,
+        onPickupLeadChange = viewModel::onPickupLeadChange,
         onToggleDay = viewModel::onToggleDay,
         onStartTimeChange = viewModel::onStartTimeChange,
         onEndTimeChange = viewModel::onEndTimeChange,
@@ -176,6 +180,10 @@ fun EditActivityScreen(
                 onLocationChange = viewModel::onLocationChange,
                 onPickupAdultChange = viewModel::onPickupAdultChange,
                 onPickupNotesChange = viewModel::onPickupNotesChange,
+                onCustomReminderChange = viewModel::onCustomReminderChange,
+                onReminderMinutesChange = viewModel::onReminderMinutesChange,
+                onPickupReminderChange = viewModel::onPickupReminderChange,
+                onPickupLeadChange = viewModel::onPickupLeadChange,
                 onToggleDay = viewModel::onToggleDay,
                 onStartTimeChange = viewModel::onStartTimeChange,
                 onEndTimeChange = viewModel::onEndTimeChange,
@@ -246,6 +254,10 @@ fun AddActivityContent(
     onLocationChange: (String) -> Unit = {},
     onPickupAdultChange: (String) -> Unit = {},
     onPickupNotesChange: (String) -> Unit = {},
+    onCustomReminderChange: (Boolean) -> Unit = {},
+    onReminderMinutesChange: (Int) -> Unit = {},
+    onPickupReminderChange: (Boolean) -> Unit = {},
+    onPickupLeadChange: (Int) -> Unit = {},
     /** Saved parents offered as one-tap choices for the pickup adult. */
     parents: List<Parent> = emptyList(),
 ) {
@@ -423,6 +435,7 @@ fun AddActivityContent(
                 modifier = Modifier.fillMaxWidth(),
                 minLines = 2,
             )
+            ActivityReminderFields(uiState, onCustomReminderChange, onReminderMinutesChange, onPickupReminderChange, onPickupLeadChange)
             extraContent()
 
             // School activities are always weekly, so the periodic toggle is

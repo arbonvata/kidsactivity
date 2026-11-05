@@ -23,6 +23,11 @@ keep showing muted activities dimmed.
 
 ### Features
 
+- **Per-activity reminders** — optionally override global timing (0–120 minutes
+  before a regular activity or after school ends). Regular activities can also
+  remind you 0–60 minutes before pickup/end time. Muted, cancelled and delegated
+  dates stay silent. Overrides travel with backups, copies and calendar files.
+
 Future suggestions are saved in [ROADMAP.md](ROADMAP.md).
 
 - **Today / Week / Month / Daily views** across all kids, updated live

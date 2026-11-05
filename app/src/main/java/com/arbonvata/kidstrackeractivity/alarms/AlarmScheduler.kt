@@ -138,6 +138,7 @@ class AlarmManagerAlarmScheduler(
                 .putExtra(AlarmReceiver.EXTRA_ACTIVITY_ID, alarm?.activityId ?: 0L)
                 .putExtra(AlarmReceiver.EXTRA_KID_ID, alarm?.kidId ?: 0L)
                 .putExtra(AlarmReceiver.EXTRA_IS_SCHOOL, alarm?.isSchoolActivity ?: false)
+                .putExtra(AlarmReceiver.EXTRA_IS_PICKUP, alarm?.isPickupReminder ?: false)
                 .putExtra(AlarmReceiver.EXTRA_OFFSET_MINUTES, alarm?.offsetMinutes ?: 0)
         return PendingIntent.getBroadcast(
             context,
@@ -161,7 +162,7 @@ class AlarmManagerAlarmScheduler(
         /** One day before the 7-day horizon of computed alarms expires. */
         const val KEEPER_INTERVAL_MS = 6L * 24 * 60 * 60 * 1000
 
-        /** Activity alarm codes are always >= 10_000 (activityId >= 1), so 0 is free. */
+        /** The keeper also uses a separate intent action from activity reminders. */
         const val KEEPER_REQUEST_CODE = 0
     }
 }

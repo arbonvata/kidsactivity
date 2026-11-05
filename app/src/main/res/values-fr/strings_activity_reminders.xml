@@ -1,0 +1,11 @@
+<resources>
+    <string name="activity_reminders_title">Rappels pour cette activité</string>
+    <string name="activity_custom_reminder">Utiliser un horaire personnalisé</string>
+    <string name="activity_global_reminder_hint">Utilise le délai global des Paramètres.</string>
+    <string name="activity_minutes_after_school">%1$d minutes après la fin de l’école</string>
+    <string name="activity_minutes_before_start">%1$d minutes avant le début</string>
+    <string name="activity_pickup_reminder">Me rappeler aussi la sortie</string>
+    <string name="activity_minutes_before_pickup">%1$d minutes avant la fin (0 = à la fin)</string>
+    <string name="notification_pickup_title">Sortie de l’activité</string>
+    <string name="notification_pickup_text">%1$s — %2$s se termine dans %3$d minutes. Il est temps de venir chercher votre enfant.</string>
+</resources>

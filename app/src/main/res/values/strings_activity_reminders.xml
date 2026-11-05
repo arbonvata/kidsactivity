@@ -1,0 +1,11 @@
+<resources>
+    <string name="activity_reminders_title">Reminders for this activity</string>
+    <string name="activity_custom_reminder">Use custom reminder timing</string>
+    <string name="activity_global_reminder_hint">Uses the global timing from Settings.</string>
+    <string name="activity_minutes_after_school">%1$d minutes after school ends</string>
+    <string name="activity_minutes_before_start">%1$d minutes before the activity starts</string>
+    <string name="activity_pickup_reminder">Also remind me about pickup</string>
+    <string name="activity_minutes_before_pickup">%1$d minutes before the activity ends (0 = at the end)</string>
+    <string name="notification_pickup_title">Activity pickup</string>
+    <string name="notification_pickup_text">%1$s — %2$s ends in %3$d minutes. Time for pickup.</string>
+</resources>

@@ -278,6 +278,31 @@ class BackupRepositoryImplTest {
             assertEquals(null, captured.captured.lastDate)
         }
 
+    @Test
+    fun reminderOverridesRestoreAndLegacyFilesKeepGlobalDefaults() =
+        runTest {
+            every { kidBox.put(any<Kid>()) } returns 100L
+            val captured = slot<Activity>()
+            every { activityBox.put(capture(captured)) } returns 200L
+            every { scheduleBox.put(any<DailySchedule>()) } returns 300L
+            val document = org.json.JSONObject(validBackupJson)
+            document.getJSONArray("activities").getJSONObject(0).apply {
+                put("hasCustomReminder", true)
+                put("reminderMinutes", 30)
+                put("hasPickupReminder", true)
+                put("pickupLeadMinutes", 10)
+            }
+            repository.importAll(document.toString(), replaceExisting = false)
+            assertEquals(30, captured.captured.reminderMinutes)
+            assertEquals(true, captured.captured.hasPickupReminder)
+            document.getJSONArray("activities").getJSONObject(0).put("reminderMinutes", 999)
+            assertInstanceOf(JSONException::class.java, assertImportThrows(document.toString()))
+            verify(exactly = 0) { kidBox.removeAll() }
+            repository.importAll(validBackupJson, replaceExisting = false)
+            assertEquals(false, captured.captured.hasCustomReminder)
+            assertEquals(false, captured.captured.hasPickupReminder)
+        }
+
     /** JUnit's assertThrows cannot wrap a suspend call, so catch manually. */
     private suspend fun assertImportThrows(json: String): Throwable? =
         runCatching { repository.importAll(json, replaceExisting = true) }.exceptionOrNull()

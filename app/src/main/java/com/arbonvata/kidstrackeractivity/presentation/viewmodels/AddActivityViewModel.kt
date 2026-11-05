@@ -27,6 +27,10 @@ data class AddActivityUiState(
     val location: String = "",
     val pickupAdult: String = "",
     val pickupNotes: String = "",
+    val hasCustomReminder: Boolean = false,
+    val reminderMinutes: Int = 15,
+    val hasPickupReminder: Boolean = false,
+    val pickupLeadMinutes: Int = 0,
     val exceptions: List<com.arbonvata.kidstrackeractivity.data.OccurrenceException> = emptyList(),
     val selectedKidId: Long = 0L,
     val selectedDays: Set<Int> = emptySet(),
@@ -88,6 +92,22 @@ class AddActivityViewModel(
         parentRepository
             .getAllParentsFlow()
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    fun onCustomReminderChange(enabled: Boolean) {
+        _uiState.update { it.copy(hasCustomReminder = enabled) }
+    }
+
+    fun onReminderMinutesChange(minutes: Int) {
+        _uiState.update { it.copy(reminderMinutes = minutes.coerceIn(0, 120)) }
+    }
+
+    fun onPickupReminderChange(enabled: Boolean) {
+        _uiState.update { it.copy(hasPickupReminder = enabled) }
+    }
+
+    fun onPickupLeadChange(minutes: Int) {
+        _uiState.update { it.copy(pickupLeadMinutes = minutes.coerceIn(0, 60)) }
+    }
 
     fun onLocationChange(value: String) {
         _uiState.update { it.copy(location = value) }
@@ -168,6 +188,10 @@ class AddActivityViewModel(
                     location = state.location.trim(),
                     pickupAdult = state.pickupAdult.trim(),
                     pickupNotes = state.pickupNotes.trim(),
+                    hasCustomReminder = state.hasCustomReminder,
+                    reminderMinutes = state.reminderMinutes,
+                    hasPickupReminder = state.hasPickupReminder && !state.isSchoolActivity,
+                    pickupLeadMinutes = state.pickupLeadMinutes,
                     startTime = state.startTime.format(TIME_FORMATTER),
                     endTime = state.endTime.format(TIME_FORMATTER),
                     isEnabled = true,

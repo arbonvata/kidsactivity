@@ -63,6 +63,7 @@ class AlarmReceiver : BroadcastReceiver() {
         val activityId = intent.getLongExtra(EXTRA_ACTIVITY_ID, 0L)
         val kidId = intent.getLongExtra(EXTRA_KID_ID, 0L)
         val isSchool = intent.getBooleanExtra(EXTRA_IS_SCHOOL, false)
+        val isPickup = intent.getBooleanExtra(EXTRA_IS_PICKUP, false)
         val offsetMinutes = intent.getIntExtra(EXTRA_OFFSET_MINUTES, 0)
         val requestCode = intent.getIntExtra(EXTRA_REQUEST_CODE, 0)
 
@@ -82,7 +83,9 @@ class AlarmReceiver : BroadcastReceiver() {
         if (activity == null || kid == null) return
 
         val text =
-            if (isSchool) {
+            if (isPickup) {
+                context.getString(R.string.notification_pickup_text, kid.name, activity.name, offsetMinutes)
+            } else if (isSchool) {
                 context.getString(R.string.notification_alarm_school_text_format, kid.name, activity.name, offsetMinutes)
             } else {
                 context.getString(R.string.notification_alarm_activity_text_format, kid.name, activity.name, offsetMinutes)
@@ -115,7 +118,13 @@ class AlarmReceiver : BroadcastReceiver() {
                 .setSmallIcon(R.drawable.ic_notification)
                 .setContentTitle(
                     context.getString(
-                        if (isSchool) R.string.notification_alarm_school_title else R.string.notification_alarm_activity_title,
+                        if (isPickup) {
+                            R.string.notification_pickup_title
+                        } else if (isSchool) {
+                            R.string.notification_alarm_school_title
+                        } else {
+                            R.string.notification_alarm_activity_title
+                        },
                     ),
                 ).setContentText(text)
                 .setStyle(NotificationCompat.BigTextStyle().bigText(fullText))
@@ -132,6 +141,7 @@ class AlarmReceiver : BroadcastReceiver() {
         const val EXTRA_REQUEST_CODE = "extra_request_code"
         const val EXTRA_ACTIVITY_ID = "extra_activity_id"
         const val EXTRA_KID_ID = "extra_kid_id"
+        const val EXTRA_IS_PICKUP = "extra_is_pickup"
         const val EXTRA_IS_SCHOOL = "extra_is_school"
         const val EXTRA_OFFSET_MINUTES = "extra_offset_minutes"
     }

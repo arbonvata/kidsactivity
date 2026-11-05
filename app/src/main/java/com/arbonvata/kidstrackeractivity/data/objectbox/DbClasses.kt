@@ -42,6 +42,11 @@ data class Activity(
     var location: String? = null,
     var pickupAdult: String? = null,
     var pickupNotes: String? = null,
+    // Boolean flags default false for legacy ObjectBox rows; their new integer fields may read zero.
+    var hasCustomReminder: Boolean = false,
+    var reminderMinutes: Int = 15,
+    var hasPickupReminder: Boolean = false,
+    var pickupLeadMinutes: Int = 0,
 ) {
     // Overriding equals and hashCode is highly recommended when using IntArray
     // in data classes, because arrays in Kotlin compare by reference by default.
@@ -55,6 +60,8 @@ data class Activity(
         if (calendarStartDate != other.calendarStartDate) return false
         if (lastDate != other.lastDate) return false
         if (occurrenceExceptions != other.occurrenceExceptions) return false
+        if (hasCustomReminder != other.hasCustomReminder || reminderMinutes != other.reminderMinutes) return false
+        if (hasPickupReminder != other.hasPickupReminder || pickupLeadMinutes != other.pickupLeadMinutes) return false
         if (id != other.id) return false
         if (kidId != other.kidId) return false
         if (name != other.name) return false
@@ -71,6 +78,10 @@ data class Activity(
 
     override fun hashCode(): Int {
         var result = id.hashCode()
+        result = 31 * result + hasCustomReminder.hashCode()
+        result = 31 * result + reminderMinutes
+        result = 31 * result + hasPickupReminder.hashCode()
+        result = 31 * result + pickupLeadMinutes
         result = 31 * result + (calendarStartDate?.hashCode() ?: 0)
         result = 31 * result + (lastDate?.hashCode() ?: 0)
         result = 31 * result + (location?.hashCode() ?: 0)

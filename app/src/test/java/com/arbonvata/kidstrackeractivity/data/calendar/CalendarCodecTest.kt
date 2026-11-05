@@ -446,6 +446,16 @@ class CalendarCodecTest {
         }
     }
 
+    @Test
+    fun `custom reminder settings and pickup reminders survive calendar sharing`() {
+        val source = swim.copy(hasCustomReminder = true, reminderMinutes = 30, hasPickupReminder = true, pickupLeadMinutes = 10)
+        val imported = CalendarCodec.parse(CalendarCodec.export(kid, listOf(source), emptyList(), monday), zone).activities.single()
+        assertTrue(imported.hasCustomReminder)
+        assertEquals(30, imported.reminderMinutes)
+        assertTrue(imported.hasPickupReminder)
+        assertEquals(10, imported.pickupLeadMinutes)
+    }
+
     private fun calendar(extra: String = "") =
         listOf(
             "BEGIN:VCALENDAR",

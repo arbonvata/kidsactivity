@@ -17,6 +17,7 @@ data class ScheduledAlarm(
     val isSchoolActivity: Boolean,
     /** The configured offset in minutes (after end / before start). */
     val offsetMinutes: Int,
+    val isPickupReminder: Boolean = false,
 ) {
     /**
      * Stable across recomputes and unique per activity per day: recomputing
@@ -24,5 +25,5 @@ data class ScheduledAlarm(
      * of piling up duplicates.
      */
     val requestCode: Int =
-        (activityId * 10_000L + triggerAt.toLocalDate().toEpochDay() % 10_000L).toInt()
+        ((activityId * 10_000L + triggerAt.toLocalDate().toEpochDay() % 10_000L) * 2 + if (isPickupReminder) 1 else 0).toInt()
 }

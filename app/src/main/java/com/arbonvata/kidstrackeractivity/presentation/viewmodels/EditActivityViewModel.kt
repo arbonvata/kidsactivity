@@ -76,6 +76,14 @@ class EditActivityViewModel(
         }
     }
 
+    fun onCustomReminderChange(enabled: Boolean) = updateForm { it.copy(hasCustomReminder = enabled) }
+
+    fun onReminderMinutesChange(minutes: Int) = updateForm { it.copy(reminderMinutes = minutes.coerceIn(0, 120)) }
+
+    fun onPickupReminderChange(enabled: Boolean) = updateForm { it.copy(hasPickupReminder = enabled) }
+
+    fun onPickupLeadChange(minutes: Int) = updateForm { it.copy(pickupLeadMinutes = minutes.coerceIn(0, 60)) }
+
     fun onLocationChange(value: String) = updateForm { it.copy(location = value) }
 
     fun onPickupAdultChange(value: String) = updateForm { it.copy(pickupAdult = value) }
@@ -143,6 +151,10 @@ class EditActivityViewModel(
                         location = form.location.trim(),
                         pickupAdult = form.pickupAdult.trim(),
                         pickupNotes = form.pickupNotes.trim(),
+                        hasCustomReminder = form.hasCustomReminder,
+                        reminderMinutes = form.reminderMinutes,
+                        hasPickupReminder = form.hasPickupReminder && !form.isSchoolActivity,
+                        pickupLeadMinutes = form.pickupLeadMinutes,
                         startTime = form.startTime.format(AddActivityViewModel.TIME_FORMATTER),
                         endTime = form.endTime.format(AddActivityViewModel.TIME_FORMATTER),
                         isEnabled = original.isEnabled,
@@ -195,6 +207,10 @@ class EditActivityViewModel(
                 location = activity.location.orEmpty(),
                 pickupAdult = activity.pickupAdult.orEmpty(),
                 pickupNotes = activity.pickupNotes.orEmpty(),
+                hasCustomReminder = activity.hasCustomReminder,
+                reminderMinutes = activity.reminderMinutes.coerceIn(0, 120),
+                hasPickupReminder = activity.hasPickupReminder,
+                pickupLeadMinutes = activity.pickupLeadMinutes.coerceIn(0, 60),
                 exceptions =
                     com.arbonvata.kidstrackeractivity.data
                         .decodeExceptions(activity.occurrenceExceptions),

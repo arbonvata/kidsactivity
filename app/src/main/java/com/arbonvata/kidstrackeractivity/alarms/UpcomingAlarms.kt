@@ -6,17 +6,7 @@ import com.arbonvata.kidstrackeractivity.data.objectbox.DailySchedule
 import com.arbonvata.kidstrackeractivity.data.objectbox.Kid
 import java.time.LocalDateTime
 
-/**
- * Expands the next [horizonDays] days of activities and computes one alarm
- * per occurrence: school activities remind [schoolAlarmMinutes] AFTER they
- * end (pickup; a school-day override shifts the effective end or removes the
- * day entirely), everything else [activityAlarmMinutes] BEFORE it starts.
- * Dates delegated to someone else produce no alarm — the parent is off duty
- * for them. Triggers already in the past are dropped, as are inverted ranges
- * (end <= start — overnight activities are not representable and the form
- * now rejects them; this covers corrupt pre-existing rows). Pure function —
- * unit tested.
- */
+/** Computes primary and optional pickup reminders; muted, cancelled and delegated dates stay silent. */
 fun computeUpcomingAlarms(
     kids: List<Kid>,
     activities: List<Activity>,
@@ -26,36 +16,51 @@ fun computeUpcomingAlarms(
     horizonDays: Int = 7,
     overrides: List<DailySchedule> = emptyList(),
 ): List<ScheduledAlarm> {
+    require(horizonDays > 0)
+    val windowEnd = now.toLocalDate().plusDays(horizonDays.toLong()).atStartOfDay()
+    // Include neighboring occurrences because their offsets can cross midnight.
     val occurrences =
         expandActivitiesForDateRange(
             kids,
             activities,
-            now.toLocalDate(),
-            now.toLocalDate().plusDays((horizonDays - 1).toLong()),
+            now.toLocalDate().minusDays(1),
+            windowEnd.toLocalDate(),
             overrides = overrides,
         )
     return occurrences
-        .filter { it.endTime.isAfter(it.startTime) }
-        .filter { it.delegatedTo == null }
-        .map { occurrence ->
+        .filter { it.endTime.isAfter(it.startTime) && it.delegatedTo == null }
+        .flatMap { occurrence ->
             val activity = occurrence.activity
-            if (activity.isSchoolActivity) {
-                ScheduledAlarm(
-                    activityId = activity.id,
-                    kidId = activity.kidId,
-                    triggerAt = occurrence.date.atTime(occurrence.endTime).plusMinutes(schoolAlarmMinutes.toLong()),
-                    isSchoolActivity = true,
-                    offsetMinutes = schoolAlarmMinutes,
-                )
-            } else {
-                ScheduledAlarm(
-                    activityId = activity.id,
-                    kidId = activity.kidId,
-                    triggerAt = occurrence.date.atTime(occurrence.startTime).minusMinutes(activityAlarmMinutes.toLong()),
-                    isSchoolActivity = false,
-                    offsetMinutes = activityAlarmMinutes,
-                )
-            }
-        }.filter { it.triggerAt.isAfter(now) }
+            val minutes =
+                if (activity.hasCustomReminder) {
+                    activity.reminderMinutes.coerceIn(0, 120)
+                } else if (activity.isSchoolActivity) {
+                    schoolAlarmMinutes
+                } else {
+                    activityAlarmMinutes
+                }
+            val primaryTime =
+                if (activity.isSchoolActivity) {
+                    occurrence.date.atTime(occurrence.endTime).plusMinutes(minutes.toLong())
+                } else {
+                    occurrence.date.atTime(occurrence.startTime).minusMinutes(minutes.toLong())
+                }
+            val primary = ScheduledAlarm(activity.id, activity.kidId, primaryTime, activity.isSchoolActivity, minutes)
+            val pickup =
+                if (!activity.isSchoolActivity && activity.hasPickupReminder) {
+                    val lead = activity.pickupLeadMinutes.coerceIn(0, 60)
+                    ScheduledAlarm(
+                        activity.id,
+                        activity.kidId,
+                        occurrence.date.atTime(occurrence.endTime).minusMinutes(lead.toLong()),
+                        isSchoolActivity = false,
+                        offsetMinutes = lead,
+                        isPickupReminder = true,
+                    )
+                } else {
+                    null
+                }
+            listOfNotNull(primary, pickup)
+        }.filter { it.triggerAt.isAfter(now) && it.triggerAt.isBefore(windowEnd) }
         .sortedBy { it.triggerAt }
 }

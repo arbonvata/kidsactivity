@@ -5,6 +5,10 @@ in-app About screen); this file records what each release shipped.
 
 ## Unreleased
 
+- **Added**: per-activity reminder offsets with global fallback and optional
+  pickup reminders for regular activities, preserved by backup/copy/calendar
+  sharing. Reminder offsets crossing midnight are included correctly.
+
 - **Fixed**: calendar sharing respects end dates for one-offs, retains named and
   unnamed pickup delegation (including changed times and early school pickup),
   and honors COUNT limits even when app metadata is present.

@@ -5,7 +5,7 @@
   "entities": [
     {
       "id": "1:6241753072432626048",
-      "lastPropertyId": "16:4481338445146701466",
+      "lastPropertyId": "20:6861324580714674989",
       "name": "Activity",
       "properties": [
         {
@@ -88,6 +88,26 @@
           "id": "16:4481338445146701466",
           "name": "lastDate",
           "type": 9
+        },
+        {
+          "id": "17:229947659305363688",
+          "name": "hasCustomReminder",
+          "type": 1
+        },
+        {
+          "id": "18:3167106087638142422",
+          "name": "reminderMinutes",
+          "type": 5
+        },
+        {
+          "id": "19:1884900283117251944",
+          "name": "hasPickupReminder",
+          "type": 1
+        },
+        {
+          "id": "20:6861324580714674989",
+          "name": "pickupLeadMinutes",
+          "type": 5
         }
       ],
       "relations": []

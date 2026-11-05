@@ -155,6 +155,10 @@ class BackupRepositoryImpl(
                             location = parsed.location,
                             pickupAdult = parsed.pickupAdult,
                             pickupNotes = parsed.pickupNotes,
+                            hasCustomReminder = parsed.hasCustomReminder,
+                            reminderMinutes = parsed.reminderMinutes,
+                            hasPickupReminder = parsed.hasPickupReminder,
+                            pickupLeadMinutes = parsed.pickupLeadMinutes,
                             startTime = parsed.startTime,
                             endTime = parsed.endTime,
                             isEnabled = parsed.isEnabled,
@@ -206,6 +210,10 @@ class BackupRepositoryImpl(
         val location: String,
         val pickupAdult: String,
         val pickupNotes: String,
+        val hasCustomReminder: Boolean,
+        val reminderMinutes: Int,
+        val hasPickupReminder: Boolean,
+        val pickupLeadMinutes: Int,
     )
 
     private data class ParsedOverride(
@@ -238,6 +246,10 @@ class BackupRepositoryImpl(
             location = json.optString("location"),
             pickupAdult = json.optString("pickupAdult"),
             pickupNotes = json.optString("pickupNotes"),
+            hasCustomReminder = json.optBoolean("hasCustomReminder", false),
+            reminderMinutes = requireMinutes(json, "reminderMinutes", 15, 120),
+            hasPickupReminder = json.optBoolean("hasPickupReminder", false),
+            pickupLeadMinutes = requireMinutes(json, "pickupLeadMinutes", 0, 60),
             startTime = requireTime(json.optString("startTime"), "activity startTime"),
             endTime = requireTime(json.optString("endTime"), "activity endTime"),
             isEnabled = json.optBoolean("isEnabled", true),
@@ -298,6 +310,17 @@ class BackupRepositoryImpl(
             phone = json.optString("phone"),
         )
 
+    private fun requireMinutes(
+        json: JSONObject,
+        key: String,
+        fallback: Int,
+        max: Int,
+    ): Int {
+        val minutes = if (json.has(key)) json.getInt(key) else fallback
+        if (minutes !in 0..max) throw JSONException("Invalid $key")
+        return minutes
+    }
+
     private fun requireTime(
         value: String,
         field: String,
@@ -337,6 +360,10 @@ class BackupRepositoryImpl(
             .put("location", activity.location.orEmpty())
             .put("pickupAdult", activity.pickupAdult.orEmpty())
             .put("pickupNotes", activity.pickupNotes.orEmpty())
+            .put("hasCustomReminder", activity.hasCustomReminder)
+            .put("reminderMinutes", activity.reminderMinutes)
+            .put("hasPickupReminder", activity.hasPickupReminder)
+            .put("pickupLeadMinutes", activity.pickupLeadMinutes)
             .put("startTime", activity.startTime)
             .put("endTime", activity.endTime)
             .put("isEnabled", activity.isEnabled)
@@ -364,6 +391,6 @@ class BackupRepositoryImpl(
             .put("isNoSchool", override.isNoSchool)
 
     private companion object {
-        const val FORMAT_VERSION = 5
+        const val FORMAT_VERSION = 6
     }
 }

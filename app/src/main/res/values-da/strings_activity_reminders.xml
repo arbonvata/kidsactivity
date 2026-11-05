@@ -1,0 +1,11 @@
+<resources>
+    <string name="activity_reminders_title">Påmindelser for aktiviteten</string>
+    <string name="activity_custom_reminder">Brug egen påmindelsestid</string>
+    <string name="activity_global_reminder_hint">Bruger den globale tid fra Indstillinger.</string>
+    <string name="activity_minutes_after_school">%1$d minutter efter skoletid</string>
+    <string name="activity_minutes_before_start">%1$d minutter før aktiviteten starter</string>
+    <string name="activity_pickup_reminder">Mind mig også om afhentning</string>
+    <string name="activity_minutes_before_pickup">%1$d minutter før aktiviteten slutter (0 = ved slut)</string>
+    <string name="notification_pickup_title">Afhentning</string>
+    <string name="notification_pickup_text">%1$s — %2$s slutter om %3$d minutter. Tid til afhentning.</string>
+</resources>

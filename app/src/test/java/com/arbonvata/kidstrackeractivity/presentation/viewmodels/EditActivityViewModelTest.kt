@@ -56,6 +56,30 @@ class EditActivityViewModelTest {
         )
 
     @Test
+    fun reminderSettingsLoadSaveAndCanReturnToGlobalTiming() =
+        runTest {
+            coEvery { activityRepository.getActivity(5L) } returns storedActivity().copy(hasCustomReminder = true, reminderMinutes = 30)
+            val updated = slot<Activity>()
+            coEvery { activityRepository.updateActivity(capture(updated)) } returns Unit
+            val vm = EditActivityViewModel(5L, activityRepository, kidRepository, parentRepository)
+            assertEquals(
+                30,
+                vm.uiState.value.form
+                    ?.reminderMinutes,
+            )
+            vm.onPickupReminderChange(true)
+            vm.onPickupLeadChange(10)
+            vm.saveActivity()
+            assertEquals(true, updated.captured.hasCustomReminder)
+            assertEquals(true, updated.captured.hasPickupReminder)
+            assertEquals(10, updated.captured.pickupLeadMinutes)
+            vm.onSavedHandled()
+            vm.onCustomReminderChange(false)
+            vm.saveActivity()
+            assertEquals(false, updated.captured.hasCustomReminder)
+        }
+
+    @Test
     fun importedScheduleRejectsEndBeforeItsStartAndCanBeCorrected() =
         runTest {
             coEvery { activityRepository.getActivity(5L) } returns

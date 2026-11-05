@@ -1,0 +1,11 @@
+<resources>
+    <string name="activity_reminders_title">Recordatorios de esta actividad</string>
+    <string name="activity_custom_reminder">Usar un horario personalizado</string>
+    <string name="activity_global_reminder_hint">Usa el horario global de Ajustes.</string>
+    <string name="activity_minutes_after_school">%1$d minutos después de la escuela</string>
+    <string name="activity_minutes_before_start">%1$d minutos antes del inicio</string>
+    <string name="activity_pickup_reminder">Recordarme también la recogida</string>
+    <string name="activity_minutes_before_pickup">%1$d minutos antes del final (0 = al terminar)</string>
+    <string name="notification_pickup_title">Recogida</string>
+    <string name="notification_pickup_text">%1$s — %2$s termina en %3$d minutos. Hora de recoger.</string>
+</resources>
