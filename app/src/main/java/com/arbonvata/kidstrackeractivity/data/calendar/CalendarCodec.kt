@@ -55,7 +55,7 @@ object CalendarCodec {
             val anchor =
                 if (weekly) {
                     val first = if (recurrenceEnd != null && recurrenceEnd.isBefore(today)) recurrenceEnd.minusDays(6) else today
-                    maxOf(first, recurrenceStart ?: first)
+                    recurrenceStart ?: first
                 } else {
                     LocalDate.parse(requireNotNull(activity.firstDate))
                 }
@@ -122,6 +122,7 @@ object CalendarCodec {
                     lines += "X-KIDSTRACKER-NOTES:${escape(activity.pickupNotes.orEmpty())}"
                     lines += "X-KIDSTRACKER-SCHOOL:${activity.isSchoolActivity}"
                     lines += "X-KIDSTRACKER-ENABLED:${activity.isEnabled}"
+                    recurrenceStart?.let { lines += "X-KIDSTRACKER-START-DATE:$it" }
                     if (activity.hasCustomReminder) lines += "X-KIDSTRACKER-REMINDER-MINUTES:${activity.reminderMinutes.coerceIn(0, 120)}"
                     if (activity.hasPickupReminder &&
                         !activity.isSchoolActivity
@@ -350,6 +351,11 @@ object CalendarCodec {
                     dayCodes.indexOf(it).also { index -> require(index >= 0) { "Unsupported weekly weekday" } } + 1
                 }?.distinct() ?: listOf(start.dayOfWeek.value)
         require(start.dayOfWeek.value in days) { "Weekly start date must match one of its weekdays" }
+        // DTSTART must match a weekday; retain an exact term boundary that may fall between weekdays.
+        val termStart = base.one("X-KIDSTRACKER-START-DATE")?.value?.let(LocalDate::parse)
+        require(termStart == null || (rule != null && !termStart.isAfter(start.toLocalDate()))) {
+            "Term start must be on or before the first recurring occurrence"
+        }
         val activity =
             Activity(
                 name = base.text("SUMMARY").ifBlank { "Imported activity" },
@@ -358,7 +364,7 @@ object CalendarCodec {
                 daysOfWeek = days.toIntArray(),
                 isPeriodic = rule != null,
                 firstDate = start.toLocalDate().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)).toString(),
-                calendarStartDate = if (rule == null) null else start.toLocalDate().toString(),
+                calendarStartDate = if (rule == null) null else (termStart ?: start.toLocalDate()).toString(),
                 isSchoolActivity = rule != null && base.text("X-KIDSTRACKER-SCHOOL").equals("true", true),
                 isEnabled = !base.text("X-KIDSTRACKER-ENABLED").equals("false", true),
                 location = base.text("LOCATION"),

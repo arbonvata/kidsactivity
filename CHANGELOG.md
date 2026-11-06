@@ -5,6 +5,10 @@ in-app About screen); this file records what each release shipped.
 
 ## Unreleased
 
+- **Fixed**: single-day holiday edits retain early-release times, calendar sharing
+  preserves original term starts and earlier exceptions, and reminders crossing
+  midnight keep distinct identities for neighboring occurrences.
+
 - **Added**: editable start dates for repeating activities and inclusive school
   holiday ranges for one or all children, with confirmation, atomic writes,
   retry feedback and restoration that keeps existing early-release times.

@@ -82,4 +82,35 @@ class ActivityReminderTest {
             computeUpcomingAlarms(kids, listOf(lateSchool), 10, 15, day.atStartOfDay(), horizonDays = 1).single().triggerAt,
         )
     }
+
+    @Test
+    fun `neighboring occurrences with reminders on the same date keep distinct stable identities`() {
+        val source =
+            activity.copy(
+                isPeriodic = true,
+                daysOfWeek = intArrayOf(1, 2),
+                startTime = "00:30",
+                endTime = "00:50",
+                hasCustomReminder = true,
+                reminderMinutes = 60,
+                hasPickupReminder = true,
+                pickupLeadMinutes = 60,
+                occurrenceExceptions =
+                    encodeExceptions(
+                        listOf(OccurrenceException(day, java.time.LocalTime.of(23, 30), java.time.LocalTime.of(23, 59))),
+                    ),
+            )
+        val alarms = computeUpcomingAlarms(kids, listOf(source), 10, 15, day.atTime(21, 0), horizonDays = 1)
+        assertEquals(4, alarms.size)
+        assertTrue(alarms.all { it.triggerAt.toLocalDate() == day })
+        assertEquals(4, alarms.map { it.requestCode }.distinct().size)
+        assertEquals(setOf(day, day.plusDays(1)), alarms.map { it.occurrenceDate }.toSet())
+        val tomorrowPrimary = alarms.single { it.occurrenceDate == day.plusDays(1) && !it.isPickupReminder }
+        val retimed = source.copy(reminderMinutes = 0)
+        val updated = computeUpcomingAlarms(kids, listOf(retimed), 10, 15, day.atTime(21, 0), horizonDays = 2)
+        assertEquals(
+            tomorrowPrimary.requestCode,
+            updated.single { it.occurrenceDate == day.plusDays(1) && !it.isPickupReminder }.requestCode,
+        )
+    }
 }

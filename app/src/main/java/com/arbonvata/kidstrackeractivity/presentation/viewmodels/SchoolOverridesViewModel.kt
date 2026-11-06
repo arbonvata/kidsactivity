@@ -143,7 +143,7 @@ class SchoolOverridesViewModel(
             scheduleOverrideRepository.setOverride(
                 kidId = kidId,
                 date = date,
-                endTime = if (isNoSchool) null else endTime?.format(TIME_FORMATTER),
+                endTime = endTime?.format(TIME_FORMATTER),
                 isNoSchool = isNoSchool,
             )
         }

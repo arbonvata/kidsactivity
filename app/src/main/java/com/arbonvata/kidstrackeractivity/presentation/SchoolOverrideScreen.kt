@@ -148,7 +148,6 @@ fun SchoolOverrideScreen(
                             checked = noSchool,
                             onCheckedChange = {
                                 noSchool = it
-                                if (it) customEnd = null
                             },
                         )
                         Text(stringResource(R.string.school_override_no_school_label))
@@ -187,7 +186,7 @@ fun SchoolOverrideScreen(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        viewModel.setDayOverride(date, if (noSchool) null else customEnd, noSchool)
+                        viewModel.setDayOverride(date, customEnd, noSchool)
                         editingDate = null
                     },
                 ) { Text(stringResource(R.string.school_override_save)) }

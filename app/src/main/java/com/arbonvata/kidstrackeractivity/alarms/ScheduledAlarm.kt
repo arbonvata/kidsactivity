@@ -1,5 +1,6 @@
 package com.arbonvata.kidstrackeractivity.alarms
 
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 /**
@@ -18,12 +19,14 @@ data class ScheduledAlarm(
     /** The configured offset in minutes (after end / before start). */
     val offsetMinutes: Int,
     val isPickupReminder: Boolean = false,
+    /** Original occurrence date, even when the reminder crosses midnight. */
+    val occurrenceDate: LocalDate = triggerAt.toLocalDate(),
 ) {
     /**
-     * Stable across recomputes and unique per activity per day: recomputing
+     * Stable across recomputes and unique per activity per occurrence and kind: recomputing
      * the same alarm reuses the id, so AlarmManager updates in place instead
      * of piling up duplicates.
      */
     val requestCode: Int =
-        ((activityId * 10_000L + triggerAt.toLocalDate().toEpochDay() % 10_000L) * 2 + if (isPickupReminder) 1 else 0).toInt()
+        ((activityId * 10_000L + occurrenceDate.toEpochDay() % 10_000L) * 2 + if (isPickupReminder) 1 else 0).toInt()
 }

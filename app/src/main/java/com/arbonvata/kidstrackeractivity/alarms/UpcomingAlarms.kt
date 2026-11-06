@@ -45,7 +45,15 @@ fun computeUpcomingAlarms(
                 } else {
                     occurrence.date.atTime(occurrence.startTime).minusMinutes(minutes.toLong())
                 }
-            val primary = ScheduledAlarm(activity.id, activity.kidId, primaryTime, activity.isSchoolActivity, minutes)
+            val primary =
+                ScheduledAlarm(
+                    activity.id,
+                    activity.kidId,
+                    primaryTime,
+                    activity.isSchoolActivity,
+                    minutes,
+                    occurrenceDate = occurrence.date,
+                )
             val pickup =
                 if (!activity.isSchoolActivity && activity.hasPickupReminder) {
                     val lead = activity.pickupLeadMinutes.coerceIn(0, 60)
@@ -56,6 +64,7 @@ fun computeUpcomingAlarms(
                         isSchoolActivity = false,
                         offsetMinutes = lead,
                         isPickupReminder = true,
+                        occurrenceDate = occurrence.date,
                     )
                 } else {
                     null

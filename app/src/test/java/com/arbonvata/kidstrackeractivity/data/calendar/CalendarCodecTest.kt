@@ -469,4 +469,48 @@ class CalendarCodecTest {
             "END:VEVENT",
             "END:VCALENDAR",
         ).joinToString("\n")
+
+    @Test
+    fun `sharing an ongoing term retains its exact start boundary and historical exceptions`() {
+        val termStart = monday.minusWeeks(4).plusDays(1)
+        val cancelled = termStart.plusDays(1)
+        val source =
+            swim.copy(
+                calendarStartDate = termStart.toString(),
+                lastDate = monday.plusWeeks(4).toString(),
+                occurrenceExceptions = encodeExceptions(listOf(OccurrenceException(cancelled))),
+            )
+        for (shareDate in listOf(monday, monday.plusMonths(3))) {
+            val imported =
+                CalendarCodec
+                    .parse(CalendarCodec.export(kid, listOf(source), emptyList(), shareDate), zone)
+                    .activities
+                    .single()
+                    .copy(id = source.id, kidId = kid.id)
+            assertEquals(source.calendarStartDate, imported.calendarStartDate)
+            assertEquals(source.lastDate, imported.lastDate)
+            assertEquals(decodeExceptions(source.occurrenceExceptions), decodeExceptions(imported.occurrenceExceptions))
+            val rangeStart = termStart.minusWeeks(1)
+            val rangeEnd = monday.plusWeeks(5)
+            assertEquals(
+                expandActivitiesForDateRange(listOf(kid), listOf(source), rangeStart, rangeEnd).map { it.date },
+                expandActivitiesForDateRange(listOf(kid), listOf(imported), rangeStart, rangeEnd).map { it.date },
+            )
+        }
+    }
+
+    @Test
+    fun `calendar rejects invalid term start metadata`() {
+        val source = swim.copy(calendarStartDate = monday.toString())
+        val text = CalendarCodec.export(kid, listOf(source), emptyList(), monday)
+        assertThrows(java.time.format.DateTimeParseException::class.java) {
+            CalendarCodec.parse(text.replace("X-KIDSTRACKER-START-DATE:$monday", "X-KIDSTRACKER-START-DATE:invalid"), zone)
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            CalendarCodec.parse(
+                text.replace("X-KIDSTRACKER-START-DATE:$monday", "X-KIDSTRACKER-START-DATE:${monday.plusDays(1)}"),
+                zone,
+            )
+        }
+    }
 }

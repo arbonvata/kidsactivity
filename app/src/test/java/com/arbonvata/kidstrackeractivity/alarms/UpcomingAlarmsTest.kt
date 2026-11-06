@@ -193,7 +193,11 @@ class UpcomingAlarmsTest {
                 isSchoolActivity = true,
                 offsetMinutes = 10,
             )
-        val nextMonday = monday.copy(triggerAt = LocalDateTime.of(2026, 10, 26, 14, 10))
+        val nextMonday =
+            monday.copy(
+                triggerAt = LocalDateTime.of(2026, 10, 26, 14, 10),
+                occurrenceDate = monday.occurrenceDate.plusWeeks(1),
+            )
         val otherActivity = monday.copy(activityId = 6L)
 
         assertEquals(monday.requestCode, monday.copy(offsetMinutes = 20).requestCode)

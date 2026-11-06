@@ -143,23 +143,33 @@ class SchoolOverridesViewModelTest {
         }
 
     @Test
-    fun setDayOverrideForNoSchoolDropsTheEndTime() =
+    fun setDayOverrideForNoSchoolRetainsTheEndTime() =
         runTest {
             every { kidRepository.getAllKidsFlow() } returns flowOf(listOf(Kid(id = 1L, name = "Leo")))
-            every { scheduleOverrideRepository.getAllOverridesFlow() } returns flowOf(emptyList())
+            every { scheduleOverrideRepository.getAllOverridesFlow() } returns
+                flowOf(listOf(DailySchedule(kidId = 1, date = "2026-10-21", endTime = "12:30", isNoSchool = true)))
             val viewModel = SchoolOverridesViewModel(kidRepository, activityRepository, scheduleOverrideRepository)
 
             backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
                 viewModel.uiState.collect()
             }
 
-            viewModel.setDayOverride(LocalDate.of(2026, 10, 21), LocalTime.of(12, 30), isNoSchool = true)
+            val date = LocalDate.of(2026, 10, 21)
+            val retainedTime =
+                LocalTime.parse(
+                    viewModel.uiState.value.overrides
+                        .getValue(date)
+                        .endTime,
+                )
+            viewModel.setDayOverride(date, retainedTime, isNoSchool = true)
+            viewModel.setDayOverride(date, retainedTime, isNoSchool = false)
 
             coVerify {
+                scheduleOverrideRepository.setOverride(1L, date, "12:30", false)
                 scheduleOverrideRepository.setOverride(
                     kidId = 1L,
                     date = LocalDate.of(2026, 10, 21),
-                    endTime = null,
+                    endTime = "12:30",
                     isNoSchool = true,
                 )
             }
