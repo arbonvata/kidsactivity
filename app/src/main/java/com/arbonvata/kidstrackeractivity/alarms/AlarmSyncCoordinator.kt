@@ -1,13 +1,18 @@
 package com.arbonvata.kidstrackeractivity.alarms
 
+import android.util.Log
 import com.arbonvata.kidstrackeractivity.data.repository.ActivityRepository
 import com.arbonvata.kidstrackeractivity.data.repository.AlarmSettingsRepository
 import com.arbonvata.kidstrackeractivity.data.repository.KidRepository
 import com.arbonvata.kidstrackeractivity.data.repository.ScheduleOverrideRepository
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.retry
 import kotlinx.coroutines.launch
+import java.io.IOException
 import java.time.LocalDateTime
 
 /**
@@ -27,22 +32,32 @@ class AlarmSyncCoordinator(
 ) {
     fun start() {
         scope.launch {
-            combine(
-                kidRepository.getAllKidsFlow(),
-                activityRepository.getAllActivitiesFlow(),
-                scheduleOverrideRepository.getAllOverridesFlow(),
-                alarmSettingsRepository.schoolAlarmMinutes,
-                alarmSettingsRepository.activityAlarmMinutes,
-            ) { kids, activities, overrides, schoolMinutes, activityMinutes ->
-                computeUpcomingAlarms(
-                    kids,
-                    activities,
-                    schoolMinutes,
-                    activityMinutes,
-                    LocalDateTime.now(),
-                    overrides = overrides,
-                )
-            }.collect { alarms -> alarmScheduler.syncAlarms(alarms) }
+            handleAlarmSyncFailure("observe reminder changes") {
+                combine(
+                    kidRepository.getAllKidsFlow(),
+                    activityRepository.getAllActivitiesFlow(),
+                    scheduleOverrideRepository.getAllOverridesFlow(),
+                    alarmSettingsRepository.schoolAlarmMinutes,
+                    alarmSettingsRepository.activityAlarmMinutes,
+                ) { kids, activities, overrides, schoolMinutes, activityMinutes ->
+                    computeUpcomingAlarms(
+                        kids,
+                        activities,
+                        schoolMinutes,
+                        activityMinutes,
+                        LocalDateTime.now(),
+                        overrides = overrides,
+                    )
+                }.retry(retries = 2) { cause ->
+                    if (cause !is IOException) return@retry false
+                    delay(1_000)
+                    true
+                }.collect { alarms ->
+                    handleAlarmSyncFailure("schedule reminders") {
+                        alarmScheduler.syncAlarms(alarms)
+                    }
+                }
+            }
         }
     }
 
@@ -76,5 +91,18 @@ class AlarmSyncCoordinator(
         if (alarmScheduler.missedExactAlarmPermissionOnLastSync() && alarmScheduler.canScheduleExactAlarms()) {
             resyncOnce()
         }
+    }
+}
+
+internal inline fun handleAlarmSyncFailure(
+    operation: String,
+    block: () -> Unit,
+) {
+    try {
+        block()
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Exception) {
+        Log.e("AlarmSync", "Unable to $operation", e)
     }
 }

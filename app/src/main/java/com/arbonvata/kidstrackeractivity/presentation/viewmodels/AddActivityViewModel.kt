@@ -8,6 +8,7 @@ import com.arbonvata.kidstrackeractivity.data.objectbox.Parent
 import com.arbonvata.kidstrackeractivity.data.repository.ActivityRepository
 import com.arbonvata.kidstrackeractivity.data.repository.KidRepository
 import com.arbonvata.kidstrackeractivity.data.repository.ParentRepository
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -173,6 +174,7 @@ class AddActivityViewModel(
 
     fun saveActivity() {
         val state = _uiState.value
+        if (state.isSaving || state.isSaved) return
         val nameError = !isValidName(state.name)
         val daysError = state.selectedDays.isEmpty()
         val timeError = state.hasInvertedTimeRange
@@ -181,10 +183,18 @@ class AddActivityViewModel(
             return
         }
 
+        _uiState.update { it.copy(isSaving = true, saveError = false) }
         viewModelScope.launch {
-            _uiState.update { it.copy(isSaving = true) }
-            activityRepository.addActivity(state.toActivity())
-            _uiState.update { it.copy(isSaved = true, isSaving = false) }
+            try {
+                activityRepository.addActivity(state.toActivity())
+                _uiState.update { it.copy(isSaved = true) }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                _uiState.update { it.copy(saveError = true) }
+            } finally {
+                _uiState.update { it.copy(isSaving = false) }
+            }
         }
     }
 

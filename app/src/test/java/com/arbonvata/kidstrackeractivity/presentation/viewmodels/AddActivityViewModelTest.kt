@@ -11,6 +11,8 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.emptyFlow
@@ -61,6 +63,7 @@ class AddActivityViewModelTest {
             vm.onLastDateChange(start.plusMonths(3))
             vm.saveActivity()
             assertEquals("2027-01-12", captured.captured.calendarStartDate)
+            vm.onSavedHandled()
             vm.onCalendarStartDateChange(null)
             vm.saveActivity()
             assertEquals(null, captured.captured.calendarStartDate)
@@ -94,6 +97,7 @@ class AddActivityViewModelTest {
             viewModel.saveActivity()
             assertEquals("2026-12-13", captured.captured.lastDate)
 
+            viewModel.onSavedHandled()
             viewModel.onLastDateChange(null)
             viewModel.saveActivity()
             assertEquals(null, captured.captured.lastDate)
@@ -336,6 +340,59 @@ class AddActivityViewModelTest {
 
             coVerify { activityRepository.addActivity(any()) }
             assertTrue(savedActivity.captured.isSchoolActivity)
+        }
+
+    @Test
+    fun saveFailureKeepsEditsAndAllowsRetry() =
+        runTest {
+            coEvery { activityRepository.addActivity(any()) } throws IllegalStateException("Database unavailable")
+            val viewModel = AddActivityViewModel(5L, activityRepository, kidRepository, parentRepository)
+            viewModel.onNameChange("Swim")
+
+            viewModel.saveActivity()
+
+            assertTrue(viewModel.uiState.value.saveError)
+            assertFalse(viewModel.uiState.value.isSaving)
+            assertFalse(viewModel.uiState.value.isSaved)
+            assertEquals("Swim", viewModel.uiState.value.name)
+
+            coEvery { activityRepository.addActivity(any()) } returns Activity(id = 1L)
+            viewModel.saveActivity()
+
+            assertTrue(viewModel.uiState.value.isSaved)
+            assertFalse(viewModel.uiState.value.saveError)
+        }
+
+    @Test
+    fun repeatedSaveWhileWriteIsPendingStartsOnlyOneWrite() =
+        runTest {
+            val write = CompletableDeferred<Activity>()
+            coEvery { activityRepository.addActivity(any()) } coAnswers { write.await() }
+            val viewModel = AddActivityViewModel(5L, activityRepository, kidRepository, parentRepository)
+            viewModel.onNameChange("Swim")
+
+            viewModel.saveActivity()
+            viewModel.saveActivity()
+
+            assertTrue(viewModel.uiState.value.isSaving)
+            coVerify(exactly = 1) { activityRepository.addActivity(any()) }
+            write.complete(Activity(id = 1L))
+            assertFalse(viewModel.uiState.value.isSaving)
+            assertTrue(viewModel.uiState.value.isSaved)
+        }
+
+    @Test
+    fun cancelledSaveClearsBusyStateWithoutReportingAnError() =
+        runTest {
+            coEvery { activityRepository.addActivity(any()) } throws CancellationException("Save cancelled")
+            val viewModel = AddActivityViewModel(5L, activityRepository, kidRepository, parentRepository)
+            viewModel.onNameChange("Swim")
+
+            viewModel.saveActivity()
+
+            assertFalse(viewModel.uiState.value.isSaving)
+            assertFalse(viewModel.uiState.value.saveError)
+            assertFalse(viewModel.uiState.value.isSaved)
         }
 
     @Test

@@ -93,4 +93,6 @@
 
     <!-- Restore result -->
     <string name="share_restore_failed_message">Restore failed — is this a valid backup file?</string>
+    <string name="share_backup_file_failed_title">Backup file error</string>
+    <string name="share_backup_file_failed_message">The backup file could not be read, saved, or shared.</string>
 </resources>

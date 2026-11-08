@@ -1,6 +1,7 @@
 package com.arbonvata.kidstrackeractivity.presentation
 
 import android.content.Intent
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -53,9 +54,13 @@ import com.arbonvata.kidstrackeractivity.R
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.BackupResult
 import com.arbonvata.kidstrackeractivity.presentation.viewmodels.ShareViewModel
 import com.arbonvata.kidstrackeractivity.ui.theme.KidsTrackerActivityTheme
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.koin.androidx.compose.koinViewModel
 import java.io.File
+import java.io.IOException
 
 private const val BACKUP_FILE_NAME = "kidstracker-backup.json"
 
@@ -73,16 +78,37 @@ fun ShareScreen(
     val scope = rememberCoroutineScope()
     val uiState by viewModel.uiState.collectAsState()
     var pendingImportJson by remember { mutableStateOf<String?>(null) }
+    var isHandlingFile by remember { mutableStateOf(false) }
+    var fileError by remember { mutableStateOf(false) }
+
+    fun handleBackupFile(operation: suspend () -> Unit) {
+        if (isHandlingFile) return
+        isHandlingFile = true
+        scope.launch {
+            try {
+                operation()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Log.e("ShareScreen", "Backup file operation failed", e)
+                fileError = true
+            } finally {
+                isHandlingFile = false
+            }
+        }
+    }
 
     val createDocumentLauncher =
         rememberLauncherForActivityResult(
             ActivityResultContracts.CreateDocument("application/json"),
         ) { uri ->
             if (uri != null) {
-                scope.launch {
+                handleBackupFile {
                     val json = viewModel.exportBackup()
-                    context.contentResolver.openOutputStream(uri)?.use { output ->
-                        output.write(json.toByteArray())
+                    withContext(Dispatchers.IO) {
+                        val stream =
+                            context.contentResolver.openOutputStream(uri) ?: throw IOException("Cannot open backup for writing")
+                        stream.use { it.write(json.toByteArray()) }
                     }
                 }
             }
@@ -93,12 +119,13 @@ fun ShareScreen(
             ActivityResultContracts.OpenDocument(),
         ) { uri ->
             if (uri != null) {
-                scope.launch {
-                    val json =
-                        context.contentResolver.openInputStream(uri)?.bufferedReader()?.use { reader ->
-                            reader.readText()
+                handleBackupFile {
+                    pendingImportJson =
+                        withContext(Dispatchers.IO) {
+                            val stream =
+                                context.contentResolver.openInputStream(uri) ?: throw IOException("Cannot open backup for reading")
+                            stream.bufferedReader().use { it.readText() }
                         }
-                    if (json != null) pendingImportJson = json
                 }
             }
         }
@@ -107,13 +134,13 @@ fun ShareScreen(
     val shareChooserTitle = stringResource(R.string.share_backup_chooser_title)
 
     fun shareBackupFile() {
-        scope.launch {
+        handleBackupFile {
             val json = viewModel.exportBackup()
             val file =
-                File(context.cacheDir, BACKUP_FILE_NAME).apply {
-                    writeText(json)
+                withContext(Dispatchers.IO) {
+                    File.createTempFile("backup-", ".json", context.cacheDir).apply { writeText(json) }
                 }
-            val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
+            val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file, BACKUP_FILE_NAME)
             val intent =
                 Intent(Intent.ACTION_SEND).apply {
                     type = "application/json"
@@ -127,14 +154,27 @@ fun ShareScreen(
 
     ShareContent(
         isWorking = uiState.isWorking,
-        onSaveToFileClick = { createDocumentLauncher.launch(BACKUP_FILE_NAME) },
+        onSaveToFileClick = {
+            if (!isHandlingFile) createDocumentLauncher.launch(BACKUP_FILE_NAME)
+        },
         onShareFileClick = ::shareBackupFile,
         onImportClick = {
-            openDocumentLauncher.launch(arrayOf("application/json", "text/*", "application/octet-stream"))
+            if (!isHandlingFile) openDocumentLauncher.launch(arrayOf("application/json", "text/*", "application/octet-stream"))
         },
         onBackClick = onBackClick,
         calendarContent = { CalendarSharingSection() },
     )
+
+    if (fileError) {
+        AlertDialog(
+            onDismissRequest = { fileError = false },
+            title = { Text(stringResource(R.string.share_backup_file_failed_title)) },
+            text = { Text(stringResource(R.string.share_backup_file_failed_message)) },
+            confirmButton = {
+                TextButton(onClick = { fileError = false }) { Text(stringResource(R.string.share_ok)) }
+            },
+        )
+    }
 
     pendingImportJson?.let { json ->
         AlertDialog(

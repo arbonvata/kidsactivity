@@ -1,5 +1,6 @@
 package com.arbonvata.kidstrackeractivity.alarms
 
+import android.util.Log
 import com.arbonvata.kidstrackeractivity.data.objectbox.Kid
 import com.arbonvata.kidstrackeractivity.data.repository.ActivityRepository
 import com.arbonvata.kidstrackeractivity.data.repository.AlarmSettingsRepository
@@ -9,11 +10,19 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkStatic
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import java.io.IOException
 
 /**
  * Tests the ON_RESUME recovery of [AlarmSyncCoordinator.onAppResumed]: every
@@ -38,15 +47,46 @@ class AlarmSyncCoordinatorTest {
         every { alarmSettingsRepository.activityAlarmMinutes } returns flowOf(15)
     }
 
-    private fun coordinator() =
+    private fun coordinator(scope: CoroutineScope = TestScope()) =
         AlarmSyncCoordinator(
             kidRepository,
             activityRepository,
             scheduleOverrideRepository,
             alarmSettingsRepository,
             alarmScheduler,
-            TestScope(),
+            scope,
         )
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun liveSyncRetriesReadFailureAndKeepsCollectingAfterScheduleFailure() =
+        runTest {
+            val activityMinutes = MutableStateFlow(15)
+            var reads = 0
+            every { kidRepository.getAllKidsFlow() } returns flow {
+                if (reads++ == 0) throw IOException("Settings temporarily unavailable")
+                emit(emptyList())
+            }
+            every { activityRepository.getAllActivitiesFlow() } returns flowOf(emptyList())
+            every { scheduleOverrideRepository.getAllOverridesFlow() } returns flowOf(emptyList())
+            every { alarmSettingsRepository.activityAlarmMinutes } returns activityMinutes
+            coEvery { alarmScheduler.syncAlarms(any()) } throws SecurityException("Exact alarm permission revoked") andThen Unit
+
+            mockkStatic(Log::class) {
+                every { Log.e(any(), any(), any()) } returns 0
+                coordinator(backgroundScope).start()
+                runCurrent()
+                coVerify(exactly = 0) { alarmScheduler.syncAlarms(any()) }
+
+                advanceTimeBy(1_000)
+                runCurrent()
+                coVerify(exactly = 1) { alarmScheduler.syncAlarms(any()) }
+
+                activityMinutes.value = 20
+                runCurrent()
+                coVerify(exactly = 2) { alarmScheduler.syncAlarms(any()) }
+            }
+        }
 
     @Test
     fun resumeAfterThePermissionReturnedReschedulesAlarms() =

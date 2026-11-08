@@ -17,10 +17,11 @@ class BootReceiver : BroadcastReceiver() {
     ) {
         if (intent.action != Intent.ACTION_BOOT_COMPLETED) return
         val pendingResult = goAsync()
-        val koin = GlobalContext.get()
         CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
             try {
-                koin.get<AlarmSyncCoordinator>().resyncOnce()
+                handleAlarmSyncFailure("reschedule reminders after boot") {
+                    GlobalContext.get().get<AlarmSyncCoordinator>().resyncOnce()
+                }
             } finally {
                 pendingResult.finish()
             }

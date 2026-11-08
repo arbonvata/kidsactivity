@@ -6,6 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.mutableStateOf
 import com.arbonvata.kidstrackeractivity.alarms.AlarmSyncCoordinator
+import com.arbonvata.kidstrackeractivity.alarms.handleAlarmSyncFailure
 import com.arbonvata.kidstrackeractivity.presentation.navigation.KidsScheduleApp
 import com.arbonvata.kidstrackeractivity.ui.theme.KidsTrackerActivityTheme
 import kotlinx.coroutines.CoroutineScope
@@ -38,7 +39,9 @@ class MainActivity : ComponentActivity() {
         // reminders need rescheduling because the permission returned.
         val koin = GlobalContext.get()
         koin.get<CoroutineScope>().launch {
-            koin.get<AlarmSyncCoordinator>().onAppResumed()
+            handleAlarmSyncFailure("reschedule reminders on resume") {
+                koin.get<AlarmSyncCoordinator>().onAppResumed()
+            }
         }
     }
 }

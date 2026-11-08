@@ -39,7 +39,9 @@ class AlarmReceiver : BroadcastReceiver() {
                 val pendingResult = goAsync()
                 CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
                     try {
-                        GlobalContext.get().get<AlarmSyncCoordinator>().resyncOnce()
+                        handleAlarmSyncFailure("refresh upcoming reminders") {
+                            GlobalContext.get().get<AlarmSyncCoordinator>().resyncOnce()
+                        }
                     } finally {
                         pendingResult.finish()
                     }
