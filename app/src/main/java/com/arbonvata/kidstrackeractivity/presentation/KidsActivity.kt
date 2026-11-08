@@ -96,24 +96,32 @@ fun AddActivityScreen(
         uiState = uiState,
         kids = kids,
         parents = parents,
-        isKidPickerEnabled = kidId == 0L,
-        onKidSelected = viewModel::onKidSelected,
+        onKidSelected = (viewModel::onKidSelected).takeIf { kidId == 0L },
         onNameChange = viewModel::onNameChange,
-        onLocationChange = viewModel::onLocationChange,
-        onPickupAdultChange = viewModel::onPickupAdultChange,
-        onPickupNotesChange = viewModel::onPickupNotesChange,
-        onCustomReminderChange = viewModel::onCustomReminderChange,
-        onReminderMinutesChange = viewModel::onReminderMinutesChange,
-        onPickupReminderChange = viewModel::onPickupReminderChange,
-        onPickupLeadChange = viewModel::onPickupLeadChange,
-        onToggleDay = viewModel::onToggleDay,
-        onStartTimeChange = viewModel::onStartTimeChange,
-        onEndTimeChange = viewModel::onEndTimeChange,
-        onPeriodicChange = viewModel::onPeriodicChange,
-        onSchoolActivityChange = viewModel::onSchoolActivityChange,
-        onFirstDateChange = viewModel::onFirstDateChange,
-        onLastDateChange = viewModel::onLastDateChange,
-        onCalendarStartDateChange = viewModel::onCalendarStartDateChange,
+        scheduleActions =
+            ActivityScheduleActions(
+                onToggleDay = viewModel::onToggleDay,
+                onStartTimeChange = viewModel::onStartTimeChange,
+                onEndTimeChange = viewModel::onEndTimeChange,
+                onPeriodicChange = viewModel::onPeriodicChange,
+                onSchoolActivityChange = viewModel::onSchoolActivityChange,
+                onFirstDateChange = viewModel::onFirstDateChange,
+                onLastDateChange = viewModel::onLastDateChange,
+                onCalendarStartDateChange = viewModel::onCalendarStartDateChange,
+            ),
+        pickupActions =
+            ActivityPickupActions(
+                onLocationChange = viewModel::onLocationChange,
+                onPickupAdultChange = viewModel::onPickupAdultChange,
+                onPickupNotesChange = viewModel::onPickupNotesChange,
+            ),
+        reminderActions =
+            ActivityReminderActions(
+                onCustomReminderChange = viewModel::onCustomReminderChange,
+                onReminderMinutesChange = viewModel::onReminderMinutesChange,
+                onPickupReminderChange = viewModel::onPickupReminderChange,
+                onPickupLeadChange = viewModel::onPickupLeadChange,
+            ),
         onSaveClick = viewModel::saveActivity,
         onNavigateBack = onNavigateBack,
     )
@@ -175,24 +183,31 @@ fun EditActivityScreen(
                 uiState = form.copy(isSaving = uiState.isSaving, saveError = uiState.saveError),
                 kids = kids,
                 parents = parents,
-                isKidPickerEnabled = false,
-                onKidSelected = {},
                 onNameChange = viewModel::onNameChange,
-                onLocationChange = viewModel::onLocationChange,
-                onPickupAdultChange = viewModel::onPickupAdultChange,
-                onPickupNotesChange = viewModel::onPickupNotesChange,
-                onCustomReminderChange = viewModel::onCustomReminderChange,
-                onReminderMinutesChange = viewModel::onReminderMinutesChange,
-                onPickupReminderChange = viewModel::onPickupReminderChange,
-                onPickupLeadChange = viewModel::onPickupLeadChange,
-                onToggleDay = viewModel::onToggleDay,
-                onStartTimeChange = viewModel::onStartTimeChange,
-                onEndTimeChange = viewModel::onEndTimeChange,
-                onPeriodicChange = viewModel::onPeriodicChange,
-                onSchoolActivityChange = viewModel::onSchoolActivityChange,
-                onFirstDateChange = viewModel::onFirstDateChange,
-                onLastDateChange = viewModel::onLastDateChange,
-                onCalendarStartDateChange = viewModel::onCalendarStartDateChange,
+                scheduleActions =
+                    ActivityScheduleActions(
+                        onToggleDay = viewModel::onToggleDay,
+                        onStartTimeChange = viewModel::onStartTimeChange,
+                        onEndTimeChange = viewModel::onEndTimeChange,
+                        onPeriodicChange = viewModel::onPeriodicChange,
+                        onSchoolActivityChange = viewModel::onSchoolActivityChange,
+                        onFirstDateChange = viewModel::onFirstDateChange,
+                        onLastDateChange = viewModel::onLastDateChange,
+                        onCalendarStartDateChange = viewModel::onCalendarStartDateChange,
+                    ),
+                pickupActions =
+                    ActivityPickupActions(
+                        onLocationChange = viewModel::onLocationChange,
+                        onPickupAdultChange = viewModel::onPickupAdultChange,
+                        onPickupNotesChange = viewModel::onPickupNotesChange,
+                    ),
+                reminderActions =
+                    ActivityReminderActions(
+                        onCustomReminderChange = viewModel::onCustomReminderChange,
+                        onReminderMinutesChange = viewModel::onReminderMinutesChange,
+                        onPickupReminderChange = viewModel::onPickupReminderChange,
+                        onPickupLeadChange = viewModel::onPickupLeadChange,
+                    ),
                 onSaveClick = viewModel::saveActivity,
                 onNavigateBack = onNavigateBack,
                 screenTitle = stringResource(R.string.edit_activity_title),
@@ -233,34 +248,45 @@ fun EditActivityScreen(
     }
 }
 
+class ActivityScheduleActions(
+    val onToggleDay: (Int) -> Unit = {},
+    val onStartTimeChange: (LocalTime) -> Unit = {},
+    val onEndTimeChange: (LocalTime) -> Unit = {},
+    val onPeriodicChange: (Boolean) -> Unit = {},
+    val onSchoolActivityChange: (Boolean) -> Unit = {},
+    val onFirstDateChange: (LocalDate) -> Unit = {},
+    val onLastDateChange: (LocalDate?) -> Unit = {},
+    val onCalendarStartDateChange: (LocalDate?) -> Unit = {},
+)
+
+class ActivityPickupActions(
+    val onLocationChange: (String) -> Unit = {},
+    val onPickupAdultChange: (String) -> Unit = {},
+    val onPickupNotesChange: (String) -> Unit = {},
+)
+
+class ActivityReminderActions(
+    val onCustomReminderChange: (Boolean) -> Unit = {},
+    val onReminderMinutesChange: (Int) -> Unit = {},
+    val onPickupReminderChange: (Boolean) -> Unit = {},
+    val onPickupLeadChange: (Int) -> Unit = {},
+)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddActivityContent(
     uiState: AddActivityUiState,
     kids: List<Kid>,
-    isKidPickerEnabled: Boolean,
-    onKidSelected: (Long) -> Unit,
     onNameChange: (String) -> Unit,
-    onToggleDay: (Int) -> Unit,
-    onStartTimeChange: (LocalTime) -> Unit,
-    onEndTimeChange: (LocalTime) -> Unit,
-    onPeriodicChange: (Boolean) -> Unit,
-    onSchoolActivityChange: (Boolean) -> Unit,
-    onFirstDateChange: (LocalDate) -> Unit,
-    onLastDateChange: (LocalDate?) -> Unit = {},
-    onCalendarStartDateChange: (LocalDate?) -> Unit = {},
+    scheduleActions: ActivityScheduleActions,
+    pickupActions: ActivityPickupActions,
+    reminderActions: ActivityReminderActions,
     onSaveClick: () -> Unit,
     onNavigateBack: () -> Unit,
+    onKidSelected: ((Long) -> Unit)? = null,
     screenTitle: String = stringResource(R.string.add_activity_title),
     onDeleteClick: (() -> Unit)? = null,
     extraContent: @Composable () -> Unit = {},
-    onLocationChange: (String) -> Unit = {},
-    onPickupAdultChange: (String) -> Unit = {},
-    onPickupNotesChange: (String) -> Unit = {},
-    onCustomReminderChange: (Boolean) -> Unit = {},
-    onReminderMinutesChange: (Int) -> Unit = {},
-    onPickupReminderChange: (Boolean) -> Unit = {},
-    onPickupLeadChange: (Int) -> Unit = {},
     /** Saved parents offered as one-tap choices for the pickup adult. */
     parents: List<Parent> = emptyList(),
 ) {
@@ -344,7 +370,7 @@ fun AddActivityContent(
                     .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            if (isKidPickerEnabled) {
+            if (onKidSelected != null) {
                 KidPickerField(
                     kids = kids,
                     selectedKidId = uiState.selectedKidId,
@@ -385,7 +411,7 @@ fun AddActivityContent(
                 daysOfWeek.forEach { (label, dayValue) ->
                     FilterChip(
                         selected = dayValue in uiState.selectedDays,
-                        onClick = { onToggleDay(dayValue) },
+                        onClick = { scheduleActions.onToggleDay(dayValue) },
                         label = { Text(label) },
                     )
                 }
@@ -398,48 +424,8 @@ fun AddActivityContent(
                 )
             }
 
-            Text(stringResource(R.string.pickup_details_title), style = MaterialTheme.typography.titleMedium)
-            OutlinedTextField(
-                value = uiState.location,
-                onValueChange = onLocationChange,
-                label = { Text(stringResource(R.string.pickup_location)) },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-            )
-            if (parents.isNotEmpty()) {
-                Text(
-                    stringResource(R.string.pickup_adult_pick_parent),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    parents.forEach { parent ->
-                        FilterChip(
-                            selected = uiState.pickupAdult == parent.name,
-                            onClick = { onPickupAdultChange(parent.name) },
-                            label = { Text(parent.name) },
-                        )
-                    }
-                }
-            }
-            OutlinedTextField(
-                value = uiState.pickupAdult,
-                onValueChange = onPickupAdultChange,
-                label = { Text(stringResource(R.string.pickup_adult)) },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-            )
-            OutlinedTextField(
-                value = uiState.pickupNotes,
-                onValueChange = onPickupNotesChange,
-                label = { Text(stringResource(R.string.pickup_notes)) },
-                modifier = Modifier.fillMaxWidth(),
-                minLines = 2,
-            )
-            ActivityReminderFields(uiState, onCustomReminderChange, onReminderMinutesChange, onPickupReminderChange, onPickupLeadChange)
+            ActivityPickupFields(uiState, parents, pickupActions)
+            ActivityReminderFields(uiState, reminderActions)
             extraContent()
 
             // School activities are always weekly, so the periodic toggle is
@@ -451,7 +437,7 @@ fun AddActivityContent(
                 ) {
                     Checkbox(
                         checked = uiState.isPeriodic,
-                        onCheckedChange = onPeriodicChange,
+                        onCheckedChange = scheduleActions.onPeriodicChange,
                     )
                     Text(
                         text = stringResource(R.string.add_activity_periodic_label),
@@ -467,7 +453,7 @@ fun AddActivityContent(
             ) {
                 Checkbox(
                     checked = uiState.isSchoolActivity,
-                    onCheckedChange = onSchoolActivityChange,
+                    onCheckedChange = scheduleActions.onSchoolActivityChange,
                 )
                 Column(modifier = Modifier.padding(start = 8.dp)) {
                     Text(
@@ -514,7 +500,9 @@ fun AddActivityContent(
                 }
                 Text(stringResource(R.string.activity_start_date_hint), style = MaterialTheme.typography.bodySmall)
                 if (uiState.calendarStartDate != null) {
-                    TextButton(onClick = { onCalendarStartDateChange(null) }) { Text(stringResource(R.string.activity_start_date_remove)) }
+                    TextButton(onClick = { scheduleActions.onCalendarStartDateChange(null) }) {
+                        Text(stringResource(R.string.activity_start_date_remove))
+                    }
                 }
             }
 
@@ -531,7 +519,7 @@ fun AddActivityContent(
                 )
             }
             if (uiState.lastDate != null) {
-                TextButton(onClick = { onLastDateChange(null) }) {
+                TextButton(onClick = { scheduleActions.onLastDateChange(null) }) {
                     Text(stringResource(R.string.add_activity_remove_end_date))
                 }
             }
@@ -574,7 +562,7 @@ fun AddActivityContent(
         TimePickerDialog(
             initialTime = uiState.startTime,
             onConfirm = {
-                onStartTimeChange(it)
+                scheduleActions.onStartTimeChange(it)
                 showStartTimePicker = false
             },
             onDismiss = { showStartTimePicker = false },
@@ -584,7 +572,7 @@ fun AddActivityContent(
         TimePickerDialog(
             initialTime = uiState.endTime,
             onConfirm = {
-                onEndTimeChange(it)
+                scheduleActions.onEndTimeChange(it)
                 showEndTimePicker = false
             },
             onDismiss = { showEndTimePicker = false },
@@ -594,7 +582,7 @@ fun AddActivityContent(
         WeekPickerDialog(
             initialDate = uiState.firstDate,
             onConfirm = {
-                onFirstDateChange(it)
+                scheduleActions.onFirstDateChange(it)
                 showDatePicker = false
             },
             onDismiss = { showDatePicker = false },
@@ -604,7 +592,7 @@ fun AddActivityContent(
         WeekPickerDialog(
             initialDate = uiState.calendarStartDate ?: LocalDate.now(),
             onConfirm = {
-                onCalendarStartDateChange(it)
+                scheduleActions.onCalendarStartDateChange(it)
                 showStartDatePicker = false
             },
             onDismiss = { showStartDatePicker = false },
@@ -616,7 +604,7 @@ fun AddActivityContent(
         WeekPickerDialog(
             initialDate = uiState.lastDate ?: uiState.firstDate,
             onConfirm = {
-                onLastDateChange(it)
+                scheduleActions.onLastDateChange(it)
                 showEndDatePicker = false
             },
             onDismiss = { showEndDatePicker = false },
@@ -740,6 +728,55 @@ fun WeekPickerDialog(
     }
 }
 
+@Composable
+private fun ActivityPickupFields(
+    uiState: AddActivityUiState,
+    parents: List<Parent>,
+    actions: ActivityPickupActions,
+) {
+    Text(stringResource(R.string.pickup_details_title), style = MaterialTheme.typography.titleMedium)
+    OutlinedTextField(
+        value = uiState.location,
+        onValueChange = actions.onLocationChange,
+        label = { Text(stringResource(R.string.pickup_location)) },
+        modifier = Modifier.fillMaxWidth(),
+        singleLine = true,
+    )
+    if (parents.isNotEmpty()) {
+        Text(
+            stringResource(R.string.pickup_adult_pick_parent),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            parents.forEach { parent ->
+                FilterChip(
+                    selected = uiState.pickupAdult == parent.name,
+                    onClick = { actions.onPickupAdultChange(parent.name) },
+                    label = { Text(parent.name) },
+                )
+            }
+        }
+    }
+    OutlinedTextField(
+        value = uiState.pickupAdult,
+        onValueChange = actions.onPickupAdultChange,
+        label = { Text(stringResource(R.string.pickup_adult)) },
+        modifier = Modifier.fillMaxWidth(),
+        singleLine = true,
+    )
+    OutlinedTextField(
+        value = uiState.pickupNotes,
+        onValueChange = actions.onPickupNotesChange,
+        label = { Text(stringResource(R.string.pickup_notes)) },
+        modifier = Modifier.fillMaxWidth(),
+        minLines = 2,
+    )
+}
+
 @Preview(showBackground = true, name = "Add — empty form")
 @Composable
 fun AddActivityContentPreview() {
@@ -747,15 +784,11 @@ fun AddActivityContentPreview() {
         AddActivityContent(
             uiState = AddActivityUiState(),
             kids = DebugTestData.mockKids,
-            isKidPickerEnabled = true,
             onKidSelected = {},
             onNameChange = {},
-            onToggleDay = {},
-            onStartTimeChange = {},
-            onEndTimeChange = {},
-            onPeriodicChange = {},
-            onSchoolActivityChange = {},
-            onFirstDateChange = {},
+            scheduleActions = ActivityScheduleActions(),
+            pickupActions = ActivityPickupActions(),
+            reminderActions = ActivityReminderActions(),
             onSaveClick = {},
             onNavigateBack = {},
         )
@@ -775,15 +808,11 @@ fun AddActivityContentOneOffPreview() {
                     firstDate = LocalDate.of(2026, 10, 19),
                 ),
             kids = DebugTestData.mockKids,
-            isKidPickerEnabled = true,
             onKidSelected = {},
             onNameChange = {},
-            onToggleDay = {},
-            onStartTimeChange = {},
-            onEndTimeChange = {},
-            onPeriodicChange = {},
-            onSchoolActivityChange = {},
-            onFirstDateChange = {},
+            scheduleActions = ActivityScheduleActions(),
+            pickupActions = ActivityPickupActions(),
+            reminderActions = ActivityReminderActions(),
             onSaveClick = {},
             onNavigateBack = {},
         )
@@ -803,15 +832,11 @@ fun AddActivityContentCheckedPreview() {
                     isSchoolActivity = true,
                 ),
             kids = DebugTestData.mockKids,
-            isKidPickerEnabled = true,
             onKidSelected = {},
             onNameChange = {},
-            onToggleDay = {},
-            onStartTimeChange = {},
-            onEndTimeChange = {},
-            onPeriodicChange = {},
-            onSchoolActivityChange = {},
-            onFirstDateChange = {},
+            scheduleActions = ActivityScheduleActions(),
+            pickupActions = ActivityPickupActions(),
+            reminderActions = ActivityReminderActions(),
             onSaveClick = {},
             onNavigateBack = {},
         )
@@ -834,15 +859,10 @@ fun EditActivityContentPreview() {
                     isSchoolActivity = true,
                 ),
             kids = DebugTestData.mockKids,
-            isKidPickerEnabled = false,
-            onKidSelected = {},
             onNameChange = {},
-            onToggleDay = {},
-            onStartTimeChange = {},
-            onEndTimeChange = {},
-            onPeriodicChange = {},
-            onSchoolActivityChange = {},
-            onFirstDateChange = {},
+            scheduleActions = ActivityScheduleActions(),
+            pickupActions = ActivityPickupActions(),
+            reminderActions = ActivityReminderActions(),
             onSaveClick = {},
             onNavigateBack = {},
             screenTitle = stringResource(R.string.edit_activity_title),

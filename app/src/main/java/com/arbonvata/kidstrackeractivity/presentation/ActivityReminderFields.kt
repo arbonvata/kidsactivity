@@ -15,14 +15,11 @@ import kotlin.math.roundToInt
 @Composable
 fun ActivityReminderFields(
     form: AddActivityUiState,
-    onCustomChange: (Boolean) -> Unit,
-    onMinutesChange: (Int) -> Unit,
-    onPickupChange: (Boolean) -> Unit,
-    onPickupLeadChange: (Int) -> Unit,
+    actions: ActivityReminderActions,
 ) {
     Text(stringResource(R.string.activity_reminders_title), style = MaterialTheme.typography.titleMedium)
     Row(verticalAlignment = Alignment.CenterVertically) {
-        Checkbox(form.hasCustomReminder, onCustomChange)
+        Checkbox(form.hasCustomReminder, actions.onCustomReminderChange)
         Text(stringResource(R.string.activity_custom_reminder))
     }
     if (form.hasCustomReminder) {
@@ -32,18 +29,18 @@ fun ActivityReminderFields(
                 form.reminderMinutes,
             ),
         )
-        Slider(form.reminderMinutes.toFloat(), { onMinutesChange(it.roundToInt()) }, valueRange = 0f..120f, steps = 23)
+        Slider(form.reminderMinutes.toFloat(), { actions.onReminderMinutesChange(it.roundToInt()) }, valueRange = 0f..120f, steps = 23)
     } else {
         Text(stringResource(R.string.activity_global_reminder_hint))
     }
     if (!form.isSchoolActivity) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Checkbox(form.hasPickupReminder, onPickupChange)
+            Checkbox(form.hasPickupReminder, actions.onPickupReminderChange)
             Text(stringResource(R.string.activity_pickup_reminder))
         }
         if (form.hasPickupReminder) {
             Text(stringResource(R.string.activity_minutes_before_pickup, form.pickupLeadMinutes))
-            Slider(form.pickupLeadMinutes.toFloat(), { onPickupLeadChange(it.roundToInt()) }, valueRange = 0f..60f, steps = 11)
+            Slider(form.pickupLeadMinutes.toFloat(), { actions.onPickupLeadChange(it.roundToInt()) }, valueRange = 0f..60f, steps = 11)
         }
     }
 }

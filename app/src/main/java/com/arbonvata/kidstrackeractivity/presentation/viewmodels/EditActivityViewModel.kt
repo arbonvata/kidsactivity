@@ -18,7 +18,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalTime
-import java.time.format.DateTimeFormatter
 
 data class EditActivityUiState(
     /** The loaded form; null while loading. */
@@ -141,32 +140,7 @@ class EditActivityViewModel(
         _uiState.update { it.copy(isSaving = true, saveError = false) }
         viewModelScope.launch {
             try {
-                activityRepository.updateActivity(
-                    Activity(
-                        id = original.id,
-                        calendarStartDate = form.calendarStartDate?.toString(),
-                        occurrenceExceptions =
-                            com.arbonvata.kidstrackeractivity.data
-                                .encodeExceptions(form.exceptions),
-                        kidId = original.kidId,
-                        name = form.name.trim(),
-                        location = form.location.trim(),
-                        pickupAdult = form.pickupAdult.trim(),
-                        pickupNotes = form.pickupNotes.trim(),
-                        hasCustomReminder = form.hasCustomReminder,
-                        reminderMinutes = form.reminderMinutes,
-                        hasPickupReminder = form.hasPickupReminder && !form.isSchoolActivity,
-                        pickupLeadMinutes = form.pickupLeadMinutes,
-                        startTime = form.startTime.format(AddActivityViewModel.TIME_FORMATTER),
-                        endTime = form.endTime.format(AddActivityViewModel.TIME_FORMATTER),
-                        isEnabled = original.isEnabled,
-                        daysOfWeek = form.selectedDays.sorted().toIntArray(),
-                        isPeriodic = form.isPeriodic,
-                        isSchoolActivity = form.isSchoolActivity,
-                        firstDate = form.firstDate.format(DateTimeFormatter.ISO_DATE),
-                        lastDate = form.lastDate?.format(DateTimeFormatter.ISO_DATE),
-                    ),
-                )
+                activityRepository.updateActivity(form.toActivity(original))
                 _uiState.update { it.copy(isSaved = true) }
             } catch (e: CancellationException) {
                 throw e

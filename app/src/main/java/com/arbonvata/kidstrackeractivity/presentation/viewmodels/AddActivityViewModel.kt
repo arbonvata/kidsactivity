@@ -3,7 +3,6 @@ package com.arbonvata.kidstrackeractivity.presentation.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.arbonvata.kidstrackeractivity.data.ActivityDateRange
-import com.arbonvata.kidstrackeractivity.data.objectbox.Activity
 import com.arbonvata.kidstrackeractivity.data.objectbox.Kid
 import com.arbonvata.kidstrackeractivity.data.objectbox.Parent
 import com.arbonvata.kidstrackeractivity.data.repository.ActivityRepository
@@ -174,7 +173,6 @@ class AddActivityViewModel(
 
     fun saveActivity() {
         val state = _uiState.value
-        val trimmedName = state.name.trim()
         val nameError = !isValidName(state.name)
         val daysError = state.selectedDays.isEmpty()
         val timeError = state.hasInvertedTimeRange
@@ -185,28 +183,7 @@ class AddActivityViewModel(
 
         viewModelScope.launch {
             _uiState.update { it.copy(isSaving = true) }
-            activityRepository.addActivity(
-                Activity(
-                    kidId = state.selectedKidId,
-                    name = trimmedName,
-                    location = state.location.trim(),
-                    pickupAdult = state.pickupAdult.trim(),
-                    pickupNotes = state.pickupNotes.trim(),
-                    hasCustomReminder = state.hasCustomReminder,
-                    reminderMinutes = state.reminderMinutes,
-                    hasPickupReminder = state.hasPickupReminder && !state.isSchoolActivity,
-                    pickupLeadMinutes = state.pickupLeadMinutes,
-                    startTime = state.startTime.format(TIME_FORMATTER),
-                    endTime = state.endTime.format(TIME_FORMATTER),
-                    isEnabled = true,
-                    daysOfWeek = state.selectedDays.sorted().toIntArray(),
-                    isPeriodic = state.isPeriodic,
-                    isSchoolActivity = state.isSchoolActivity,
-                    firstDate = state.firstDate.format(DateTimeFormatter.ISO_DATE),
-                    lastDate = state.lastDate?.format(DateTimeFormatter.ISO_DATE),
-                    calendarStartDate = state.calendarStartDate?.takeIf { state.isPeriodic || state.isSchoolActivity }?.toString(),
-                ),
-            )
+            activityRepository.addActivity(state.toActivity())
             _uiState.update { it.copy(isSaved = true, isSaving = false) }
         }
     }
