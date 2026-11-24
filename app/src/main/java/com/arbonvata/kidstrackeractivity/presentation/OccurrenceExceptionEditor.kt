@@ -56,7 +56,7 @@ fun OccurrenceExceptionEditor(
                         stringResource(
                             R.string.occurrence_delegated_times_on_format,
                             exception.date.format(weekdayDateFormatter),
-                            exception.start!!.format(shortTimeFormatter),
+                            exception.start.format(shortTimeFormatter),
                             exception.end!!.format(shortTimeFormatter),
                             exception.delegatedTo,
                         )

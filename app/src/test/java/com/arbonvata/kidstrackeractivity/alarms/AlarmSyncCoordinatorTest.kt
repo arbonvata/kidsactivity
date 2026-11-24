@@ -63,10 +63,11 @@ class AlarmSyncCoordinatorTest {
         runTest {
             val activityMinutes = MutableStateFlow(15)
             var reads = 0
-            every { kidRepository.getAllKidsFlow() } returns flow {
-                if (reads++ == 0) throw IOException("Settings temporarily unavailable")
-                emit(emptyList())
-            }
+            every { kidRepository.getAllKidsFlow() } returns
+                flow {
+                    if (reads++ == 0) throw IOException("Settings temporarily unavailable")
+                    emit(emptyList())
+                }
             every { activityRepository.getAllActivitiesFlow() } returns flowOf(emptyList())
             every { scheduleOverrideRepository.getAllOverridesFlow() } returns flowOf(emptyList())
             every { alarmSettingsRepository.activityAlarmMinutes } returns activityMinutes
