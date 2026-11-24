@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="calendar_title">Kalender freigeben und importieren</string>
+    <string name="calendar_hint">Wählen Sie ein Kind aus, um dessen Aktivitäten als .ics-Kalenderdatei freizugeben, oder importieren Sie eine Datei, die für Sie freigegeben wurde.</string>
+    <string name="calendar_share">Kalender freigeben</string>
+    <string name="calendar_save">Kalenderdatei speichern</string>
+    <string name="calendar_import">Kalender importieren</string>
+    <string name="calendar_preview_title">Importvorgänge für ein Kind</string>
+    <string name="calendar_preview_count">Aktivitäten in dieser Datei: %1$d</string>
+    <string name="calendar_import_hint">Wählen Sie ein vorhandenes untergeordnetes Element aus oder erstellen Sie ein neues. Aktivitäten werden hinzugefügt, ohne dass etwas entfernt wird. Exakte Duplikate werden übersprungen. Wöchentliche Ereignisse wiederholen sich; datumsgebundene Ereignisse bleiben an ihren jeweiligen Terminen. Importierte Erinnerungen verwenden die Zeiteinstellungen dieses Geräts.</string>
+    <string name="calendar_new_child">Erstelle stattdessen ein neues Kind</string>
+    <string name="calendar_child_name">Name des neuen Kindes</string>
+    <string name="calendar_error">Der Kalender konnte nicht verarbeitet werden</string>
+    <string name="calendar_complete">Kalender importiert</string>
+    <string name="calendar_import_result">%1$d Aktivitäten wurden hinzugefügt; %2$d Duplikate wurden übersprungen.</string>
+    <string name="calendar_supported">Unterstützt zeitgesteuerte Ereignisse und Wochenpläne. Ganztägige, nächtliche, monatliche und zweiwöchentliche Ereignisse werden nicht unterstützt. Für wiederkehrende Ereignisse muss die Ortszeit oder die Zeitzone dieses Geräts verwendet werden.</string>
+    <string name="calendar_share_activity">Diese Aktivität als Kalender eintragen</string>
+    <string name="calendar_share_activity_hint">Es wird nur diese gespeicherte Aktivität geteilt, einschließlich ihrer wöchentlichen Wiederholungen und Terminänderungen. Speichern Sie alle Änderungen, bevor Sie sie teilen.</string>
+</resources>

@@ -152,10 +152,11 @@
     <string name="notification_channel_name">Erinnerungen an Aktivitäten</string>
     <!-- System Notifications: Description of notification channel displayed in Android system settings -->
     <string name="notification_channel_description">Hinweise vor Beginn der Aktivitäten und nach Schulschluss</string>
-
     <!-- Reminder notifications, formatted at fire time (AlarmReceiver) -->
     <string name="notification_alarm_school_title">Schulabholung</string>
     <string name="notification_alarm_school_text_format">%1$s: %2$s endete vor %3$d Min.</string>
     <string name="notification_alarm_activity_title">Erinnerung an die Aktivität</string>
     <string name="notification_alarm_activity_text_format">%1$s: %2$s beginnt in %3$d Min.</string>
+    <string name="share_backup_file_failed_title">Fehler bei der Sicherungsdatei</string>
+    <string name="share_backup_file_failed_message">Die Sicherungsdatei konnte nicht gelesen, gespeichert oder freigegeben werden.</string>
 </resources>

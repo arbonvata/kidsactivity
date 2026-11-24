@@ -152,10 +152,11 @@
     <string name="notification_channel_name">Påmindelser om aktiviteter</string>
     <!-- System Notifications: Description of notification channel displayed in Android system settings -->
     <string name="notification_channel_description">Påmindelser inden aktiviteterne begynder og efter skoletid</string>
-
     <!-- Reminder notifications, formatted at fire time (AlarmReceiver) -->
     <string name="notification_alarm_school_title">Hentning fra skole</string>
     <string name="notification_alarm_school_text_format">%1$s: %2$s sluttede for %3$d min. siden</string>
     <string name="notification_alarm_activity_title">Påmindelse om aktivitet</string>
     <string name="notification_alarm_activity_text_format">%1$s: %2$s begynder om %3$d min.</string>
+    <string name="share_backup_file_failed_title">Fejl i sikkerhedskopifilen</string>
+    <string name="share_backup_file_failed_message">Det var ikke muligt at læse, gemme eller dele sikkerhedskopifilen.</string>
 </resources>

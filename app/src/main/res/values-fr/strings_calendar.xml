@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="calendar_title">Partager et importer des calendriers</string>
+    <string name="calendar_hint">Choisissez un enfant pour partager ses activités sous forme de fichier de calendrier .ics, ou importez un fichier qui vous a été partagé.</string>
+    <string name="calendar_share">Partager le calendrier</string>
+    <string name="calendar_save">Enregistrer le fichier de calendrier</string>
+    <string name="calendar_import">Importer le calendrier</string>
+    <string name="calendar_preview_title">Activités d\'importation pour un enfant</string>
+    <string name="calendar_preview_count">Activités contenues dans ce fichier : %1$d</string>
+    <string name="calendar_import_hint">Choisissez un enfant existant ou créez-en un nouveau. Les activités sont ajoutées sans rien supprimer. Les doublons exacts sont ignorés. Les événements hebdomadaires se répètent ; les événements datés restent à leurs dates respectives. Les rappels importés utilisent les paramètres de date et d\'heure de cet appareil.</string>
+    <string name="calendar_new_child">Créez plutôt un nouvel enfant</string>
+    <string name="calendar_child_name">Nom du nouvel enfant</string>
+    <string name="calendar_error">Impossible de traiter le calendrier</string>
+    <string name="calendar_complete">Calendrier importé</string>
+    <string name="calendar_import_result">Ajout de %1$d activités ; %2$d doublons ont été ignorés.</string>
+    <string name="calendar_supported">Prend en charge les événements programmés et les plannings hebdomadaires. Les événements d\'une journée entière, de nuit, mensuels et bimensuels ne sont pas pris en charge. Les événements récurrents doivent utiliser l\'heure locale ou le fuseau horaire de cet appareil.</string>
+    <string name="calendar_share_activity">Partager cette activité sous forme de calendrier</string>
+    <string name="calendar_share_activity_hint">Cela permet uniquement de partager cette activité enregistrée, y compris ses répétitions hebdomadaires et ses modifications de date. Enregistrez vos modifications avant de partager.</string>
+</resources>

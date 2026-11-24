@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="calendar_title">Dela och importera kalendrar</string>
+    <string name="calendar_hint">Välj ett barn för att dela deras aktiviteter som en .ics-kalenderfil, eller importera en fil som har delats med dig.</string>
+    <string name="calendar_share">Dela kalender</string>
+    <string name="calendar_save">Spara kalenderfil</string>
+    <string name="calendar_import">Importera kalender</string>
+    <string name="calendar_preview_title">Importåtgärder för ett barn</string>
+    <string name="calendar_preview_count">Aktiviteter i den här filen: %1$d</string>
+    <string name="calendar_import_hint">Välj ett befintligt underordnat objekt eller skapa ett nytt. Aktiviteter läggs till utan att något tas bort. Exakta dubbletter hoppas över. Veckohändelser upprepas kontinuerligt; händelser med specifikt datum förblir på sina respektive datum. Importerade påminnelser använder den här enhetens tidsinställningar.</string>
+    <string name="calendar_new_child">Skapa istället ett nytt underobjekt</string>
+    <string name="calendar_child_name">Nytt barns namn</string>
+    <string name="calendar_error">Kalendern kunde inte bearbetas</string>
+    <string name="calendar_complete">Kalendern har importerats</string>
+    <string name="calendar_import_result">%1$d aktiviteter har lagts till; %2$d dubbletter har hoppats över.</string>
+    <string name="calendar_supported">Stöder tidsbestämda händelser och veckoscheman. Händelser som pågår hela dagen, över natten, varje månad eller varannan vecka stöds inte. Återkommande händelser måste ange lokal tid eller enhetens tidszon.</string>
+    <string name="calendar_share_activity">Dela den här aktiviteten som kalender</string>
+    <string name="calendar_share_activity_hint">Dela endast den här sparade aktiviteten, inklusive dess veckovisa upprepningar och datumändringar. Spara eventuella ändringar innan du delar.</string>
+</resources>

@@ -153,10 +153,11 @@
     <string name="notification_channel_name">Recordatorios de actividades</string>
     <!-- System Notifications: Description of notification channel displayed in Android system settings -->
     <string name="notification_channel_description">Recordatorios antes de que empiecen las actividades y al terminar las clases</string>
-
     <!-- Reminder notifications, formatted at fire time (AlarmReceiver) -->
     <string name="notification_alarm_school_title">Recogida del colegio</string>
     <string name="notification_alarm_school_text_format">%1$s: %2$s terminó hace %3$d min</string>
     <string name="notification_alarm_activity_title">Recordatorio de actividades</string>
     <string name="notification_alarm_activity_text_format">%1$s: %2$s comienza en %3$d min</string>
+    <string name="share_backup_file_failed_title">Error en el archivo de copia de seguridad</string>
+    <string name="share_backup_file_failed_message">No se ha podido leer, guardar ni compartir el archivo de copia de seguridad.</string>
 </resources>

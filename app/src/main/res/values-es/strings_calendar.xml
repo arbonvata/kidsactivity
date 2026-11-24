@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="calendar_title">Compartir e importar calendarios</string>
+    <string name="calendar_hint">Elige a un niño para compartir sus actividades como un archivo de calendario .ics, o importa un archivo que se haya compartido contigo.</string>
+    <string name="calendar_share">Compartir calendario</string>
+    <string name="calendar_save">Guardar el archivo del calendario</string>
+    <string name="calendar_import">Importar calendario</string>
+    <string name="calendar_preview_title">Actividades de importación para un niño</string>
+    <string name="calendar_preview_count">Actividades de este archivo: %1$d</string>
+    <string name="calendar_import_hint">Elige un elemento secundario ya existente o crea uno nuevo. Las actividades se añaden sin eliminar nada. Se omiten los duplicados exactos. Los eventos semanales se repiten continuamente; los eventos con fecha concreta se mantienen en sus fechas. Los recordatorios importados utilizan la configuración de hora de este dispositivo.</string>
+    <string name="calendar_new_child">En su lugar, crea un nuevo hijo</string>
+    <string name="calendar_child_name">Nombre del nuevo hijo</string>
+    <string name="calendar_error">No se ha podido procesar el calendario</string>
+    <string name="calendar_complete">Calendario importado</string>
+    <string name="calendar_import_result">Se han añadido %1$d actividades; se han omitido %2$d duplicados.</string>
+    <string name="calendar_supported">Admite eventos programados y horarios semanales. No se admiten eventos que duren todo el día, toda la noche, mensuales ni quincenales. Los eventos recurrentes deben utilizar la hora local o la zona horaria de este dispositivo.</string>
+    <string name="calendar_share_activity">Compartir esta actividad como evento del calendario</string>
+    <string name="calendar_share_activity_hint">Solo se comparte esta actividad guardada, incluidas sus repeticiones semanales y los cambios de fecha. Guarda cualquier modificación antes de compartirla.</string>
+</resources>

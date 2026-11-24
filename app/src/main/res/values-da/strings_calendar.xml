@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="calendar_title">Del og importer kalendere</string>
+    <string name="calendar_hint">Vælg et barn, hvis aktiviteter du vil dele som en .ics-kalenderfil, eller importer en fil, der er delt med dig.</string>
+    <string name="calendar_share">Del kalender</string>
+    <string name="calendar_save">Gem kalenderfil</string>
+    <string name="calendar_import">Importer kalender</string>
+    <string name="calendar_preview_title">Importaktiviteter for et barn</string>
+    <string name="calendar_preview_count">Aktiviteter i denne fil: %1$d</string>
+    <string name="calendar_import_hint">Vælg et eksisterende underelement, eller opret et nyt. Aktiviteter tilføjes uden at slette noget. Præcise duplikater springes over. Ugentlige begivenheder gentages løbende; begivenheder med en bestemt dato forbliver på deres respektive datoer. Importerede påmindelser bruger denne enheds tidsindstillinger.</string>
+    <string name="calendar_new_child">Opret i stedet et nyt underelement</string>
+    <string name="calendar_child_name">Navn på det nye barn</string>
+    <string name="calendar_error">Kalenderen kunne ikke behandles</string>
+    <string name="calendar_complete">Kalender importeret</string>
+    <string name="calendar_import_result">Der blev tilføjet %1$d aktiviteter; %2$d dubletter blev udeladt.</string>
+    <string name="calendar_supported">Understøtter tidsbestemte begivenheder og ugentlige tidsplaner. Begivenheder, der varer hele dagen, natten over, hver måned eller hver anden uge, understøttes ikke. Tilbagevendende begivenheder skal angives i lokal tid eller i denne enheds tidszone.</string>
+    <string name="calendar_share_activity">Del denne aktivitet som kalenderbegivenhed</string>
+    <string name="calendar_share_activity_hint">Deler kun denne gemte aktivitet, herunder dens ugentlige gentagelser og datoændringer. Gem eventuelle ændringer, før du deler.</string>
+</resources>
